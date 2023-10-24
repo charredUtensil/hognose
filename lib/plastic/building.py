@@ -1,6 +1,6 @@
-from .position import Position
+from typing import Tuple
 
-SCALE =  300
+from .position import Position
 
 NORTH =    0
 EAST  =   90
@@ -20,18 +20,14 @@ class Building(object):
   TELEPORT_PAD = Type('BuildingTeleportPad_C', 'TP')
   SUPPORT_STATION = Type('BuildingSupportStation_C', 'SS')
 
-  def __init__(self, type, pos, facing):
+  def __init__(self, type: Type, pos: Tuple[int, int], facing):
     self.type = type
     self.x, self.y = pos
     self.facing = facing
 
-  def serialize(self, offset):
+  def serialize(self, offset: Tuple[int, int]):
     position = Position(
-      (
-        (self.x + 0.5) * SCALE,
-        (self.y + 0.5) * SCALE,
-        0
-      ),
+      (self.x + 0.5, self.y + 0.5, 0),
       (0, self.facing, 0)
     )
     return (

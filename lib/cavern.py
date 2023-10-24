@@ -23,10 +23,7 @@ class Cavern(object):
     self.baseplates: List[Baseplate] = []
     self.paths:      List[Path] = []
     self.conquest:   Optional[Conquest] = None
-    self._diorama = Diorama()
-
-    # Cached data, computed when it stops changing
-    self.bounds = None
+    self._diorama = Diorama(context)
 
   @property
   def spaces(self) -> List[Space]:
@@ -45,6 +42,8 @@ class Cavern(object):
     stages: Tuple[Tuple[str, Callable[[], None]]] = (
       # The steps up to and including "weave" come from this algorithm:
       # https://www.gamedeveloper.com/programming/procedural-dungeon-generation-algorithm
+
+      # I. Outlines
 
       # Generate "bubbles", which are rectangles of arbitrary sizes, and
       # place them roughly in a random pile in the center of the map.
@@ -74,8 +73,7 @@ class Cavern(object):
       # aren't part of a path.
       ('bore',         self._bore),
 
-      # With the basic layout complete, fill in the defined spaces with
-      # interesting content.
+      # II. Planners
 
       # Assign the paths and special lots to "planners", which will decide
       # what to put in the lots they are given.
@@ -193,7 +191,7 @@ class Cavern(object):
     elif width > height:
       top -= (width - height) // 2
       height = width
-    self.bounds = (left, top, width, height)
+    self.diorama.bounds = (left, top, width, height)
 
   def serialize(self):
-    return serialize(self)
+    return self.diorama.serialize()

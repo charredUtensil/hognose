@@ -82,8 +82,8 @@ class Inspector(object):
             (sx(x2), sy(y2)),
             2)
 
-    if cavern.bounds:
-      left, top, width, height = cavern.bounds
+    if cavern.diorama.bounds:
+      left, top, width, height = cavern.diorama.bounds
       pygame.draw.rect(surface, Tile.SOLID_ROCK.inspect_color, pygame.Rect(
         sx(left),
         sy(top),
@@ -128,8 +128,8 @@ class Inspector(object):
           (0, 0))
 
     if not done:
-      if cavern.bounds:
-        left, top, width, height = cavern.bounds
+      if cavern.diorama.bounds:
+        left, top, width, height = cavern.diorama.bounds
         _draw_text(
             surface,
             self.font_title,

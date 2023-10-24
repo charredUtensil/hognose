@@ -1,3 +1,5 @@
+from typing import Dict, List, Optional, Tuple, Set
+
 from collections.abc import Callable
 
 import collections
@@ -6,25 +8,40 @@ import math
 import random
 import time
 
+from .building import Building
+from .serialize import serialize
+from .tile import Tile
+
 class Diorama(object):
-  def __init__(self):
+  def __init__(self, context):
+    self.context = context
+
     self._tiles = {}
     self._crystals = collections.Counter()
     self._ore = collections.Counter()
     self._buildings = []
+    self._open_cave_flags = set()
+    self.bounds: Optional[Tuple[int, int, int, int]] = None
 
   @property
-  def tiles(self):
+  def tiles(self) -> Dict[Tuple[int, int], Tile]:
     return self._tiles
 
   @property
-  def crystals(self):
+  def crystals(self) -> Dict[Tuple[int, int], int]:
     return self._crystals
 
   @property
-  def ore(self):
+  def ore(self) -> Dict[Tuple[int, int], int]:
     return self._ore
 
   @property
-  def buildings(self):
+  def buildings(self) -> List[Building]:
     return self._buildings
+  
+  @property
+  def open_cave_flags(self) -> Set[Tuple[int, int]]:
+    return self._open_cave_flags
+
+  def serialize(self):
+    return serialize(self)
