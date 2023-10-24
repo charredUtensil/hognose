@@ -1,0 +1,21 @@
+# Changing the major version number means:
+#   No attempt has been made to have a seed generate the same cavern it did
+#   before. The layout has completely changed.
+# (Version 0 makes no promises about this, though.)
+MAJOR    = 0
+
+# Changing the minor version number means:
+#   There is some significant gameplay difference between this and a previous
+#   cavern. Perhaps there's a new planner available, or the position of a
+#   lake has changed.
+MINOR    = 0
+
+# Changing the revision number means:
+#   A generated cavern will have almost identical gameplay as before. Maybe
+#   some crystals are in slightly different places, or landslides happen more
+#   or less frequently, or there are small variations in the shape of rooms.
+#   There are three monsters now instead of four.
+REVISION = 0
+
+VERSION_INFO = (MAJOR, MINOR, REVISION)
+VERSION = '.'.join(str(v) for v in VERSION_INFO)
