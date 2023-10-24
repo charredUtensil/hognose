@@ -10,14 +10,15 @@ WEST  =  -90
 
 class Type(object):
 
-  def __init__(self, export_id):
+  def __init__(self, export_id, inspect_abbrev):
     self.export_id = export_id
+    self.inspect_abbrev = inspect_abbrev
 
 class Building(object):
 
-  TOOL_STORE = Type('BuildingToolStore_C')
-  TELEPORT_PAD = Type('BuildingTeleportPad_C')
-  SUPPORT_STATION = Type('BuildingSupportStation_C')
+  TOOL_STORE = Type('BuildingToolStore_C', 'TS')
+  TELEPORT_PAD = Type('BuildingTeleportPad_C', 'TP')
+  SUPPORT_STATION = Type('BuildingSupportStation_C', 'SS')
 
   def __init__(self, type, pos, facing):
     self.type = type

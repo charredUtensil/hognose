@@ -24,6 +24,7 @@ PATH_COLORS = {
   Path.AUXILIARY       : (0x44, 0xff, 0x00),
 }
 CRYSTAL_COLOR          = (0xB5, 0xFF, 0x00)
+BUILDING_COLOR         = (0xFF, 0xFF, 0xFF)
 
 class Inspector(object):
 
@@ -105,6 +106,26 @@ class Inspector(object):
         (sx(x + 0.5), sy(y + 0.5)),
         scale / 2 + crystals,
         1)
+
+    for building in cavern.diorama.buildings:
+      cx = building.x + 0.5
+      cy = building.y + 0.5
+      theta = math.atan2(cy, cx)
+      label_sx = 250 * math.cos(theta) + x_offset
+      label_sy = 250 * math.sin(theta) + y_offset
+      pygame.draw.line(
+          surface,
+          BUILDING_COLOR,
+          (label_sx, label_sy),
+          (sx(cx), sy(cy))
+      )
+      _draw_text(
+          surface,
+          self.font,
+          building.type.inspect_abbrev,
+          BUILDING_COLOR,
+          (label_sx, label_sy),
+          (0, 0))
 
     if not done:
       if cavern.bounds:
@@ -202,7 +223,7 @@ class Inspector(object):
     _draw_text(
         surface,
         self.font_title,
-        '%4d %s' % (len(self.frames), stage),
+        f'{len(self.frames):4d} {stage}',
         TITLE_COLOR,
         (0, 0),
         (1, 1))

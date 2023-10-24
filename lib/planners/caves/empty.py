@@ -9,7 +9,7 @@ class EmptyCavePlanner(BaseCavePlanner):
   def __init__(self, stem, conquest, gradient_factory):
     super().__init__(stem)
     self.onion = gradient_factory.create(self._context, self._id)
-    self.expected_crystals = min(0, math.floor(
+    self.expected_crystals = max(0, math.floor(
       self.rng.normal(15, 5)))
 
   @classmethod
