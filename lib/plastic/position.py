@@ -8,7 +8,7 @@ class Position(object):
 
   def serialize(self, offset):
     tx = (self.tx + offset[0]) * Position.ENTITY_SCALE
-    ty = (self.ty + offset[0]) * Position.ENTITY_SCALE
+    ty = (self.ty + offset[1]) * Position.ENTITY_SCALE
     tz = self.tz
     return (
       f'Translation: X={tx:.3f} Y={ty:.3f} Z={tz:.3f} '

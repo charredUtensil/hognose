@@ -5,6 +5,7 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
+from .position import Position
 from .tile import Tile
 from lib.version import VERSION
 
@@ -23,7 +24,7 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield 'info{'
   yield f'rowcount:{width:d}'
   yield f'colcount:{height:d}'
-  yield 'camerapos:Translation: X=2700.000 Y=2700.000 Z=0.000 Rotation: P=44.999989 Y=-89.999992 R=0.000002 Scale X=1.000 Y=1.000 Z=1.000'
+  yield f'camerapos:{_camera_origin(diorama)}'
   yield 'biome:rock'
   yield 'creator:hognose'
   yield 'spiderrate:10'
@@ -56,7 +57,7 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield 'resources: 100,0,0'
   yield '}'
   yield 'buildings{'
-  yield from (b.serialize((eox, eoy)) for b in diorama.buildings)
+  yield from (b.serialize((-left, -top)) for b in diorama.buildings)
   yield '}'
   yield 'landslidefrequency{'
   yield '}'
@@ -89,6 +90,11 @@ def _comments(diorama: 'Diorama') -> Iterable[str]:
   yield f'version:{VERSION}'
   yield str(diorama.context)
 
+def _camera_origin(diorama: 'Diorama') -> str:
+  left, top, _, _ = diorama.bounds
+  x, y = diorama.camera_origin
+  return Position((x, y, 0), (45, 90, 0)).serialize((-left, -top))
+
 def _tile_grid(
     diorama: 'Diorama',
     default: T,
@@ -103,4 +109,4 @@ def _tile_coords(
     diorama: 'Diorama',
     coords: Iterable[Tuple[int, int]]) -> str:
   left, top, _, _ = diorama.bounds
-  return ''.join(f'{x - left :d},{y - top :d}/' for x, y in coords)
+  return ''.join(f'{y - top :d},{x - left :d}/' for x, y in coords)

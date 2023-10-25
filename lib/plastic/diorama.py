@@ -21,6 +21,7 @@ class Diorama(object):
     self._ore = collections.Counter()
     self._buildings = []
     self._open_cave_flags = set()
+    self.camera_origin: Tuple[int, int] = (0, 0)
     self.bounds: Optional[Tuple[int, int, int, int]] = None
 
   @property

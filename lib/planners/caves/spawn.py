@@ -19,8 +19,9 @@ class SpawnCavePlanner(BaseCavePlanner):
     super().fine(diorama)
     diorama.tiles[self._toolstore] = Tile.FOUNDATION
     diorama.tiles[self._toolstore[0], self._toolstore[1] - 1] = Tile.FOUNDATION
-    diorama.buildings.append(Building(Building.TOOL_STORE, self._toolstore, -180))
+    diorama.buildings.append(Building(Building.TOOL_STORE, self._toolstore, 0))
     diorama.open_cave_flags.add(self._toolstore)
+    diorama.camera_origin = self._toolstore
 
   @classmethod
   def bids(cls, stem, conquest):
