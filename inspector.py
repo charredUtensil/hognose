@@ -9,22 +9,25 @@ from lib.planners import StemPlanner
 from lib.plastic import Tile
 
 TITLE_COLOR            = (0x00, 0xff, 0x22)
-
-BUBBLE_COLOR           = (0xff, 0xff, 0xff)
+BUBBLE_COLOR           = (0x10, 0x00, 0x77)
+BUBBLE_LABEL_COLOR     = (0xff, 0xff, 0xff)
 BASEPLATE_COLORS = {
   Baseplate.AMBIGUOUS  : (0x40, 0x40, 0x40),
   Baseplate.EXCLUDED   : None,
   Baseplate.SPECIAL    : (0x77, 0x00, 0x10),
   Baseplate.HALL       : (0x44, 0x00, 0x08),
 }
+BASEPLATE_LABEL_COLOR  = (0x00, 0x00, 0x00)
 PATH_COLORS = {
   Path.AMBIGUOUS       : (0x66, 0x66, 0x66),
   Path.EXCLUDED        : None,
   Path.SPANNING        : (0xff, 0xff, 0x00),
   Path.AUXILIARY       : (0x44, 0xff, 0x00),
 }
-CRYSTAL_COLOR          = (0xB5, 0xFF, 0x00)
-BUILDING_COLOR         = (0xFF, 0xFF, 0xFF)
+CRYSTAL_COLOR          = Tile.CRYSTAL_SEAM.inspect_color
+BUILDING_COLOR         = (0xFF, 0xFF, 0x00)
+
+BUILDING_LABEL_RADIUS = 10
 
 class Inspector(object):
 
@@ -53,6 +56,7 @@ class Inspector(object):
         color = space_color(space)
         if color is None:
           continue
+        label_color = space_label_color(space)
         s_left = sx(space.left)
         s_top  = sy(space.top)
         pygame.draw.rect(surface, color, pygame.Rect(
@@ -60,13 +64,44 @@ class Inspector(object):
           s_top,
           scale * space.width,
           scale * space.height))
-        _draw_text(
-          surface,
-          self.font,
-          f'{space.id:03d}',
-          (0, 0, 0),
-          (s_left, s_top),
-          (1, 1))
+        if isinstance(space, Bubble) and (
+            scale * space.width < 20 or scale * space.height < 10):
+          cx, cy = space.center
+          theta = math.atan2(cy, cx)
+          label_sx = 250 * math.cos(theta) + x_offset
+          label_sy = 250 * math.sin(theta) + y_offset
+          pygame.draw.line(
+              surface,
+              label_color,
+              (label_sx, label_sy),
+              (sx(cx), sy(cy))
+          )
+          pygame.draw.circle(
+            surface,
+            (0, 0, 0),
+            (label_sx, label_sy),
+            BUILDING_LABEL_RADIUS)
+          pygame.draw.circle(
+            surface,
+            label_color,
+            (label_sx, label_sy),
+            BUILDING_LABEL_RADIUS,
+            1)
+          _draw_text(
+              surface,
+              self.font,
+              f'{space.id:03d}',
+              label_color,
+              (label_sx, label_sy),
+              (0, 0))
+        else:
+          _draw_text(
+            surface,
+            self.font,
+            f'{space.id:03d}',
+            label_color,
+            (s_left, s_top),
+            (1, 1))
 
       for path in cavern.paths:
         color = path_color(path)
@@ -104,7 +139,7 @@ class Inspector(object):
         surface,
         CRYSTAL_COLOR,
         (sx(x + 0.5), sy(y + 0.5)),
-        scale / 2 + crystals,
+        crystals,
         1)
 
     for building in cavern.diorama.buildings:
@@ -119,6 +154,17 @@ class Inspector(object):
           (label_sx, label_sy),
           (sx(cx), sy(cy))
       )
+      pygame.draw.circle(
+        surface,
+        (0, 0, 0),
+        (label_sx, label_sy),
+        BUILDING_LABEL_RADIUS)
+      pygame.draw.circle(
+        surface,
+        BUILDING_COLOR,
+        (label_sx, label_sy),
+        BUILDING_LABEL_RADIUS,
+        1)
       _draw_text(
           surface,
           self.font,
@@ -311,6 +357,12 @@ def space_color(space):
     return BUBBLE_COLOR
   if isinstance(space, Baseplate):
     return BASEPLATE_COLORS[space.kind]
+
+def space_label_color(space):
+  if isinstance(space, Bubble):
+    return BUBBLE_LABEL_COLOR
+  if isinstance(space, Baseplate):
+    return BASEPLATE_LABEL_COLOR
 
 def path_color(path):
   return PATH_COLORS[path.kind]
