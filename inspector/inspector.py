@@ -5,7 +5,7 @@ import math
 import pygame
 import traceback
 
-from .frame import Frame, RelativeScreenCoord
+from .frame import Frame, Absolute, Relative
 from lib import Cavern
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner
@@ -16,10 +16,16 @@ BUBBLE_COLOR           = (0x08, 0x00, 0x44)
 BUBBLE_OUTLINE_COLOR   = (0x10, 0x00, 0x77)
 BUBBLE_LABEL_COLOR     = (0xff, 0xff, 0xff)
 BASEPLATE_COLORS = {
-  Baseplate.AMBIGUOUS  : (0x40, 0x40, 0x40),
+  Baseplate.AMBIGUOUS  : (0x20, 0x20, 0x20),
   Baseplate.EXCLUDED   : None,
   Baseplate.SPECIAL    : (0x77, 0x00, 0x10),
   Baseplate.HALL       : (0x44, 0x00, 0x08),
+}
+BASEPLATE_OUTLINE_COLORS = {
+  Baseplate.AMBIGUOUS  : (0x40, 0x40, 0x40),
+  Baseplate.EXCLUDED   : None,
+  Baseplate.SPECIAL    : None,
+  Baseplate.HALL       : None,
 }
 PATH_COLORS = {
   Path.AMBIGUOUS       : (0x66, 0x66, 0x66),
@@ -56,7 +62,7 @@ class Inspector(object):
           color, outline_color, label_color = space_colors(space)
           if color is None:
             continue
-          space_rect = pygame.Rect(
+          space_rect = (
               space.left,
               space.top,
               space.width,
@@ -89,10 +95,10 @@ class Inspector(object):
     if cavern.diorama.bounds:
       frame.draw_rect(
           Tile.SOLID_ROCK.inspect_color,
-          pygame.Rect(*cavern.diorama.bounds))
+          cavern.diorama.bounds)
 
     for (x, y), tile in cavern.diorama.tiles.items():
-      frame.draw_rect(tile.inspect_color, pygame.Rect(x, y, 1, 1))
+      frame.draw_rect(tile.inspect_color, (x, y, 1, 1))
 
     has_crystals = False
     for (x, y), crystals in cavern.diorama.crystals.items():
@@ -100,7 +106,7 @@ class Inspector(object):
       frame.draw_circle(
         CRYSTAL_COLOR,
         (x + 0.5, y + 0.5),
-        crystals / 3,
+        crystals / 4,
         1)
 
     for building in cavern.diorama.buildings:
@@ -109,13 +115,13 @@ class Inspector(object):
         building.type.inspect_abbrev,
         BUILDING_COLOR,
         None,
-        pygame.Rect(building.x, building.y, 1, 1),
+        (building.x, building.y, 1, 1),
         (0, 0))
 
     if not done:
       if cavern.diorama.bounds:
         left, top, width, height = cavern.diorama.bounds
-        label_rect = pygame.Rect(left, top, width, height)
+        label_rect = (left, top, width, height)
         frame.draw_label_for_rect(
             self.font_title,
             str(width),
@@ -133,23 +139,13 @@ class Inspector(object):
       
       for planner in cavern.planners:
         fg_color = (0xff, 0xff, 0xff)
-        bp_ct = len(planner.baseplates)
-        if bp_ct == 1:
-          origin = planner.baseplates[0].center
-        elif bp_ct == 2:
-          cx1, cy1 = planner.baseplates[0].center
-          cx2, cy2 = planner.baseplates[1].center
-          origin = (cx1 + cx2) / 2, (cy1 + cy2) / 2
-        elif bp_ct == 3:
-          origin = planner.baseplates[1].center
-        else:
-          pass
+        origin = planner.center
         bg_color = planner_bg_color(planner)
         if bg_color:
           frame.draw_circle(
             bg_color,
             origin,
-            10)
+            Absolute(10))
         frame.draw_text(
           self.font,
           str(planner.id),
@@ -160,21 +156,21 @@ class Inspector(object):
           frame.draw_circle(
             CRYSTAL_COLOR,
             origin,
-            planner.expected_crystals / 3,
+            planner.expected_crystals / 4,
             1)
          
     frame.draw_text(
         self.font_title,
         f'{len(self.frames):4d} {stage}',
         TITLE_COLOR,
-        (RelativeScreenCoord(0), RelativeScreenCoord(0)),
+        (Relative(0), Relative(0)),
         (1, 1))
           
     frame.draw_text(
         self.font_title,
         f'seed: {hex(cavern.context.seed)}',
         TITLE_COLOR,
-        (RelativeScreenCoord(1), RelativeScreenCoord(0)),
+        (Relative(1), Relative(0)),
         (-1, 1))
 
     crystals = (
@@ -186,8 +182,25 @@ class Inspector(object):
           self.font_title,
           '%4d EC' % crystals,
           TITLE_COLOR,
-          (RelativeScreenCoord(0), RelativeScreenCoord(1)),
+          (Relative(0), Relative(1)),
           (1, -1))
+
+    if item:
+      position = None
+      if hasattr(item, 'center'):
+        position = item.center
+      if position:
+        frame.draw_line(
+            (0xFF, 0xFF, 0xFF),
+            position,
+            (Relative(0.5), Relative(1)),
+            2)
+        frame.draw_text(
+            self.font,
+            str(item),
+            (0xFF, 0xFF, 0xFF),
+            (Relative(0.5), Relative(1)),
+            (0, -1))
 
     self.frames.append((frame, stage))
     self.draw_frame(frame)
@@ -202,13 +215,13 @@ class Inspector(object):
       self.font_title,
       f'{type(e).__name__} in {hex(cavern.context.seed)}',
       fg_color,
-      (RelativeScreenCoord(0), RelativeScreenCoord(0.25)),
+      (Relative(0), Relative(0.25)),
       (1, -1))
     frame.draw_text(
       self.font_med,
       ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
       fg_color,
-      (RelativeScreenCoord(0), RelativeScreenCoord(0.25)),
+      (Relative(0), Relative(0.25)),
       (1, 1))
     self.frames.append((frame, 'crash'))
     self.draw_frame(frame)
@@ -264,7 +277,10 @@ def space_colors(space):
   if isinstance(space, Bubble):
     return BUBBLE_COLOR, BUBBLE_OUTLINE_COLOR, BUBBLE_LABEL_COLOR
   if isinstance(space, Baseplate):
-    return BASEPLATE_COLORS[space.kind], None, None
+    return (
+        BASEPLATE_COLORS[space.kind],
+        BASEPLATE_OUTLINE_COLORS[space.kind],
+        None)
 
 def planner_bg_color(planner):
   if isinstance(planner, StemPlanner):

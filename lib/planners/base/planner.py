@@ -15,3 +15,17 @@ class Planner(ProceduralThing, abc.ABC):
   @property
   def baseplates(self) -> Tuple[Baseplate]:
     return self._baseplates
+
+  @property
+  def center(self) -> Tuple[float, float]:
+    bp_ct = len(self.baseplates)
+    if bp_ct % 2 == 1:
+      return self.baseplates[bp_ct // 2].center
+    else:
+      ci = bp_ct // 2
+      cx1, cy1 = self.baseplates[ci - 1].center
+      cx2, cy2 = self.baseplates[ci].center
+      return (cx1 + cx2) / 2, (cy1 + cy2) / 2
+
+  def __str__(self):
+    return f'{type(self).__name__} #{self.id}'

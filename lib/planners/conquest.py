@@ -88,4 +88,4 @@ class Conquest(ProceduralThing):
             and p.kind != stem.kind  # Alternate between caves and halls
             and p not in queue):
           queue.append(p)
-      yield
+      yield planner

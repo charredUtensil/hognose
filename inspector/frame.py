@@ -5,15 +5,16 @@ Color = Tuple[int, int, int]
 import math
 import pygame
 
-class AbsoluteScreenCoord(object):
+class Absolute(object):
   def __init__(self, value: int):
     self.value = value
 
-class RelativeScreenCoord(object):
+class Relative(object):
   def __init__(self, percent: float):
     self.percent = percent
 
-Coord = Union[float, AbsoluteScreenCoord, RelativeScreenCoord]
+Coord = Union[float, Absolute, Relative]
+ScaleCoord = Union[float, Absolute]
 
 class DrawContext(object):
   def __init__(self, surface, scale):
@@ -25,18 +26,23 @@ class DrawContext(object):
     self.oy = self.height / 2
   
   def sx(self, x: Coord):
-    if isinstance(x, AbsoluteScreenCoord):
+    if isinstance(x, Absolute):
       return x.value
-    if isinstance(x, RelativeScreenCoord):
+    if isinstance(x, Relative):
       return x.percent * self.width
     return self.scale * x + self.ox
 
   def sy(self, y: Coord):
-    if isinstance(y, AbsoluteScreenCoord):
+    if isinstance(y, Absolute):
       return y.value
-    if isinstance(y, RelativeScreenCoord):
+    if isinstance(y, Relative):
       return y.percent * self.height
     return self.scale * y + self.oy
+
+  def sv(self, v: ScaleCoord):
+    if isinstance(v, Absolute):
+      return v.value
+    return self.scale * v
 
 class Frame(object):
 
@@ -73,21 +79,21 @@ class Frame(object):
       self,
       color: Color,
       origin: Tuple[Coord, Coord],
-      radius: float,
+      radius: ScaleCoord,
       width: int = 0):
     def draw(dc):
       pygame.draw.circle(
         dc.surface,
         color,
         (dc.sx(origin[0]), dc.sy(origin[1])),
-        radius,
+        max(dc.sv(radius), 1),
         width)
     self._calls.append(draw)
 
   def draw_rect(
       self,
       color: Color,
-      rect: pygame.Rect,
+      rect: Union[pygame.Rect, Tuple[Coord, Coord, ScaleCoord, ScaleCoord]],
       lineWidth: int = 0):
     left, top, width, height = rect
     def draw(dc):
@@ -97,21 +103,27 @@ class Frame(object):
         pygame.Rect(
           dc.sx(left),
           dc.sy(top),
-          dc.scale * width,
-          dc.scale * height),
+          dc.sv(width),
+          dc.sv(height)),
         lineWidth)
     self._calls.append(draw)
 
-  def draw_label_for_points(
+  def draw_radial_label(
       self,
       font,
       text: str,
       fg_color: Color,
       bg_color: Color,
-      points: Iterable[Tuple[Coord, Coord]]):
-
+      position: Tuple[Coord, Coord]):
+    infos  = tuple(_text_infos(font, text, (0, 0)))
     def draw(dc):
-      pass
+      _draw_radial_label(
+        dc,
+        font,
+        fg_color,
+        bg_color,
+        position,
+        infos)
     self._calls.append(draw)
 
   def draw_label_for_rect(
@@ -120,7 +132,7 @@ class Frame(object):
       text: str,
       fg_color: Color,
       bg_color: Color,
-      rect: pygame.Rect,
+      rect: Union[pygame.Rect, Tuple[Coord, Coord, ScaleCoord, ScaleCoord]],
       gravity: Tuple[int, int]):
 
     dims = tuple(font.size(line) for line in text.splitlines())
@@ -145,13 +157,13 @@ class Frame(object):
       oy = height
 
     def draw(dc):
-      if (width * dc.scale > text_sw) and (height * dc.scale > text_sh):
+      if (dc.sv(width) > text_sw) and (dc.sv(height) > text_sh):
         # Text fits in rect; draw it inplace in rect
         _draw_text_lines(
           dc,
           font,
           fg_color,
-          (AbsoluteScreenCoord(dc.sx(left + ox)), AbsoluteScreenCoord(dc.sy(top + oy))),
+          (Absolute(dc.sx(left + ox)), Absolute(dc.sy(top + oy))),
           inplace_infos)
       else:
         # draw a radial label pointing to the position
@@ -251,5 +263,5 @@ def _draw_radial_label(
       dc,
       font,
       fg_color,
-      (AbsoluteScreenCoord(label_sx), AbsoluteScreenCoord(label_sy)),
+      (Absolute(label_sx), Absolute(label_sy)),
       infos)
