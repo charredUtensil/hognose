@@ -8,7 +8,7 @@ class SpawnCavePlanner(BaseCavePlanner):
   
   def __init__(self, stem, conquest, gradient_factory):
     super().__init__(stem)
-    self.expected_crystals = math.floor(self.rng.normal(mean=5, stddev=1))
+    self.expected_crystals = max(0, math.floor(self.rng.normal(mean=5, stddev=1)))
     self.onion = gradient_factory.create(self._context, self._id)
 
     lot = self.rng.choice(self.baseplates)
