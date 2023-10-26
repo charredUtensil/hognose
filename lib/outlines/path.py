@@ -91,16 +91,20 @@ class Path(ProceduralThing):
       last = path.origin
       seen = set((last,))
       yield last
-      while last != path.destination:
+      while True:
         for x, y in plot_line(last.center, path.destination.center):
           bp = baseplate_index.get((x, y))
+          if bp == path.destination:
+            yield bp
+            return
           if bp and bp not in seen:
             seen.add(bp)
-            last = bp
-            if last.kind == Baseplate.AMBIGUOUS:
-              last.kind = Baseplate.HALL
-            yield last
-            break
+            if bp.kind != Baseplate.SPECIAL:
+              last = bp
+              if last.kind == Baseplate.AMBIGUOUS:
+                last.kind = Baseplate.HALL
+              yield last
+              break
 
     relevant_kinds = frozenset((Path.SPANNING, Path.AUXILIARY))
     for path in paths:
