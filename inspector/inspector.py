@@ -3,8 +3,10 @@ from typing import Tuple
 import itertools
 import math
 import pygame
+import traceback
 
 from .frame import Frame, RelativeScreenCoord
+from lib import Cavern
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner
 from lib.plastic import Tile
@@ -35,13 +37,14 @@ class Inspector(object):
   def __init__(self):
     pygame.init()
     pygame.font.init()
-    self.window_surface = pygame.display.set_mode((800, 600), 0, 32)
+    self.window_surface = pygame.display.set_mode((800, 600), pygame.RESIZABLE, 32)
     self.frames: List[Tuple[Frame, str]] = []
-    self.scale = 5
+    self.scale = 6
     self.font = pygame.font.SysFont('monospace', 10, bold=True)
-    self.font_title = pygame.font.SysFont('monospace', 24, bold=True)
+    self.font_med = pygame.font.SysFont('trebuchetms', 16, bold=True)
+    self.font_title = pygame.font.SysFont('trebuchetms', 24, bold=True)
 
-  def draw(self, cavern, stage, item):
+  def log(self, cavern: Cavern, stage, item):
     done = cavern.is_done()
     pygame.display.set_caption('A new cavern has been discovered!' if done else 'Speleogenesis...')
     
@@ -73,7 +76,7 @@ class Inspector(object):
                   (-1, -1))
 
       for path in cavern.paths:
-        color = path_color(path)
+        color = PATH_COLORS[path.kind]
         if color is None:
           continue
         for a, b in itertools.pairwise(path.baseplates):
@@ -189,6 +192,27 @@ class Inspector(object):
     self.frames.append((frame, stage))
     self.draw_frame(frame)
 
+  def log_exception(self, cavern: Cavern, e: Exception):
+    fg_color = (0xFF, 0xFF, 0xFF)
+    bg_color = (0x22, 0x22, 0xDD)
+    pygame.display.set_caption('Crashed :(')
+    frame = Frame()
+    frame.fill(bg_color)
+    frame.draw_text(
+      self.font_title,
+      f'{type(e).__name__} in {hex(cavern.context.seed)}',
+      fg_color,
+      (RelativeScreenCoord(0), RelativeScreenCoord(0.25)),
+      (1, -1))
+    frame.draw_text(
+      self.font_med,
+      ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
+      fg_color,
+      (RelativeScreenCoord(0), RelativeScreenCoord(0.25)),
+      (1, 1))
+    self.frames.append((frame, 'crash'))
+    self.draw_frame(frame)
+
   def draw_frame(self, frame: Frame):
     self.window_surface.fill((0, 0, 0))
     frame.playback(self.window_surface, self.scale)
@@ -198,6 +222,8 @@ class Inspector(object):
     pygame.event.clear()
     last_index = len(self.frames) - 1
     index = last_index
+    def draw():
+      self.draw_frame(self.frames[index][0])
     try:
       while True:
         event = pygame.event.wait()
@@ -205,23 +231,32 @@ class Inspector(object):
           return
         if event.type == pygame.KEYDOWN:
           if event.key in (pygame.K_LEFT, pygame.K_a):
-            index = max(index - 1, 0)
-          if event.key in (pygame.K_RIGHT, pygame.K_d):
-            index = min(index + 1, last_index)
-          if event.key in (pygame.K_UP, pygame.K_w):
-            stage = self.frames[index][1]
-            while index > 0 and self.frames[index][1] == stage:
-              index -= 1
-              self.draw_frame(self.frames[index][0])
-          if event.key in (pygame.K_DOWN, pygame.K_s):
-            if index < last_index:
-              index += 1
-              self.draw_frame(self.frames[index][0])
-            stage = self.frames[index][1]
-            while index < last_index and self.frames[index + 1][1] == stage:
-              index += 1
-              self.draw_frame(self.frames[index][0])
-        self.draw_frame(self.frames[index][0])
+            if pygame.key.get_mods() & pygame.KMOD_SHIFT:
+              stage = self.frames[index][1]
+              while index > 0 and self.frames[index][1] == stage:
+                index -= 1
+                draw()
+            else:
+              index = max(index - 1, 0)
+              draw()
+          elif event.key in (pygame.K_RIGHT, pygame.K_d):
+            if pygame.key.get_mods() & pygame.KMOD_SHIFT:
+              if index < last_index:
+                index += 1
+                draw()
+              stage = self.frames[index][1]
+              while index < last_index and self.frames[index + 1][1] == stage:
+                index += 1
+                draw()
+            else:
+              index = min(index + 1, last_index)
+              draw()
+          elif event.key in (pygame.K_UP, pygame.K_w):
+            self.scale = min(self.scale + 1, 10)
+          elif event.key in (pygame.K_DOWN, pygame.K_s):
+            self.scale = max(self.scale - 1, 1)
+        else:
+          draw()
     except KeyboardInterrupt as e:
       pass
 
@@ -230,9 +265,6 @@ def space_colors(space):
     return BUBBLE_COLOR, BUBBLE_OUTLINE_COLOR, BUBBLE_LABEL_COLOR
   if isinstance(space, Baseplate):
     return BASEPLATE_COLORS[space.kind], None, None
-
-def path_color(path):
-  return PATH_COLORS[path.kind]
 
 def planner_bg_color(planner):
   if isinstance(planner, StemPlanner):

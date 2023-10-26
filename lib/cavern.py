@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Dict, Iterable, List, Optional, Tuple, Set
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Set
 
 import collections
 import itertools
@@ -37,13 +37,12 @@ class Cavern(object):
   def diorama(self) -> Diorama:
     return self._diorama
 
-  def generate(self):
-    """Generates the cavern. Yields between stages for inspection."""
+  def generate(self, logger):
+    """Generates the cavern."""
     stages: Tuple[Tuple[str, Callable[[], None]]] = (
-      # The steps up to and including "weave" come from this algorithm:
-      # https://www.gamedeveloper.com/programming/procedural-dungeon-generation-algorithm
-
       # I. Outlines
+      # Roughly based on this algorithm:
+      # https://www.gamedeveloper.com/programming/procedural-dungeon-generation-algorithm
 
       # Generate "bubbles", which are rectangles of arbitrary sizes, and
       # place them roughly in a random pile in the center of the map.
@@ -100,11 +99,15 @@ class Cavern(object):
       self.context.stage = stage
       r = fn()
       if r:
-        yield from ((stage, item) for item in r)
+        # THIS LINE IS IMPORTANT!
+        # Need to iterate through r even if there is no logger
+        for item in r:
+          if logger:
+            logger.log(self, stage, item)
       else:
-        yield (stage, None)
+        logger.log(self, stage, None)
     self.context.stage = 'done'
-    yield ('done', None)
+    logger.log(self, 'done', None)
 
   def is_done(self) -> bool:
     return self.context.stage == 'done'

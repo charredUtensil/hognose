@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import argparse
+import sys
+import traceback
 
 from inspector import Inspector
 from lib import Cavern
@@ -33,7 +35,8 @@ def main():
 
   args = parser.parse_args()
   if args.draw is None and args.out is None:
-    parser.error('Nothing to do. Specify -d to draw cavern or -o to output to file.')
+    parser.error(
+        'Nothing to do. Specify -d to draw cavern or -o to output to file.')
 
   inx = None
   if args.draw:
@@ -41,10 +44,18 @@ def main():
     inx = Inspector()
 
   cavern = Cavern(Context(seed=args.seed))
-  for stage, item in cavern.generate():
+  try:
+    cavern.generate(logger=inx)
+    serialized = cavern.serialize()
+  except Exception as e:
+    print(f'Exception on seed {hex(cavern.context.seed)}', file=sys.stderr)
+    print(
+        ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
+        file=sys.stderr)
     if inx:
-      inx.draw(cavern, stage, item)
-  serialized = cavern.serialize()
+      inx.log_exception(cavern, e)
+      inx.wait()
+    sys.exit(1)
   if args.out == '-':
     print(serialized)
   elif args.out:

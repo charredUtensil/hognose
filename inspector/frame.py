@@ -48,6 +48,11 @@ class Frame(object):
     for call in self._calls:
       call(dc)
 
+  def fill(self, color):
+    def draw(dc):
+      dc.surface.fill(color)
+    self._calls.append(draw)
+
   def draw_line(
       self,
       color: Color,
