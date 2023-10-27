@@ -175,7 +175,7 @@ class Cavern(object):
   def _rough(self):
     for planner in self.conquest.somatic_planners:
       planner.rough(self.diorama.tiles)
-      yield
+      yield planner
 
   def _fine(self):
     for planner in self.conquest.somatic_planners:

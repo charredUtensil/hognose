@@ -146,12 +146,12 @@ class Inspector(object):
             bg_color,
             origin,
             Absolute(10))
-        frame.draw_text(
-          self.font,
-          str(planner.id),
-          fg_color,
-          origin,
-          (0, 0))
+          frame.draw_text(
+            self.font,
+            str(planner.id),
+            fg_color,
+            origin,
+            (0, 0))
         if (not has_crystals) and (planner.expected_crystals > 0):
           frame.draw_circle(
             CRYSTAL_COLOR,
@@ -243,7 +243,9 @@ class Inspector(object):
         if event.type == pygame.QUIT:
           return
         if event.type == pygame.KEYDOWN:
-          if event.key in (pygame.K_LEFT, pygame.K_a):
+          if event.key in (pygame.K_ESCAPE, pygame.K_q):
+            return
+          elif event.key in (pygame.K_LEFT, pygame.K_a):
             if pygame.key.get_mods() & pygame.KMOD_SHIFT:
               stage = self.frames[index][1]
               while index > 0 and self.frames[index][1] == stage:
