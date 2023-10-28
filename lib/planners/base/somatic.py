@@ -5,8 +5,8 @@ import collections
 import itertools
 import math
 
+from .pearl import Oyster
 from .planner import Planner
-from lib.planners.onions import Onion
 from lib.plastic import Diorama, Tile
 from lib.utils.geometry import plot_line
 
@@ -14,7 +14,8 @@ class SomaticPlanner(Planner):
 
   def __init__(self, stem):
     super().__init__(stem.id, stem.context, stem.baseplates)
-    self.onion: Optional[Onion] = None
+    self.oyster: Optional[Oyster] = None
+    self._pearl = None
 
   @abc.abstractmethod
   def rough(self, tiles: Dict[Tuple[int, int], Tile]):
@@ -43,10 +44,14 @@ class SomaticPlanner(Planner):
       # Starting at each point in the last layer,
       for x1, y1 in last_layer:
         done = False
-        # Put the cursor at the point north of it facing east.
-        cx, cy, cvx, cvy = x1, y1 - 1, 1, 0
-        # Skip if this was already visited.
-        if (cx, cy) in visited:
+        if (x1, y1 - 1) not in visited:
+          # Put the cursor at the point north of it facing east.
+          cx, cy, cvx, cvy = x1, y1 - 1, 1, 0
+        elif (x1, y1 + 1) not in visited:
+          # Put the cursor at the point sout of it facing west.
+          cx, cy, cvx, cvy = x1, y1 + 1, -1, 0
+        else:
+          # Skip
           done = True
         # For each point the cursor visits,
         while not done:
@@ -76,7 +81,7 @@ class SomaticPlanner(Planner):
                 # Finish exploring from this point.
                 done = True
             # And the rng allows it...
-            elif self.rng.random() < 0.8:
+            elif self.rng.random() > self.context.cave_baroqueness:
               # Move to it
               cx, cy, cvx, cvy = nx, ny, vx, vy
               break

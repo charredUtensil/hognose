@@ -17,11 +17,14 @@ class BaseCavePlanner(SomaticPlanner):
           for y in range(bp.top + oy, bp.bottom - oy):
             yield x, y
     core = sorted(set(itertools.chain(self.walk_stream(), h())))
-    return self.walk_pearl(sorted(core), r + 1)
+    self._pearl = tuple(self.walk_pearl(sorted(core), r + 1))
+    return self._pearl
 
   def rough(self, tiles):
-    for (x, y), layer in self.walk():
-      tiles[x, y] = Tile.LAVA if layer > 5 else (Tile.FLOOR, Tile.FLOOR, Tile.FLOOR, Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)[layer]
+    self.walk()
+    nacre = self.oyster.create(self._pearl[-1][-1])
+    for (x, y), layer in self._pearl:
+      tiles[x, y] = nacre.layers[layer]._place
 
   def fine(self, diorama):
     t = tuple(

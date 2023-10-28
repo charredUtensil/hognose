@@ -6,11 +6,15 @@ from lib.plastic import Tile
 class BaseHallPlanner(SomaticPlanner):
 
   def walk(self):
-    return self.walk_pearl(self.walk_stream(), 3)
+    r = min(min(bp.width, bp.height) for bp in self.baseplates) // 2
+    self._pearl = tuple(self.walk_pearl(self.walk_stream(), r))
+    return self._pearl
 
   def rough(self, tiles):
-    for (x, y), layer in self.walk():
-      tiles[x, y] = (Tile.POWER_PATH, Tile.FLOOR, Tile.LOOSE_ROCK)[layer]
+    self.walk()
+    nacre = self.oyster.create(self._pearl[-1][-1])
+    for (x, y), layer in self._pearl:
+      tiles[x, y] = nacre.layers[layer]._place
 
   def fine(self, diorama):
     pass

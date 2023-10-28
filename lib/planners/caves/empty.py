@@ -1,48 +1,49 @@
 import math
 
 from .base import BaseCavePlanner
-from lib.planners.onions import OnionFactoryBuilder as gfb
+from lib.planners.base import Oyster, Layer
 from lib.plastic import Tile
 
 class EmptyCavePlanner(BaseCavePlanner):
 
-  def __init__(self, stem, conquest, gradient_factory):
+  def __init__(self, stem, conquest, oyster):
     super().__init__(stem)
-    self.onion = gradient_factory.create(self._context, self._id)
+    self.oyster = oyster
     self.expected_crystals = max(0, math.floor(
       self.rng.normal(15, 5)))
 
   @classmethod
   def bids(cls, stem, conquest):
     if stem.fluid_type == 2:
-      yield (1, lambda: cls(stem, conquest, Gradients.LAKE))
+      yield (1, lambda: cls(stem, conquest, Oysters.LAKE))
     elif stem.fluid_type == 6:
-      yield (1, lambda: cls(stem, conquest, Gradients.LAVA_LAKE))
+      yield (1, lambda: cls(stem, conquest, Oysters.LAVA_LAKE))
     else:
-      yield (1, lambda: cls(stem, conquest, Gradients.OPEN_SPACE))
-      yield (0.04, lambda: cls(stem, conquest, Gradients.FILLED))
+      yield (1, lambda: cls(stem, conquest, Oysters.OPEN_SPACE))
+      yield (0.04, lambda: cls(stem, conquest, Oysters.FILLED))
 
-class Gradients:
-  OPEN_SPACE = (gfb()
-      .w(1, 3, Tile.FLOOR)
-      .w(0, 2, Tile.LOOSE_ROCK)
-      .w(0, 2, Tile.HARD_ROCK)
-      .build()
+class Oysters:
+  OPEN_SPACE = (
+    Oyster()
+      .layer(Layer.FLOOR, grow=2)
+      .layer(Layer.LOOSE_ROCK, grow=1)
+      .layer(Layer.HARD_ROCK, grow=0.5)
   )
-  FILLED = (gfb()
-      .w(1, 5, Tile.LOOSE_ROCK)
-      .w(0, 2, Tile.HARD_ROCK)
-      .build()
+  FILLED = (
+    Oyster()
+      .layer(Layer.LOOSE_ROCK, grow=1)
+      .layer(Layer.HARD_ROCK)
   )
-  LAKE = (gfb()
-      .w(1, 3, Tile.WATER)
-      .w(0, 1, Tile.FLOOR)
-      .w(0, 2, Tile.LOOSE_ROCK)
-      .w(0, 2, Tile.HARD_ROCK)
-      .build()
+  LAKE = (
+    Oyster()
+      .layer(Layer.WATER, width=3, grow=2)
+      .layer(Layer.FLOOR, grow=1)
+      .layer(Layer.LOOSE_ROCK)
+      .layer(Layer.HARD_ROCK)
   )
-  LAVA_LAKE = (gfb()
-      .w(1, 6, Tile.LAVA)
-      .w(0, 2, Tile.HARD_ROCK)
-      .build()
+  LAVA_LAKE = (
+    Oyster()
+      .layer(Layer.LAVA, width=3, grow=1)
+      .layer(Layer.LOOSE_ROCK)
+      .layer(Layer.HARD_ROCK)
   )

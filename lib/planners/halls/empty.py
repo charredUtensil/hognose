@@ -1,43 +1,42 @@
 from .base import BaseHallPlanner
-from lib.planners.onions import OnionFactoryBuilder as gfb
+from lib.planners.base import Oyster, Layer
 from lib.plastic import Tile
 
 class EmptyHallPlanner(BaseHallPlanner):
 
-  def __init__(self, stem, conquest, gradient_factory):
+  def __init__(self, stem, conquest, oyster):
     super().__init__(stem)
-    self.onion = gradient_factory.create(self._context, self._id)
+    self.oyster = oyster
 
   @classmethod
   def bids(cls, stem, conquest):
     if stem.fluid_type == 2:
-      yield (1, lambda: cls(stem, conquest, Gradients.RIVER))
+      yield (1, lambda: cls(stem, conquest, Oysters.RIVER))
     elif stem.fluid_type == 6:
-      yield (1, lambda: cls(stem, conquest, Gradients.LAVA_RIVER))
+      yield (1, lambda: cls(stem, conquest, Oysters.LAVA_RIVER))
     else:
-      yield (1, lambda: cls(stem, conquest, Gradients.OPEN_SPACE))
-      yield (1, lambda: cls(stem, conquest, Gradients.FILLED))
+      yield (1, lambda: cls(stem, conquest, Oysters.OPEN_SPACE))
+      yield (1, lambda: cls(stem, conquest, Oysters.FILLED))
 
-
-class Gradients:
-  OPEN_SPACE = (gfb()
-      .w(1, 3, Tile.FLOOR)
-      .w(0, 2, Tile.LOOSE_ROCK)
-      .w(0, 2, Tile.HARD_ROCK)
-      .build()
+class Oysters:
+  OPEN_SPACE = (
+    Oyster()
+      .layer(Layer.FLOOR, grow=2)
+      .layer(Layer.LOOSE_ROCK, grow=1)
+      .layer(Layer.HARD_ROCK)
   )
-  FILLED = (gfb()
-      .w(1, 5, Tile.LOOSE_ROCK)
-      .w(0, 2, Tile.HARD_ROCK)
-      .build()
+  FILLED = (
+    Oyster()
+      .layer(Layer.DIRT, grow=1)
+      .layer(Layer.HARD_ROCK)
   )
-  RIVER = (gfb()
-      .w(1, 5, Tile.WATER)
-      .w(0, 2, Tile.HARD_ROCK)
-      .build()
+  RIVER = (
+    Oyster()
+      .layer(Layer.WATER, width=2, grow=1)
+      .layer(Layer.HARD_ROCK)
   )
-  LAVA_RIVER = (gfb()
-      .w(1, 5, Tile.LAVA)
-      .w(0, 2, Tile.HARD_ROCK)
-      .build()
+  LAVA_RIVER = (
+    Oyster()
+      .layer(Layer.LAVA, width=3, grow=1)
+      .layer(Layer.HARD_ROCK)
   )

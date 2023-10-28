@@ -20,6 +20,8 @@ class Context(object):
     self.lava_level            = 0.06
     self.lava_spread           = 0.30
 
+    self.cave_baroqueness      = 0.12
+
   def __str__(self):
     return f'seed:0x{self.seed:08x}'
 

@@ -10,7 +10,6 @@ from lib.outlines import Baseplate, Path
 from lib.planners.base import Planner, SomaticPlanner
 from lib.planners.caves import CAVES, SPAWNS
 from lib.planners.halls import HALLS
-from lib.planners.onions import OnionFactoryBuilder as gfb
 from lib.plastic import Tile
 
 class StemPlanner(Planner):
