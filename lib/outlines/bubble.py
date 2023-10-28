@@ -13,6 +13,7 @@ class Bubble(Space):
     self._y = y
     self._width = width
     self._height = height
+    self._moving = False
 
   def __repr__(self):
     return (
@@ -53,9 +54,14 @@ class Bubble(Space):
   def center(self):
     return self._x, self._y
 
+  @property
+  def moving(self):
+    return self._moving
+
   def nudge(self, dx: float, dy: float):
     self._x += dx
     self._y += dy
+    self._moving = True
 
   def overlap(self, other: 'Bubble'):
     x_overlap = _overlap(self._x, other._x, self._width, other._width)
@@ -84,6 +90,8 @@ class Bubble(Space):
       if abs(vx) + abs(vy) > 0.01:
         moving = True
         bubble.nudge(vx, vy)
+      else:
+        bubble._moving = False
     return moving
 
 def _overlap(x1, x2, w1, w2):

@@ -44,7 +44,7 @@ class Oyster(object):
         c = x
       return Nacre(n)
     else:
-      g = (radius - self._width) / self._grow
+      g = (radius - self._width) / self._grow if self._grow else 0
       n = []
       c = 0
       for (layer, width, _, grow) in self._layer_info:
@@ -57,4 +57,8 @@ class Oyster(object):
 class Nacre(object):
 
   def __init__(self, layers: Iterable[Layer]):
-    self.layers = tuple(layers)
+    self._layers = tuple(layers)
+  
+  def apply(self, pos, layer, tiles):
+    if layer < len(self._layers):
+      tiles[pos] = self._layers[layer]._place

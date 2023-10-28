@@ -44,5 +44,12 @@ class Diorama(object):
   def open_cave_flags(self) -> Set[Tuple[int, int]]:
     return self._open_cave_flags
 
+  @property
+  def total_crystals(self) -> int:
+    return (
+      sum(self._crystals.values())
+      + sum(4 for t in self._tiles.values() if t == Tile.CRYSTAL_SEAM)
+    )
+
   def serialize(self):
     return serialize(self)

@@ -27,5 +27,9 @@ class Planner(ProceduralThing, abc.ABC):
       cx2, cy2 = self.baseplates[ci].center
       return (cx1 + cx2) / 2, (cy1 + cy2) / 2
 
+  @property
+  def pearl_radius(self):
+    return min(min(bp.width, bp.height) for bp in self.baseplates) // 2
+
   def __str__(self):
-    return f'{type(self).__name__} #{self.id}'
+    return f'{type(self).__name__} #{self.id}: {self.expected_crystals} EC'

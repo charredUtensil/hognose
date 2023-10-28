@@ -10,11 +10,8 @@ class BaseHallPlanner(SomaticPlanner):
     self._pearl = tuple(self.walk_pearl(self.walk_stream(), r))
     return self._pearl
 
-  def rough(self, tiles):
-    self.walk()
-    nacre = self.oyster.create(self._pearl[-1][-1])
-    for (x, y), layer in self._pearl:
-      tiles[x, y] = nacre.layers[layer]._place
+  def pearl_nucleus(self):
+    return self.walk_stream()
 
   def fine(self, diorama):
     pass

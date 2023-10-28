@@ -11,30 +11,39 @@ from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner
 from lib.plastic import Tile
 
-TITLE_COLOR            = (0x00, 0xff, 0x22)
-BUBBLE_COLOR           = (0x08, 0x00, 0x44)
-BUBBLE_OUTLINE_COLOR   = (0x10, 0x00, 0x77)
-BUBBLE_LABEL_COLOR     = (0xff, 0xff, 0xff)
+TITLE_COLOR                            = (0x00, 0xff, 0x22)
+
+BUBBLE_COLOR                           = (0x08, 0x00, 0x44)
+BUBBLE_OUTLINE_COLOR                   = (0x10, 0x00, 0x77)
+BUBBLE_LABEL_COLOR_MOVING              = (0xff, 0xff, 0xff)
+BUBBLE_LABEL_COLOR_STATIONARY          = (0x77, 0x77, 0xff)
+
 BASEPLATE_COLORS = {
-  Baseplate.AMBIGUOUS  : (0x20, 0x20, 0x20),
-  Baseplate.EXCLUDED   : None,
-  Baseplate.SPECIAL    : (0x77, 0x00, 0x10),
-  Baseplate.HALL       : (0x44, 0x00, 0x08),
+  Baseplate.AMBIGUOUS                  : (0x20, 0x20, 0x20),
+  Baseplate.EXCLUDED                   : None,
+  Baseplate.SPECIAL                    : (0x77, 0x00, 0x10),
+  Baseplate.HALL                       : (0x44, 0x00, 0x08),
 }
 BASEPLATE_OUTLINE_COLORS = {
-  Baseplate.AMBIGUOUS  : (0x40, 0x40, 0x40),
-  Baseplate.EXCLUDED   : None,
-  Baseplate.SPECIAL    : None,
-  Baseplate.HALL       : None,
+  Baseplate.AMBIGUOUS                  : (0x40, 0x40, 0x40),
+  Baseplate.EXCLUDED                   : None,
+  Baseplate.SPECIAL                    : None,
+  Baseplate.HALL                       : None,
 }
 PATH_COLORS = {
-  Path.AMBIGUOUS       : (0x66, 0x66, 0x66),
-  Path.EXCLUDED        : None,
-  Path.SPANNING        : (0xff, 0xff, 0x00),
-  Path.AUXILIARY       : (0x44, 0xff, 0x00),
+  Path.AMBIGUOUS                       : (0x66, 0x66, 0x66),
+  Path.EXCLUDED                        : None,
+  Path.SPANNING                        : (0xff, 0xff, 0x00),
+  Path.AUXILIARY                       : (0x44, 0xff, 0x00),
 }
-CRYSTAL_COLOR          = Tile.CRYSTAL_SEAM.inspect_color
-BUILDING_COLOR         = (0xFF, 0xFF, 0x00)
+PEARL_LAYER_COLORS = [
+                                         (0xff, 0x00, 0xff),
+                                         (0xff, 0xff, 0xff),
+                                         (0xff, 0xff, 0x00),
+                                         (0x00, 0xff, 0xff),
+]
+CRYSTAL_COLOR = Tile.CRYSTAL_SEAM.inspect_color
+BUILDING_COLOR                          = (0xff, 0xff, 0x00)
 
 BUILDING_LABEL_RADIUS = 10
 
@@ -100,14 +109,21 @@ class Inspector(object):
     for (x, y), tile in cavern.diorama.tiles.items():
       frame.draw_rect(tile.inspect_color, (x, y, 1, 1))
 
-    has_crystals = False
     for (x, y), crystals in cavern.diorama.crystals.items():
-      has_crystals = True
-      frame.draw_circle(
-        CRYSTAL_COLOR,
-        (x + 0.5, y + 0.5),
-        crystals / 4,
-        1)
+      if crystals < 5:
+        frame.draw_circle(
+          CRYSTAL_COLOR,
+          (x + 0.5, y + 0.5),
+          crystals / 4,
+          1)
+      else:
+        frame.draw_label_for_rect(
+          self.font,
+          f'{crystals:d}',
+          CRYSTAL_COLOR,
+          (0,0,0),
+          (x, y, 1, 1),
+          (0, 0))
 
     for building in cavern.diorama.buildings:
       frame.draw_label_for_rect(
@@ -148,16 +164,10 @@ class Inspector(object):
             Absolute(10))
           frame.draw_text(
             self.font,
-            str(planner.id),
+            f'{planner.id:d}',
             fg_color,
             origin,
             (0, 0))
-        if (not has_crystals) and (planner.expected_crystals > 0):
-          frame.draw_circle(
-            CRYSTAL_COLOR,
-            origin,
-            planner.expected_crystals / 4,
-            1)
          
     frame.draw_text(
         self.font_title,
@@ -174,7 +184,7 @@ class Inspector(object):
         (-1, 1))
 
     crystals = (
-      sum(cavern.diorama.crystals.values()) or
+      cavern.diorama.total_crystals or
       sum(p.expected_crystals for p in cavern.planners)
     )
     if crystals > 0:
@@ -187,20 +197,20 @@ class Inspector(object):
 
     if item:
       position = None
-      if hasattr(item, 'center'):
-        position = item.center
-      if position:
-        frame.draw_line(
-            (0xFF, 0xFF, 0xFF),
-            position,
-            (Relative(0.5), Relative(1)),
-            2)
-        frame.draw_text(
-            self.font,
-            str(item),
-            (0xFF, 0xFF, 0xFF),
-            (Relative(0.5), Relative(1)),
-            (0, -1))
+      frame.draw_text(
+          self.font_med,
+          str(item),
+          (0xFF, 0xFF, 0xFF),
+          (Relative(0.5), Relative(1)),
+          (0, -1))
+      if hasattr(item, '_pearl') and item._pearl:
+        for ((x1, y1), l1), ((x2, y2), l2) in itertools.pairwise(item._pearl):
+          if l1 > 0 and l1 == l2 and (x1 in range(x2-1,x2+2)) and (y1 in range(y2-1,y2+2)):
+            frame.draw_line(
+              PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
+              (x1 + 0.5, y1 + 0.5),
+              (x2 + 0.5, y2 + 0.5),
+              2)
 
     self.frames.append((frame, stage))
     self.draw_frame(frame)
@@ -277,7 +287,11 @@ class Inspector(object):
 
 def space_colors(space):
   if isinstance(space, Bubble):
-    return BUBBLE_COLOR, BUBBLE_OUTLINE_COLOR, BUBBLE_LABEL_COLOR
+    label_color = (
+      BUBBLE_LABEL_COLOR_MOVING
+      if space.moving
+      else BUBBLE_LABEL_COLOR_STATIONARY)
+    return BUBBLE_COLOR, BUBBLE_OUTLINE_COLOR, label_color
   if isinstance(space, Baseplate):
     return (
         BASEPLATE_COLORS[space.kind],

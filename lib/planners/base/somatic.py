@@ -18,8 +18,15 @@ class SomaticPlanner(Planner):
     self._pearl = None
 
   @abc.abstractmethod
-  def rough(self, tiles: Dict[Tuple[int, int], Tile]):
+  def pearl_nucleus(self) -> Iterable[Tuple[int, int]]:
     pass
+
+  def rough(self, tiles: Dict[Tuple[int, int], Tile]):
+    self._pearl = tuple(self.walk_pearl(
+        self.pearl_nucleus(), self.pearl_radius))
+    nacre = self.oyster.create(self._pearl[-1][-1])
+    for (x, y), layer in self._pearl:
+      nacre.apply((x, y), layer, tiles)
 
   @abc.abstractmethod
   def fine(self, diorama: Diorama):
@@ -35,8 +42,8 @@ class SomaticPlanner(Planner):
         if x1 != x2 and y1 != y2:
           yield x1, y2
 
-  def walk_pearl(self, grains: Iterable[Tuple[int, int]], max_layers=10):
-    last_layer = list(grains)
+  def walk_pearl(self, nucleus: Iterable[Tuple[int, int]], max_layers: int):
+    last_layer = list(nucleus)
     yield from (((x, y), 0) for (x, y) in last_layer)
     visited = {(x, y): (0, i) for i, (x, y) in enumerate(last_layer)}
     for layer_num in range(1, max_layers):

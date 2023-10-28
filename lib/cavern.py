@@ -8,6 +8,7 @@ import random
 import time
 import typing
 
+from lib.base import NotHaltingError
 from lib.outlines import Path, Space, Bubble, Baseplate
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
 from lib.plastic import Diorama, serialize, Tile
@@ -120,11 +121,13 @@ class Cavern(object):
 
   def _separate(self):
     """Push bubbles apart until they don't overlap."""
-    counter = itertools.count()
-    while Bubble.nudge_overlapping(self.bubbles):
-      if next(counter) > 1000:
-        raise 'probably not going to halt'
+    for i in range(300):
+      moving = Bubble.nudge_overlapping(self.bubbles)
       yield
+      if not moving:
+        break
+    else:
+      raise NotHaltingError(f'Separation failed to halt after 300 iterations')
   
   def _rasterize(self):
     """Round bubbles to the nearest grid coordinate to make baseplates."""
