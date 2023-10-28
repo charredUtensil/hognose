@@ -24,3 +24,4 @@ def plot_line(a, b) -> Iterable[Tuple[int, int]]:
           break
         error = error + dx
         y0 = y0 + sy
+  yield (x1, y1)
