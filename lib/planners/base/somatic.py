@@ -1,5 +1,4 @@
-from typing import Dict, Iterable, Optional, Tuple
-
+from typing import Dict, Iterable, NamedTuple, Optional, Tuple
 import abc
 import collections
 import itertools
@@ -10,6 +9,8 @@ from .planner import Planner
 from lib.plastic import Diorama, Tile
 from lib.utils.geometry import plot_line
 
+PearlInfo = NamedTuple('PearlRow', pos=Tuple[int, int], layer=int, sequence=int)
+
 class SomaticPlanner(Planner):
 
   def __init__(self, stem, oyster: Oyster):
@@ -18,11 +19,11 @@ class SomaticPlanner(Planner):
     self._pearl = None
 
   @property
-  def oyster(self):
+  def oyster(self) -> Oyster:
     return self._oyster
 
   @property
-  def pearl(self):
+  def pearl(self) -> Optional[Tuple[PearlInfo]]:
     return self._pearl
 
   @abc.abstractmethod
@@ -32,9 +33,9 @@ class SomaticPlanner(Planner):
   def rough(self, tiles: Dict[Tuple[int, int], Tile]):
     self._pearl = tuple(self.walk_pearl(
         self.pearl_nucleus(), self.pearl_radius))
-    nacre = self.oyster.create(self._pearl[-1][-1])
-    for (x, y), layer in self._pearl:
-      nacre.apply((x, y), layer, tiles)
+    nacre = self.oyster.create(self._pearl[-1].layer)
+    for (x, y), layer, sequence in self._pearl:
+      nacre.apply(tiles, (x, y), layer, sequence)
 
   @abc.abstractmethod
   def fine(self, diorama: Diorama):
@@ -50,9 +51,13 @@ class SomaticPlanner(Planner):
         if x1 != x2 and y1 != y2:
           yield x1, y2
 
-  def walk_pearl(self, nucleus: Iterable[Tuple[int, int]], max_layers: int):
+  def walk_pearl(
+      self,
+      nucleus: Iterable[Tuple[int, int]],
+      max_layers: int) -> Iterable[PearlInfo]:
     last_layer = list(nucleus)
-    yield from (((x, y), 0) for (x, y) in last_layer)
+    for i, (x, y) in enumerate(last_layer):
+      yield PearlInfo(pos=(x, y), layer=0, sequence=i)
     visited = {(x, y): (0, i) for i, (x, y) in enumerate(last_layer)}
     for layer_num in range(1, max_layers):
       this_layer = []
@@ -71,9 +76,10 @@ class SomaticPlanner(Planner):
         # For each point the cursor visits,
         while not done:
           # Yield the cursor point.
+          yield PearlInfo(
+              pos=(cx, cy), layer=layer_num, sequence=len(this_layer))
           visited[cx, cy] = (layer_num, len(this_layer))
           this_layer.append((cx, cy))
-          yield (cx, cy), layer_num
           # As it turns right, (vx, vy) as it turns right cycles between:
           # (1, 0) -> (0, 1) -> (-1, 0) -> (0, -1) -> ...
           # Try each of these possible movements:

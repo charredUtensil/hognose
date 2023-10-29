@@ -14,12 +14,12 @@ class SpawnCavePlanner(BaseCavePlanner):
 
   def fine(self, diorama):
     super().fine(diorama)
-    for (x1, y1), (x2, y2) in itertools.pairwise(self.pearl):
+    for ((x1, y1), _, _), ((x2, y2), _, _) in itertools.pairwise(self.pearl):
       if diorama.tiles.get((x2, y2)) == Tile.FLOOR and adjacent((x1, y1), (x2, y2)):
         self._place_toolstore(diorama, (x2, y2), (x1, y1))
         break
     else:
-      x, y = self.pearl[0][0]
+      x, y = self.pearl[0].pos
       self._place_toolstore(diorama, (x, y), (x, y + 1))
 
   def _place_toolstore(self, diorama, a, b):

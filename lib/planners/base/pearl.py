@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, Tuple
 
 import itertools
 import math
@@ -26,6 +26,7 @@ class Layer(object):
       Tile.LAVA: lava,
     }
 
+Layer.VOID = Layer()
 Layer.FLOOR = Layer(
     dirt       = Tile.FLOOR,
     loose_rock = Tile.FLOOR,
@@ -125,7 +126,12 @@ class Nacre(object):
   def __init__(self, layers: Iterable[Layer]):
     self._layers = tuple(layers)
   
-  def apply(self, pos, layer, tiles):
+  def apply(
+      self,
+      tiles: Dict[Tuple[int, int], Tile],
+      pos: Tuple[int, int],
+      layer: int,
+      sequence: int):
     if layer < len(self._layers):
       replace = tiles.get(pos, Tile.SOLID_ROCK)
       place = self._layers[layer]._data[replace]

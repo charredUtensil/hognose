@@ -13,7 +13,7 @@ class TreasureCavePlanner(BaseCavePlanner):
       conquest.expected_crystals * self.rng.normal(0.4, 0.1))
 
   def fine(self, canvas):
-    places = tuple(pos for pos, layer in self.pearl if layer == 0)
+    places = tuple(pos for pos, layer, _ in self.pearl if layer == 0)
     for x, y in itertools.islice(itertools.cycle(places), self.expected_crystals):
       canvas.crystals[x, y] += 1
 

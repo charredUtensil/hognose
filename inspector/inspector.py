@@ -219,7 +219,7 @@ class Inspector(Logger):
           (Relative(0.5), Relative(1)),
           (0, -1))
       if hasattr(item, '_pearl') and item._pearl:
-        for ((x1, y1), l1), ((x2, y2), l2) in itertools.pairwise(item._pearl):
+        for ((x1, y1), l1, _), ((x2, y2), l2, _) in itertools.pairwise(item._pearl):
           if l1 > 0 and l1 == l2 and (x1 in range(x2-1,x2+2)) and (y1 in range(y2-1,y2+2)):
             frame.draw_line(
               PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],

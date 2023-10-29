@@ -21,7 +21,7 @@ class BaseCavePlanner(SomaticPlanner):
   def fine(self, diorama):
     t = tuple(
       (x, y)
-      for (x, y), layer
+      for (x, y), layer, sequence
       in self.pearl
       if diorama.tiles.get((x, y)) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
@@ -35,4 +35,4 @@ class BaseCavePlanner(SomaticPlanner):
           diorama.crystals[x, y] = existing + 1
     else:
       self.context.logger.log_warning(f'Nowhere to put crystals in {self.id}')
-      diorama.crystals[self.pearl[0][0]] += self.expected_crystals
+      diorama.crystals[self.pearl[0].pos] += self.expected_crystals
