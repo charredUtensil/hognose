@@ -5,8 +5,7 @@ from lib.plastic import Tile
 class EmptyHallPlanner(BaseHallPlanner):
 
   def __init__(self, stem, conquest, oyster):
-    super().__init__(stem)
-    self.oyster = oyster
+    super().__init__(stem, oyster)
 
   @classmethod
   def bids(cls, stem, conquest):
@@ -20,23 +19,23 @@ class EmptyHallPlanner(BaseHallPlanner):
 
 class Oysters:
   OPEN_SPACE = (
-    Oyster()
-      .layer(Layer.FLOOR, grow=2)
+    Oyster('Open')
+      .layer(Layer.OPEN, grow=2)
       .layer(Layer.LOOSE_ROCK, grow=1)
       .layer(Layer.HARD_ROCK)
   )
   FILLED = (
-    Oyster()
+    Oyster('Filled')
       .layer(Layer.DIRT, grow=1)
       .layer(Layer.HARD_ROCK)
   )
   RIVER = (
-    Oyster()
+    Oyster('River')
       .layer(Layer.WATER, width=2, grow=1)
       .layer(Layer.HARD_ROCK)
   )
   LAVA_RIVER = (
-    Oyster()
+    Oyster('Lava River')
       .layer(Layer.LAVA, width=3, grow=1)
       .layer(Layer.HARD_ROCK)
   )

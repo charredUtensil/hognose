@@ -2,12 +2,6 @@ from typing import Tuple
 
 from .position import Position
 
-NORTH =    0
-EAST  =   90
-SOUTH = -180
-WEST  =  -90
-
-
 class Type(object):
 
   def __init__(self, export_id, inspect_abbrev):

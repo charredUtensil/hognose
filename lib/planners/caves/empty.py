@@ -7,8 +7,7 @@ from lib.plastic import Tile
 class EmptyCavePlanner(BaseCavePlanner):
 
   def __init__(self, stem, conquest, oyster):
-    super().__init__(stem)
-    self.oyster = oyster
+    super().__init__(stem, oyster)
     self.expected_crystals = max(0, math.floor(
       self.rng.normal(15, 5)))
 
@@ -24,26 +23,27 @@ class EmptyCavePlanner(BaseCavePlanner):
 
 class Oysters:
   OPEN_SPACE = (
-    Oyster()
-      .layer(Layer.FLOOR, grow=2)
+    Oyster('Open')
+      .layer(Layer.OPEN, grow=2)
       .layer(Layer.LOOSE_ROCK, grow=1)
       .layer(Layer.HARD_ROCK, grow=0.5)
   )
   FILLED = (
-    Oyster()
+    Oyster('Filled')
       .layer(Layer.LOOSE_ROCK, grow=1)
       .layer(Layer.HARD_ROCK)
   )
   LAKE = (
-    Oyster()
-      .layer(Layer.WATER, width=3, grow=2)
-      .layer(Layer.FLOOR, grow=1)
+    Oyster('Lake')
+      .layer(Layer.WATER, grow=2)
+      .layer(Layer.OPEN, shrink=1, grow=1)
       .layer(Layer.LOOSE_ROCK)
       .layer(Layer.HARD_ROCK)
   )
   LAVA_LAKE = (
-    Oyster()
-      .layer(Layer.LAVA, width=3, grow=1)
-      .layer(Layer.LOOSE_ROCK)
+    Oyster('Lava Lake')
+      .layer(Layer.LAVA, grow=2)
+      .layer(Layer.OPEN, grow=1)
+      .layer(Layer.LOOSE_ROCK, shrink=1)
       .layer(Layer.HARD_ROCK)
   )

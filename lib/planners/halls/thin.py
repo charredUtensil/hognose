@@ -5,13 +5,12 @@ from lib.plastic import Tile
 class ThinHallPlanner(BaseHallPlanner):
 
   def __init__(self, stem, conquest, oyster):
-    super().__init__(stem)
-    self.oyster = oyster
+    super().__init__(stem, oyster)
 
   @classmethod
   def bids(cls, stem, conquest):
     if stem.fluid_type is None:
-      yield   (0.1, lambda: cls(stem, conquest, Oysters.FLOOR))
+      yield   (0.1, lambda: cls(stem, conquest, Oysters.OPEN))
       yield   (0.2, lambda: cls(stem, conquest, Oysters.FILLED))
       if conquest.expected_crystals > (0 +
           + 2     # Power Station
@@ -22,6 +21,6 @@ class ThinHallPlanner(BaseHallPlanner):
         yield (0.4, lambda: cls(stem, conquest, Oysters.HARD_ROCK))
 
 class Oysters:
-  FLOOR = Oyster().layer(Layer.FLOOR)
-  FILLED = Oyster().layer(Layer.LOOSE_ROCK)
-  HARD_ROCK = Oyster().layer(Layer.HARD_ROCK)
+  OPEN = Oyster('Open').layer(Layer.OPEN)
+  FILLED = Oyster('Filled').layer(Layer.LOOSE_ROCK)
+  HARD_ROCK = Oyster('Hard Rock').layer(Layer.HARD_ROCK)

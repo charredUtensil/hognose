@@ -12,10 +12,18 @@ from lib.utils.geometry import plot_line
 
 class SomaticPlanner(Planner):
 
-  def __init__(self, stem):
+  def __init__(self, stem, oyster: Oyster):
     super().__init__(stem.id, stem.context, stem.baseplates)
-    self.oyster: Optional[Oyster] = None
+    self._oyster = oyster
     self._pearl = None
+
+  @property
+  def oyster(self):
+    return self._oyster
+
+  @property
+  def pearl(self):
+    return self._pearl
 
   @abc.abstractmethod
   def pearl_nucleus(self) -> Iterable[Tuple[int, int]]:
@@ -55,7 +63,7 @@ class SomaticPlanner(Planner):
           # Put the cursor at the point north of it facing east.
           cx, cy, cvx, cvy = x1, y1 - 1, 1, 0
         elif (x1, y1 + 1) not in visited:
-          # Put the cursor at the point sout of it facing west.
+          # Put the cursor at the point south of it facing west.
           cx, cy, cvx, cvy = x1, y1 + 1, -1, 0
         else:
           # Skip

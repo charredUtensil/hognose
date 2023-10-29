@@ -38,7 +38,7 @@ class Cavern(object):
   def diorama(self) -> Diorama:
     return self._diorama
 
-  def generate(self, logger):
+  def generate(self):
     """Generates the cavern."""
     stages: Tuple[Tuple[str, Callable[[], None]]] = (
       # I. Outlines
@@ -103,12 +103,11 @@ class Cavern(object):
         # THIS LINE IS IMPORTANT!
         # Need to iterate through r even if there is no logger
         for item in r:
-          if logger:
-            logger.log(self, stage, item)
+          self.context.logger.log(self, stage, item)
       else:
-        logger.log(self, stage, None)
+        self.context.logger.log(self, stage, None)
     self.context.stage = 'done'
-    logger.log(self, 'done', None)
+    self.context.logger.log(self, 'done', None)
 
   def is_done(self) -> bool:
     return self.context.stage == 'done'

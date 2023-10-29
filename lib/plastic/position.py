@@ -1,6 +1,11 @@
 class Position(object):
   ENTITY_SCALE = 300
 
+  FACING_NORTH =    0
+  FACING_EAST  =   90
+  FACING_SOUTH = -180
+  FACING_WEST  =  -90
+
   def __init__(self, translation, rotation, scale=(1, 1, 1)):
     self.tx, self.ty, self.tz = translation
     self.rp, self.ry, self.rr = rotation

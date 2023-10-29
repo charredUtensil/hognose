@@ -1,9 +1,17 @@
+from typing import Optional
+
+from .logger import Logger
 from .seeder import Seeder
 from .thing_random import ThingRandom
 
 class Context(object):
 
-  def __init__(self, seed: str):
+  def __init__(
+      self,
+      seed: str,
+      logger: Optional[Logger]=None
+      ):
+    self.logger = logger or Logger.VOID
     self.seed = Seeder.coerce_seed(seed)
     self._seeder = Seeder(self.seed)
     self.stage = 'init'

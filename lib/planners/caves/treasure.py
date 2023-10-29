@@ -1,3 +1,4 @@
+import itertools
 import math
 
 from .base import BaseCavePlanner
@@ -7,17 +8,13 @@ from lib.plastic import Tile
 class TreasureCavePlanner(BaseCavePlanner):
 
   def __init__(self, stem, conquest, oyster):
-    super().__init__(stem)
-    self.oyster = oyster
+    super().__init__(stem, oyster)
     self.expected_crystals = math.floor(
       conquest.expected_crystals * self.rng.normal(0.4, 0.1))
 
   def fine(self, canvas):
-    cx, cy = self.rng.choice(self.baseplates).center
-    for _ in range(self.expected_crystals):
-      x, y = self.rng.point_in_circle(2, (cx, cy))
-      x = math.floor(x)
-      y = math.floor(y)
+    places = tuple(pos for pos, layer in self.pearl if layer == 0)
+    for x, y in itertools.islice(itertools.cycle(places), self.expected_crystals):
       canvas.crystals[x, y] += 1
 
   @classmethod
@@ -27,8 +24,8 @@ class TreasureCavePlanner(BaseCavePlanner):
 
 class Oysters:
   DEFAULT = (
-    Oyster()
-      .layer(Layer.FLOOR, width=2, grow=2)
-      .layer(Layer.LOOSE_ROCK, grow=1)
-      .layer(Layer.HARD_ROCK)
+    Oyster('Default')
+      .layer(Layer.FLOOR, width=2, grow=3)
+      .layer(Layer.LOOSE_ROCK, shrink=1)
+      .layer(Layer.HARD_ROCK, grow=0.5)
   )

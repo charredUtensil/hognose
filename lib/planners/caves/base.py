@@ -28,5 +28,5 @@ class BaseCavePlanner(SomaticPlanner):
       for _ in range(self.expected_crystals):
         diorama.crystals[self.rng.choice(t)] += 1
     else:
-      print(f'nowhere to put crystals in {self.id}!')
+      self.context.logger.log_warning(f'Nowhere to put crystals in {self.id}')
       diorama.crystals[tuple(math.floor(v) for v in self.baseplates[0].center)] += self.expected_crystals

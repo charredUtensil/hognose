@@ -43,9 +43,12 @@ def main():
     from inspector import Inspector
     inx = Inspector()
 
-  cavern = Cavern(Context(seed=args.seed))
+  context = Context(
+    seed = args.seed,
+    logger = inx)
+  cavern = Cavern(context)
   try:
-    cavern.generate(logger=inx)
+    cavern.generate()
     serialized = cavern.serialize()
   except Exception as e:
     print(f'Exception on seed {hex(cavern.context.seed)}', file=sys.stderr)

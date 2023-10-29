@@ -7,11 +7,16 @@ import traceback
 
 from .frame import Frame, Absolute, Relative
 from lib import Cavern
+from lib.base import Logger
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner
 from lib.plastic import Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
+WARNING_COLOR                          = (0xff, 0xff, 0x00)
+
+BSOD_FG_COLOR                          = (0xff, 0xff, 0xff)
+BSOD_BG_COLOR                          = (0x22, 0x22, 0xDD)
 
 BUBBLE_COLOR                           = (0x08, 0x00, 0x44)
 BUBBLE_OUTLINE_COLOR                   = (0x10, 0x00, 0x77)
@@ -47,7 +52,7 @@ BUILDING_COLOR                          = (0xff, 0xff, 0x00)
 
 BUILDING_LABEL_RADIUS = 10
 
-class Inspector(object):
+class Inspector(Logger):
 
   def __init__(self):
     pygame.init()
@@ -58,6 +63,7 @@ class Inspector(object):
     self.font = pygame.font.SysFont('monospace', 10, bold=True)
     self.font_med = pygame.font.SysFont('trebuchetms', 16, bold=True)
     self.font_title = pygame.font.SysFont('trebuchetms', 24, bold=True)
+    self.warnings = []
 
   def log(self, cavern: Cavern, stage, item):
     done = cavern.is_done()
@@ -212,25 +218,35 @@ class Inspector(object):
               (x2 + 0.5, y2 + 0.5),
               2)
 
+    if self.warnings:
+      frame.draw_text(
+        self.font_med,
+        '\n'.join(self.warnings),
+        WARNING_COLOR,
+        (Relative(1), Relative(1)),
+        (-1, -1))
+      self.warnings.clear()
+
     self.frames.append((frame, stage))
     self.draw_frame(frame)
 
+  def log_warning(self, message: str):
+    self.warnings.append(message)
+
   def log_exception(self, cavern: Cavern, e: Exception):
-    fg_color = (0xFF, 0xFF, 0xFF)
-    bg_color = (0x22, 0x22, 0xDD)
     pygame.display.set_caption('Crashed :(')
     frame = Frame()
-    frame.fill(bg_color)
+    frame.fill(BSOD_BG_COLOR)
     frame.draw_text(
       self.font_title,
       f'{type(e).__name__} in {hex(cavern.context.seed)}',
-      fg_color,
+      BSOD_FG_COLOR,
       (Relative(0), Relative(0.25)),
       (1, -1))
     frame.draw_text(
       self.font_med,
       ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
-      fg_color,
+      BSOD_FG_COLOR,
       (Relative(0), Relative(0.25)),
       (1, 1))
     self.frames.append((frame, 'crash'))

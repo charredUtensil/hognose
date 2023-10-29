@@ -1,5 +1,12 @@
 from typing import Iterable, Tuple
 
+def adjacent(a: Tuple[int, int], b: Tuple[int, int]) -> bool:
+  xa, ya = a
+  xb, yb = b
+  return (
+    (xa == xb and ya in range(yb - 1, yb + 2)) or
+    (ya == yb and xa in range(xb - 1, xb + 2)))
+
 def plot_line(a, b) -> Iterable[Tuple[int, int]]:
   x0, y0 = round(a[0]), round(a[1])
   x1, y1 = round(b[0]), round(b[1])
