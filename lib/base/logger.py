@@ -4,6 +4,7 @@ if TYPE_CHECKING:
   from .cavern import Cavern
 
 import abc
+import sys
 
 class Logger(abc.ABC):
 
@@ -11,10 +12,11 @@ class Logger(abc.ABC):
   def log(self, cavern: 'Cavern', stage: str, item: Any):
     pass
 
-  @abc.abstractmethod
   def log_warning(self, message: str):
-    pass
+    print(f'warning: {message}', file=sys.stderr)
 
-  @abc.abstractmethod
   def log_exception(self, cavern: 'Cavern', e: Exception):
-    pass
+    print(f'error: Exception on seed {hex(cavern.context.seed)}', file=sys.stderr)
+    print(
+        ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
+        file=sys.stderr)

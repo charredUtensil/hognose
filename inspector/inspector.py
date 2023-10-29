@@ -231,9 +231,11 @@ class Inspector(Logger):
     self.draw_frame(frame)
 
   def log_warning(self, message: str):
+    super().log_warning(message)
     self.warnings.append(message)
 
   def log_exception(self, cavern: Cavern, e: Exception):
+    super().log_exception(cavern, e)
     pygame.display.set_caption('Crashed :(')
     frame = Frame()
     frame.fill(BSOD_BG_COLOR)

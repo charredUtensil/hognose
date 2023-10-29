@@ -84,26 +84,41 @@ class Oyster(object):
     return self
 
   def create(self, radius: int):
-    if radius <= self._width:
-      s = (radius - self._width) / self._shrink if self._shrink else 0
-      n = []
-      c = 0
-      for (layer, width, shrink, _) in self._layer_info:
-        x = max(c, c + width - shrink * s)
-        for _ in range(round(c), round(x)):
-          n.append(layer)
-        c = x
-      return Nacre(n)
-    else:
-      g = (radius - self._width) / self._grow if self._grow else 0
-      n = []
-      c = 0
-      for (layer, width, _, grow) in self._layer_info:
-        x = c + width + grow * g
-        for _ in range(round(c), round(x)):
-          n.append(layer)
-        c = x
-      return Nacre(n)
+
+    radius = radius + 1
+
+    grow_factor = 0
+    shrink_factor = 0
+    if radius < self._width and self._shrink:
+      # For the shrink case,
+      # r = (w0 * (1 - s0 * sf)) + (w1 * (1 - s1 * sf)) + ... + (wn * (1 - sn * sf))
+
+      # Solve for sf
+      # r = w0 - w0 * s0 * sf + w1 - w1 * s1 * sf + ... + wn - wn * sn * sf
+      # r = (w0 + w1 + ... + wn) - (w0 * s0 + w1 * s1 + ... + wn * sn) * sf
+      # (w0 * s0 + w1 * s1 + ... + wn * sn) * sf = (w0 + w1 + ... + wn) - r
+      # sf = ((w0 + w1 + ... + wn) - r) / (w0 * s0 + w1 * s1 + ... + wn * sn)
+
+      shrink_factor = (self._width - radius) / sum(
+          width * shrink for _, width, shrink, _ in self._layer_info)
+
+    elif radius > self._width and self._grow:
+      # For the growth case,
+      # r = (w0 + g0 * gf) + (w1 + g1 * gf) + ... + (wn + gn * gf)
+
+      # Solve for gf
+      # r = (w0 + w1 + ... + wn) + (g0 + g1 + ... + gn) * gf
+      # (r - (w0 + w1 + ... + wn)) /  (g0 + g1 + ... + gn) = gf
+      grow_factor = (radius - self._width) / self._grow
+    def h():
+      w = 0
+      for layer, width, shrink, grow in self._layer_info:
+        w = w + width * max(0, 1 - shrink * shrink_factor) + grow * grow_factor
+        while round(w) > 0:
+          yield layer
+          w -= 1
+    return Nacre(h())
+
 
 class Nacre(object):
 

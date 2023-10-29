@@ -51,10 +51,6 @@ def main():
     cavern.generate()
     serialized = cavern.serialize()
   except Exception as e:
-    print(f'Exception on seed {hex(cavern.context.seed)}', file=sys.stderr)
-    print(
-        ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
-        file=sys.stderr)
     if inx:
       inx.log_exception(cavern, e)
       inx.wait()
