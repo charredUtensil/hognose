@@ -11,6 +11,11 @@ class Space(abc.ABC):
 
   @property
   @abc.abstractmethod
+  def id(self) -> int:
+    pass
+
+  @property
+  @abc.abstractmethod
   def left(self) -> float:
     pass
 

@@ -131,7 +131,7 @@ class Frame(object):
       font,
       text: str,
       fg_color: Color,
-      bg_color: Color,
+      bg_color: Optional[Color],
       rect: Union[pygame.Rect, Tuple[Coord, Coord, ScaleCoord, ScaleCoord]],
       gravity: Tuple[int, int]):
 
@@ -139,7 +139,7 @@ class Frame(object):
     text_sw = max(w for w, h in dims)
     text_sh = sum(h for w, h in dims)
     del dims
-    inplace_infos = tuple(_text_infos(font, text, (-n for n in gravity)))
+    inplace_infos = tuple(_text_infos(font, text, tuple(-n for n in gravity)))
     radial_infos  = tuple(_text_infos(font, text, (0, 0)))
 
     left, top, width, height = rect

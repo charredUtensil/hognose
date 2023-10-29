@@ -1,10 +1,11 @@
 from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-  from .cavern import Cavern
+  from lib import Cavern
 
 import abc
 import sys
+import traceback
 
 class Logger(abc.ABC):
 

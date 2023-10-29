@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 
 import itertools
 import math
@@ -13,6 +13,7 @@ from lib.planners import StemPlanner
 from lib.plastic import Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
+LOG_ITEM_COLOR                         = (0xff, 0xff, 0xff)
 WARNING_COLOR                          = (0xff, 0xff, 0x00)
 
 BSOD_FG_COLOR                          = (0xff, 0xff, 0xff)
@@ -72,6 +73,7 @@ class Inspector(Logger):
     frame = Frame()
 
     if not done:
+      # Draw spaces - all rectangles first, then all labels
       for first in (True, False):
         for space in cavern.spaces:
           color, outline_color, label_color = space_colors(space)
@@ -96,6 +98,7 @@ class Inspector(Logger):
                   space_rect,
                   (-1, -1))
 
+      # Draw paths
       for path in cavern.paths:
         color = PATH_COLORS[path.kind]
         if color is None:
@@ -107,14 +110,17 @@ class Inspector(Logger):
             b.center,
             2)
 
+    # Draw solid rock in bounds
     if cavern.diorama.bounds:
       frame.draw_rect(
           Tile.SOLID_ROCK.inspect_color,
           cavern.diorama.bounds)
 
+    # Draw tiles
     for (x, y), tile in cavern.diorama.tiles.items():
       frame.draw_rect(tile.inspect_color, (x, y, 1, 1))
 
+    # Draw crystals
     for (x, y), crystals in cavern.diorama.crystals.items():
       if crystals < 5:
         frame.draw_circle(
@@ -131,6 +137,7 @@ class Inspector(Logger):
           (x, y, 1, 1),
           (0, 0))
 
+    # Draw buildings
     for building in cavern.diorama.buildings:
       frame.draw_label_for_rect(
         self.font,
@@ -141,6 +148,7 @@ class Inspector(Logger):
         (0, 0))
 
     if not done:
+      # Label height and width
       if cavern.diorama.bounds:
         left, top, width, height = cavern.diorama.bounds
         label_rect = (left, top, width, height)
@@ -159,6 +167,7 @@ class Inspector(Logger):
             label_rect,
             (1, 0))
       
+      # Draw circle markers for planners
       for planner in cavern.planners:
         fg_color = (0xff, 0xff, 0xff)
         origin = planner.center
@@ -175,20 +184,19 @@ class Inspector(Logger):
             origin,
             (0, 0))
          
+    # Draw titles
     frame.draw_text(
         self.font_title,
         f'{len(self.frames):4d} {stage}',
         TITLE_COLOR,
         (Relative(0), Relative(0)),
         (1, 1))
-          
     frame.draw_text(
         self.font_title,
         f'seed: {hex(cavern.context.seed)}',
         TITLE_COLOR,
         (Relative(1), Relative(0)),
         (-1, 1))
-
     crystals = (
       cavern.diorama.total_crystals or
       sum(p.expected_crystals for p in cavern.planners)
@@ -201,12 +209,13 @@ class Inspector(Logger):
           (Relative(0), Relative(1)),
           (1, -1))
 
+    # Draw the log item
     if item:
       position = None
       frame.draw_text(
           self.font_med,
           str(item),
-          (0xFF, 0xFF, 0xFF),
+          LOG_ITEM_COLOR,
           (Relative(0.5), Relative(1)),
           (0, -1))
       if hasattr(item, '_pearl') and item._pearl:
@@ -218,6 +227,7 @@ class Inspector(Logger):
               (x2 + 0.5, y2 + 0.5),
               2)
 
+    # Draw warnings since the last frame
     if self.warnings:
       frame.draw_text(
         self.font_med,
@@ -227,6 +237,7 @@ class Inspector(Logger):
         (-1, -1))
       self.warnings.clear()
 
+    # Save the frame
     self.frames.append((frame, stage))
     self.draw_frame(frame)
 
@@ -310,11 +321,13 @@ def space_colors(space):
       if space.moving
       else BUBBLE_LABEL_COLOR_STATIONARY)
     return BUBBLE_COLOR, BUBBLE_OUTLINE_COLOR, label_color
-  if isinstance(space, Baseplate):
+  elif isinstance(space, Baseplate):
     return (
         BASEPLATE_COLORS[space.kind],
         BASEPLATE_OUTLINE_COLORS[space.kind],
         None)
+  else:
+    return (None, None, None)
 
 def planner_bg_color(planner):
   if isinstance(planner, StemPlanner):

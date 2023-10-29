@@ -1,4 +1,4 @@
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 
 import itertools
 import math
@@ -9,21 +9,21 @@ class Layer(object):
 
   def __init__(
       self,
-      floor:      Tile = None,
-      dirt:       Tile = None,
-      loose_rock: Tile = None,
-      hard_rock:  Tile = None,
-      solid_rock: Tile = None,
-      water:      Tile = None,
-      lava:       Tile = None):
+      floor:      Optional[Tile] = None,
+      dirt:       Optional[Tile] = None,
+      loose_rock: Optional[Tile] = None,
+      hard_rock:  Optional[Tile] = None,
+      solid_rock: Optional[Tile] = None,
+      water:      Optional[Tile] = None,
+      lava:       Optional[Tile] = None):
     self._data = {
-      Tile.FLOOR : floor,
-      Tile.DIRT : dirt,
-      Tile.LOOSE_ROCK : loose_rock,
-      Tile.HARD_ROCK : hard_rock,
-      Tile.SOLID_ROCK : solid_rock,
-      Tile.WATER : water,
-      Tile.LAVA : lava,
+      Tile.FLOOR: floor,
+      Tile.DIRT: dirt,
+      Tile.LOOSE_ROCK: loose_rock,
+      Tile.HARD_ROCK: hard_rock,
+      Tile.SOLID_ROCK: solid_rock,
+      Tile.WATER: water,
+      Tile.LAVA: lava,
     }
 
 Layer.FLOOR = Layer(
