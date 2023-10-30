@@ -12,6 +12,7 @@ from lib.base import NotHaltingError
 from lib.outlines import Path, Space, Bubble, Baseplate
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
 from lib.plastic import Diorama, serialize, Tile
+from lib.utils.cleanup import patch
 from lib.utils.delaunay import slorp
 
 class Cavern(object):
@@ -89,6 +90,8 @@ class Cavern(object):
       # Place tiles in the rough shape of each planner's layout.
       # Because planners overlap, some overwriting is expected.
       ('rough',        self._rough),
+      # Reinforce any wall that would immediately collapse.
+      ('patch',        self._patch),
       # Do a second pass with planners placing everything else they want to
       # have in the level.
       ('fine',         self._fine),
@@ -178,6 +181,9 @@ class Cavern(object):
     for planner in self.conquest.somatic_planners:
       planner.rough(self.diorama.tiles)
       yield planner
+
+  def _patch(self):
+    patch(self.diorama.tiles)
 
   def _fine(self):
     for planner in self.conquest.somatic_planners:

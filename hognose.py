@@ -3,6 +3,7 @@
 import argparse
 import sys
 import traceback
+import time
 
 from inspector import Inspector
 from lib import Cavern
@@ -47,6 +48,8 @@ def main():
     seed = args.seed,
     logger = inx)
   cavern = Cavern(context)
+
+  start_time = time.time_ns()
   try:
     cavern.generate()
     serialized = cavern.serialize()
@@ -60,6 +63,10 @@ def main():
   elif args.out:
     with open(args.out, 'w') as f:
       f.write(serialized)
+  print((
+    f'Generated cave {hex(context.seed)} '
+    f'in {(time.time_ns() - start_time) // 1_000_000}ms'),
+    file=sys.stderr)
   if inx:
     inx.wait()
 
