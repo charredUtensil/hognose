@@ -118,7 +118,11 @@ class Inspector(Logger):
 
     # Draw tiles
     for (x, y), tile in cavern.diorama.tiles.items():
-      frame.draw_rect(tile.inspect_color, (x, y, 1, 1))
+      color = tile.inspect_color
+      if stage == 'discover' and (x, y) not in cavern.diorama.discovered:
+        c = sum(color) / 6
+        color = (c, c, c)
+      frame.draw_rect(color, (x, y, 1, 1))
 
     # Draw crystals
     for (x, y), crystals in cavern.diorama.crystals.items():

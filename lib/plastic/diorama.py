@@ -61,6 +61,10 @@ class Diorama(object):
         for (ox, oy) in ((0, -1), (0, 1), (-1, 0), (1, 0)):
           if (x + ox, y + oy) not in self._discovered:
             queue.add((x + ox, y + oy))
+            
+  @property
+  def discovered(self) -> Set[Tuple[int, int]]:
+    return self._discovered
 
   def serialize(self):
     return serialize(self)
