@@ -27,10 +27,21 @@ class StemPlanner(Planner):
     self.fluid_type: Optional[Literal[
       StemPlanner.WATER,
       StemPlanner.LAVA]] = None
+    self.hops_to_spawn: Optional[int] = None
 
   @property
   def kind(self):
     return self._kind
+
+  def suggested_crystal_count(self, conquest):
+    area = sum(bp.area() for bp in self.baseplates)
+    cf = math.sqrt(area) * (
+      self.context.base_richness
+      + self.context.hop_richness * self.hops_to_spawn / conquest.total
+    )
+    return (
+      math.floor(max(0, self.rng.normal(1, 0.3)) * cf)
+    )
 
   def differentiate(self, conquest: 'Conquest') -> SomaticPlanner:
     bidders = None

@@ -13,6 +13,7 @@ class Conquest(ProceduralThing):
     super().__init__(-1, context)
     self._stem_planners = list(stem_planners)
     self._somatic_planners = [None] * len(self._stem_planners)
+
     self.expected_crystals = 0
 
     self._bp_index: Dict[int, Set[int]] = {}
@@ -35,6 +36,18 @@ class Conquest(ProceduralThing):
   def planners(self):
     for stem, somatic in zip(self._stem_planners, self._somatic_planners):
       yield somatic or stem
+
+  @property
+  def completed(self):
+    return sum(1 for p in self._somatic_planners if p)
+
+  @property
+  def remaining(self):
+    return sum(1 for p in self._somatic_planners if p is None)
+
+  @property
+  def total(self):
+    return sum(1 for p in self._somatic_planners)
 
   def intersecting(self, planner):
     indexes = set()
@@ -77,6 +90,8 @@ class Conquest(ProceduralThing):
       p for p in self.stem_planners
       if p.kind == StemPlanner.CAVE)]
 
+    queue[0].hops_to_spawn = 0
+
     # Perform a breadth-first search on remaining planners
     while queue:
       stem = queue.pop(0)
@@ -87,5 +102,6 @@ class Conquest(ProceduralThing):
         if (isinstance(p, StemPlanner)
             and p.kind != stem.kind  # Alternate between caves and halls
             and p not in queue):
+          p.hops_to_spawn = stem.hops_to_spawn + 1
           queue.append(p)
       yield planner

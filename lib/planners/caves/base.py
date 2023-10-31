@@ -25,7 +25,9 @@ class BaseCavePlanner(SomaticPlanner):
       in self.pearl
       if diorama.tiles.get((x, y)) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
-      for _ in range(self.expected_crystals):
+      crystals = self.expected_crystals
+      
+      for _ in range(crystals):
         x, y = self.rng.choice(t)
         existing = diorama.crystals.get((x, y), 0)
         if existing >= 3 and diorama.tiles.get((x, y)) != Tile.CRYSTAL_SEAM:

@@ -26,6 +26,9 @@ class Context(object):
     self.lava_level            = 0.06
     self.lava_spread           = 0.30
 
+    self.base_richness         = 0.50
+    self.hop_richness          = 3.00
+
     self.cave_baroqueness      = 0.12
 
   def __str__(self):

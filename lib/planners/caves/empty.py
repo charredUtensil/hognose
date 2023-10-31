@@ -8,8 +8,7 @@ class EmptyCavePlanner(BaseCavePlanner):
 
   def __init__(self, stem, conquest, oyster):
     super().__init__(stem, oyster)
-    self.expected_crystals = max(0, math.floor(
-      self.rng.normal(15, 5)))
+    self.expected_crystals = stem.suggested_crystal_count(conquest)
 
   @classmethod
   def bids(cls, stem, conquest):
