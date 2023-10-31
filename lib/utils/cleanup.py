@@ -2,11 +2,6 @@ from typing import Dict, Tuple
 
 from lib.plastic import Tile
 
-_FLOOR_TILES = frozenset((
-    Tile.FLOOR,
-    Tile.WATER,
-    Tile.LAVA))
-
 def patch(tiles: Dict[Tuple[int, int], Tile]):
   left   = min(x for x, y in tiles)
   right  = max(x for x, y in tiles)
@@ -14,7 +9,7 @@ def patch(tiles: Dict[Tuple[int, int], Tile]):
   bottom = max(y for x, y in tiles)
   for x in range(left, right + 1):
     for y in range(top, bottom + 1):
-      if tiles.get((x, y)) in _FLOOR_TILES:
+      if not tiles.get((x, y), Tile.SOLID_ROCK).is_wall:
         continue
       neighbors = tuple(
           ((ox, oy), tiles.get((x + ox, y + oy), Tile.SOLID_ROCK))
@@ -24,7 +19,7 @@ def patch(tiles: Dict[Tuple[int, int], Tile]):
           (ox, oy)
           for (ox, oy), tile
           in neighbors
-          if tile not in _FLOOR_TILES)
+          if tile.is_wall)
       if len(wall_neighbors) > 1:
         continue
       if not wall_neighbors:
@@ -34,9 +29,8 @@ def patch(tiles: Dict[Tuple[int, int], Tile]):
       # Right turn
       tiles[x - oy, y + ox] = Tile.DIRT
       # Remaining square
-      if tiles.get((x + ox - oy, y + ox + oy)) in _FLOOR_TILES:
+      if not tiles.get((x + ox - oy, y + ox + oy), Tile.SOLID_ROCK).is_wall:
         tiles[x + ox - oy, y + ox + oy] = Tile.DIRT
       
       
         
-          

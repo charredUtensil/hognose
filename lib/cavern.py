@@ -95,6 +95,8 @@ class Cavern(object):
       # Do a second pass with planners placing everything else they want to
       # have in the level.
       ('fine',         self._fine),
+      # Figure out which tiles are discovered at the beginning of the level.
+      ('discover',     self._discover),
       # Compute the final bounds of the level.
       ('fence',        self._fence),
     )
@@ -188,6 +190,9 @@ class Cavern(object):
   def _fine(self):
     for planner in self.conquest.somatic_planners:
       planner.fine(self.diorama)
+
+  def _discover(self):
+    self.diorama.discover()
 
   def _fence(self):
     left   = min(x for x, _ in self.diorama.tiles) - 1

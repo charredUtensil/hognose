@@ -38,7 +38,7 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield from _tile_grid(
     diorama,
     Tile.SOLID_ROCK.export_value,
-    dict((k, v.export_value) for (k, v) in diorama.tiles.items()))
+    dict(_tile_export_values(diorama)))
   yield '}'
 
   yield 'height{'
@@ -94,6 +94,14 @@ def _camera_origin(diorama: 'Diorama') -> str:
   left, top, _, _ = diorama.bounds
   x, y = diorama.camera_origin
   return Position((x, y, 0), (45, 90, 0)).serialize((-left, -top))
+
+def _tile_export_values(
+    diorama: 'Diorama') -> Iterable[Tuple[Tuple[int, int], int]]:
+  for coord, tile in diorama.tiles.items():
+    v = tile.export_value
+    if not tile.is_wall and coord not in diorama._discovered:
+      v += 100
+    yield coord, v
 
 def _tile_grid(
     diorama: 'Diorama',
