@@ -9,7 +9,6 @@ import traceback
 
 class Logger(abc.ABC):
 
-  @abc.abstractmethod
   def log(self, cavern: 'Cavern', stage: str, item: Any):
     pass
 
