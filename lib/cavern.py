@@ -12,7 +12,7 @@ from lib.base import NotHaltingError
 from lib.outlines import Path, Space, Bubble, Baseplate
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
 from lib.plastic import Diorama, serialize, Tile
-from lib.utils.cleanup import patch
+from lib.utils.cleanup import patch, playtest
 from lib.utils.delaunay import slorp
 
 class Cavern(object):
@@ -97,6 +97,9 @@ class Cavern(object):
       ('fine',         self._fine),
       # Figure out which tiles are discovered at the beginning of the level.
       ('discover',     self._discover),
+      # Ensure the player can escape the starting area.
+      # Make small adjustments if not.
+      ('playtest',     self._playtest),
       # Compute the final bounds of the level.
       ('fence',        self._fence),
     )
@@ -190,6 +193,9 @@ class Cavern(object):
   def _fine(self):
     for planner in self.conquest.somatic_planners:
       planner.fine(self.diorama)
+
+  def _playtest(self):
+    playtest(self.diorama)
 
   def _discover(self):
     self.diorama.discover()
