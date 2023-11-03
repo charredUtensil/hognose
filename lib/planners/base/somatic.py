@@ -6,7 +6,7 @@ import math
 
 from .pearl import Oyster
 from .planner import Planner
-from lib.plastic import Diorama, Tile
+from lib.plastic import Diorama, Objective, Tile
 from lib.utils.geometry import plot_line
 
 PearlInfo = NamedTuple('PearlRow', pos=Tuple[int, int], layer=int, sequence=int)
@@ -40,6 +40,10 @@ class SomaticPlanner(Planner):
   @abc.abstractmethod
   def fine(self, diorama: Diorama):
     pass
+
+  @property
+  def objectives(self) -> Iterable[Objective]:
+    return []
 
   def walk_stream(self, baseplates=None):
     """Walks a contiguous 1-tile wide stream between contiguous baseplates."""

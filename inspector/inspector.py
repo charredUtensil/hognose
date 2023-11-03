@@ -10,7 +10,7 @@ from lib import Cavern
 from lib.base import Logger
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner
-from lib.plastic import Tile
+from lib.plastic import ResourceObjective, Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
 LOG_ITEM_COLOR                         = (0xff, 0xff, 0xff)
@@ -153,23 +153,24 @@ class Inspector(Logger):
 
     if not done:
       # Label height and width
-      if cavern.diorama.bounds:
-        left, top, width, height = cavern.diorama.bounds
-        label_rect = (left, top, width, height)
-        frame.draw_label_for_rect(
-            self.font_title,
-            str(width),
-            TITLE_COLOR,
-            None,
-            label_rect,
-            (0, -1))
-        frame.draw_label_for_rect(
-            self.font_title,
-            str(height),
-            TITLE_COLOR,
-            None,
-            label_rect,
-            (1, 0))
+      if stage == 'bounds':
+        if cavern.diorama.bounds:
+          left, top, width, height = cavern.diorama.bounds
+          label_rect = (left, top, width, height)
+          frame.draw_label_for_rect(
+              self.font_title,
+              str(width),
+              TITLE_COLOR,
+              None,
+              label_rect,
+              (0, -1))
+          frame.draw_label_for_rect(
+              self.font_title,
+              str(height),
+              TITLE_COLOR,
+              None,
+              label_rect,
+              (1, 0))
       
       # Draw circle markers for planners
       for planner in cavern.planners:
@@ -201,14 +202,21 @@ class Inspector(Logger):
         TITLE_COLOR,
         (Relative(1), Relative(0)),
         (-1, 1))
-    crystals = (
+    total_crystals = (
       cavern.diorama.total_crystals or
       sum(p.expected_crystals for p in cavern.planners)
     )
-    if crystals > 0:
+    if total_crystals > 0:
+      goal_crystals = sum((
+          o.crystals for o in cavern.diorama.objectives
+          if isinstance(o, ResourceObjective)), 0)
+      if goal_crystals:
+        message = f'Collect {goal_crystals:d}/{total_crystals:d} EC'
+      else:
+        message = f'{total_crystals:d} EC'
       frame.draw_text(
           self.font_title,
-          '%4d EC' % crystals,
+          message,
           TITLE_COLOR,
           (Relative(0), Relative(1)),
           (1, -1))

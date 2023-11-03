@@ -9,6 +9,7 @@ import random
 import time
 
 from .building import Building
+from .objectives import Objective
 from .serialize import serialize
 from .tile import Tile
 
@@ -22,6 +23,7 @@ class Diorama(object):
     self._buildings = []
     self._open_cave_flags = set()
     self._discovered = set()
+    self._objectives = []
     self.camera_origin: Tuple[int, int] = (0, 0)
     self.bounds: Optional[Tuple[int, int, int, int]] = None
 
@@ -40,6 +42,10 @@ class Diorama(object):
   @property
   def buildings(self) -> List[Building]:
     return self._buildings
+
+  @property
+  def objectives(self) -> List[Objective]:
+    return self._objectives
   
   @property
   def open_cave_flags(self) -> Set[Tuple[int, int]]:

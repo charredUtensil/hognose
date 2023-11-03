@@ -11,7 +11,7 @@ import typing
 from lib.base import NotHaltingError
 from lib.outlines import Path, Space, Bubble, Baseplate
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
-from lib.plastic import Diorama, serialize, Tile
+from lib.plastic import Diorama, ResourceObjective, serialize, Tile
 from lib.utils.cleanup import patch
 from lib.utils.delaunay import slorp
 
@@ -43,6 +43,8 @@ class Cavern(object):
     """Generates the cavern."""
     stages: Tuple[Tuple[str, Callable[[], None]]] = (
       # I. Outlines
+      # Determine the approximate size and location of the caves in this
+      # cavern, as well as the set of paths that will connect them.
       # Roughly based on this algorithm:
       # https://www.gamedeveloper.com/programming/procedural-dungeon-generation-algorithm
 
@@ -75,6 +77,8 @@ class Cavern(object):
       ('bore',         self._bore),
 
       # II. Planners
+      # Using the outline as a guide, decide what to do with, then build each
+      # individual cave and hall.
 
       # Assign the paths and special lots to "planners", which will decide
       # what to put in the lots they are given.
@@ -95,6 +99,13 @@ class Cavern(object):
       # Do a second pass with planners placing everything else they want to
       # have in the level.
       ('fine',         self._fine),
+
+      # III. Polish
+      # Look at the entire level to make sure it all fits together, then do
+      # some final steps to put everything in the right place.
+
+      # Determine the objectives for the level.
+      ('adjure',       self._adjure),
       # Figure out which tiles are discovered at the beginning of the level.
       ('discover',     self._discover),
       # Compute the final bounds of the level.
@@ -193,6 +204,24 @@ class Cavern(object):
 
   def _discover(self):
     self.diorama.discover()
+
+  def _adjure(self):
+    def objectives():
+      for planner in self.conquest.somatic_planners:
+        yield from planner.objectives
+    self.diorama.objectives.extend(objectives())
+    # If none of the caverns have objectives, generate one to collect a
+    # resaonable number of crystals.
+    if not self.diorama.objectives:
+      # Most levels in the Standard campaign have a goal of about 1/4 - 1/8 of
+      # all crystals in the level. Baz' mod levels tend to want more.
+      crystals = self.diorama.total_crystals // 4
+      # Round down to the nearest 5.
+      crystals -= (crystals % 5)
+      self.diorama.objectives.append(
+        ResourceObjective(crystals=crystals)
+      )
+
 
   def _fence(self):
     left   = min(x for x, _ in self.diorama.tiles) - 1
