@@ -22,6 +22,7 @@ _STAGES_WITH_RNG = (
   'fine',
   'flood',
   'init',
+  'enscribe',
 )
 
 class Seeder(object):
@@ -42,10 +43,10 @@ class Seeder(object):
       if stage not in self._seeds:
         if stage in _STAGES_WITH_RNG:
           raise KeyError(
-            f'{stage} has no rng defined')
+            f'{stage} has completed and can no longer generate numbers')
         else:
           raise KeyError(
-            f'{stage} has completed and can no longer generate numbers')
+            f'{stage} has no rng defined')
       del self._seeds[self._current_stage]
       self._current_stage = stage
       self._rng.clear()

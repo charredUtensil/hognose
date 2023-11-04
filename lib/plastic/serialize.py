@@ -18,7 +18,8 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   eoy = height // 2
 
   yield 'comments{'
-  yield from (f'  {c}' for c in _comments(diorama))
+  for c in _comments(diorama):
+    yield f'  {c}'
   yield '}'
 
   yield 'info{'
@@ -54,26 +55,32 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield '}'
 
   yield 'objectives{'
-  yield 'resources: 100,0,0'
+  for o in diorama.objectives:
+    yield o.serialize()
   yield '}'
+
   yield 'buildings{'
-  yield from (b.serialize((-left, -top)) for b in diorama.buildings)
+  for b in diorama.buildings:
+    yield b.serialize((-left, -top))
   yield '}'
+
   yield 'landslidefrequency{'
   yield '}'
   yield 'lavaspread{'
   yield '}'
   yield 'miners{'
   yield '}'
+
   yield 'briefing{'
-  yield ''
+  yield diorama.briefing
   yield '}'
   yield 'briefingsuccess{'
-  yield ''
+  yield diorama.briefing_success
   yield '}'
   yield 'briefingfailure{'
-  yield ''
+  yield diorama.briefing_failure
   yield '}'
+
   yield 'vehicles{'
   yield '}'
   yield 'creatures{'

@@ -6,6 +6,7 @@ import math
 from .stem import StemPlanner
 from lib.base import ProceduralThing
 from lib.planners.base import SomaticPlanner
+from lib.plastic import Tile
 
 class Conquest(ProceduralThing):
 
@@ -80,8 +81,8 @@ class Conquest(ProceduralThing):
               and self.rng.random() < spread):
             stack.append(p)
 
-    fill(water_count, StemPlanner.WATER, self.context.water_spread)
-    fill(lava_count, StemPlanner.LAVA, self.context.lava_spread)
+    fill(water_count, Tile.WATER, self.context.water_spread)
+    fill(lava_count, Tile.LAVA, self.context.lava_spread)
 
   
   def conquest(self):

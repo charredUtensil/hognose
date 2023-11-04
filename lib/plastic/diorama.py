@@ -24,6 +24,11 @@ class Diorama(object):
     self._open_cave_flags = set()
     self._discovered = set()
     self._objectives = []
+
+    self.briefing = ''
+    self.briefing_success = ''
+    self.briefing_failure = ''
+    
     self.camera_origin: Tuple[int, int] = (0, 0)
     self.bounds: Optional[Tuple[int, int, int, int]] = None
 

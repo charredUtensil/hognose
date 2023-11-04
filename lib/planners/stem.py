@@ -16,17 +16,14 @@ class StemPlanner(Planner):
   HALL = 0
   CAVE = 1
 
-  WATER = 2
-  LAVA = 6
-
   def __init__(self, id, context, baseplates, kind):
     super().__init__(id, context, baseplates)
     self._kind: Literal[
       StemPlanner.HALL,
       StemPlanner.CAVE] = kind
     self.fluid_type: Optional[Literal[
-      StemPlanner.WATER,
-      StemPlanner.LAVA]] = None
+      Tile.WATER,
+      Tile.LAVA]] = None
     self.hops_to_spawn: Optional[int] = None
 
   @property

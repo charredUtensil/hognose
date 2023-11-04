@@ -9,6 +9,7 @@ import time
 import typing
 
 from lib.base import NotHaltingError
+from lib.lore import Lore
 from lib.outlines import Path, Space, Bubble, Baseplate
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
 from lib.plastic import Diorama, ResourceObjective, serialize, Tile
@@ -104,12 +105,14 @@ class Cavern(object):
       # Look at the entire level to make sure it all fits together, then do
       # some final steps to put everything in the right place.
 
-      # Determine the objectives for the level.
-      ('adjure',       self._adjure),
-      # Figure out which tiles are discovered at the beginning of the level.
-      ('discover',     self._discover),
       # Compute the final bounds of the level.
       ('fence',        self._fence),
+      # Figure out which tiles are discovered at the beginning of the level.
+      ('discover',     self._discover),
+      # Determine the objectives for the level.
+      ('adjure',       self._adjure),
+      # Write the objectives
+      ('enscribe',     self._enscribe),
     )
 
     for stage, fn in stages:
@@ -222,6 +225,11 @@ class Cavern(object):
         ResourceObjective(crystals=crystals)
       )
 
+  def _enscribe(self):
+    lore = Lore(self)
+    self.diorama.briefing = lore.briefing()
+    self.diorama.briefing_success = lore.success()
+    self.diorama.briefing_failure = lore.failure()
 
   def _fence(self):
     left   = min(x for x, _ in self.diorama.tiles) - 1

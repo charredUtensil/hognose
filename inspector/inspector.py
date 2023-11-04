@@ -346,7 +346,7 @@ def planner_bg_color(planner):
     if planner.fluid_type is None:
       return (0, 0, 0)
     return {
-      StemPlanner.WATER: Tile.WATER.inspect_color,
-      StemPlanner.LAVA: Tile.LAVA.inspect_color
+      Tile.WATER: Tile.WATER.inspect_color,
+      Tile.LAVA: Tile.LAVA.inspect_color
     }[planner.fluid_type]
   return None

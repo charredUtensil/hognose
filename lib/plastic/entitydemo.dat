@@ -1,0 +1,127 @@
+comments{
+}
+info{
+rowcount:8
+colcount:8
+camerapos:Translation: X=1200.000 Y=1200.000 Z=0.000 Rotation: P=44.999989 Y=-89.999992 R=0.000002 Scale X=1.000 Y=1.000 Z=1.000
+biome:rock
+creator:Chris
+spiderrate:10
+spidermin:2
+spidermax:4
+version:2023-08-14-1
+opencaves:1,1/
+}
+tiles{
+38,38,38,38,38,38,38,38,
+38,1,1,1,1,1,1,38,
+38,1,1,1,1,1,1,38,
+38,1,1,1,1,1,1,38,
+38,1,1,1,1,1,1,38,
+38,1,1,1,1,1,1,38,
+38,1,1,1,1,1,1,38,
+38,38,38,38,38,38,38,38,
+}
+height{
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,
+}
+resources{
+crystals:
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+ore:
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+}
+objectives{
+findminer:2
+findminer:3
+}
+buildings{
+}
+landslidefrequency{
+}
+lavaspread{
+}
+miners{
+ID=0,Translation: X=493.492 Y=372.185 Z=52.150 Rotation: P=0.000000 Y=88.261345 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
+ID=1,Translation: X=692.644 Y=471.545 Z=52.150 Rotation: P=0.000000 Y=90.561623 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/,Essential=true
+ID=2,Translation: X=1036.460 Y=471.892 Z=52.150 Rotation: P=0.000000 Y=117.945259 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
+ID=3,Translation: X=1465.264 Y=407.985 Z=52.150 Rotation: P=0.000000 Y=88.565292 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/,Essential=true
+ID=4/OFFICER,Translation: X=1755.623 Y=390.135 Z=52.150 Rotation: P=0.000000 Y=112.562355 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobExplosivesExpert/JobDriver/JobPilot/JobEngineer/JobGeologist/JobSailor/Level/Level/Level/Level/
+ID=5/Axle,Translation: X=2016.130 Y=407.815 Z=52.150 Rotation: P=0.000000 Y=129.774673 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobDriver/
+ID=6/Bandit,Translation: X=455.106 Y=738.983 Z=52.150 Rotation: P=0.000000 Y=66.333374 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobSailor/
+ID=7/Chief,Translation: X=793.949 Y=868.905 Z=52.150 Rotation: P=0.000000 Y=80.518898 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobDriver/JobPilot/JobSailor/JobExplosivesExpert/JobGeologist/JobEngineer/Level/Level/Level/Level/Level/
+ID=8/Docs,Translation: X=998.149 Y=778.798 Z=52.150 Rotation: P=0.000000 Y=91.554253 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobGeologist/
+ID=9/Jet,Translation: X=1378.548 Y=715.327 Z=52.150 Rotation: P=0.000000 Y=109.013786 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobPilot/
+ID=10/Sparks,Translation: X=1597.876 Y=681.668 Z=52.150 Rotation: P=0.000000 Y=117.201630 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobEngineer/
+ID=11,Translation: X=1986.622 Y=665.181 Z=52.150 Rotation: P=0.000000 Y=109.170044 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
+}
+briefing{
+
+}
+briefingsuccess{
+
+}
+briefingfailure{
+
+}
+vehicles{
+VehicleRapidRider_C,Translation: X=1750.104 Y=1842.218 Z=-0.018 Rotation: P=-0.017274 Y=-92.100578 R=0.000103 Scale X=1.000 Y=1.000 Z=1.000,ID=6
+VehicleCargoCarrier_C,Translation: X=1750.104 Y=1842.218 Z=-0.018 Rotation: P=-0.017274 Y=-92.100578 R=0.000103 Scale X=1.000 Y=1.000 Z=1.000,ID=5
+VehicleLoaderDozer_C,Translation: X=1750.102 Y=1842.211 Z=0.786 Rotation: P=-0.001127 Y=-92.100067 R=0.000466 Scale X=1.000 Y=1.000 Z=1.000,ID=7
+VehicleLMLC_C,Translation: X=1750.107 Y=1842.201 Z=0.007 Rotation: P=0.007998 Y=-92.099968 R=-0.001495 Scale X=1.000 Y=1.000 Z=1.000,ID=9
+VehicleChromeCrusher_C,Translation: X=1750.101 Y=1842.210 Z=-0.316 Rotation: P=0.000130 Y=-92.100090 R=0.000107 Scale X=1.000 Y=1.000 Z=1.000,ID=10
+VehicleSMLC_C,Translation: X=1750.094 Y=1842.210 Z=-0.627 Rotation: P=0.000055 Y=-92.099922 R=-0.010254 Scale X=1.000 Y=1.000 Z=1.000,ID=4
+VehicleSmallTransportTruck_C,Translation: X=1750.174 Y=1842.208 Z=0.484 Rotation: P=-0.003968 Y=-92.099968 R=0.004520 Scale X=1.000 Y=1.000 Z=1.000,ID=3
+VehicleSmallDigger_C,Translation: X=1750.238 Y=1842.204 Z=-0.004 Rotation: P=0.000007 Y=-92.101059 R=-0.005310 Scale X=1.000 Y=1.000 Z=1.000,ID=2
+VehicleTunnelScout_C,Translation: X=1550.235 Y=1849.547 Z=-0.018 Rotation: P=-0.017274 Y=-92.100578 R=0.000103 Scale X=1.000 Y=1.000 Z=1.000,ID=1
+VehicleHoverScout_C,Translation: X=750.768 Y=1878.862 Z=-0.018 Rotation: P=-0.017274 Y=-92.100578 R=0.000103 Scale X=1.000 Y=1.000 Z=1.000,ID=0
+VehicleTunnelTransport_C,Translation: X=1750.104 Y=1842.218 Z=-0.018 Rotation: P=-0.017274 Y=-92.100578 R=0.000103 Scale X=1.000 Y=1.000 Z=1.000,ID=11
+VehicleGraniteGrinder_C,Translation: X=1749.718 Y=1842.233 Z=-0.639 Rotation: P=-0.008210 Y=-92.101707 R=-0.010773 Scale X=1.000 Y=1.000 Z=1.000,ID=8
+}
+creatures{
+CreatureIceMonster_C
+Translation: X=505.761 Y=1250.646 Z=137.150 Rotation: P=0.000000 Y=99.819389 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+ID=0
+CreatureLavaMonster_C
+Translation: X=845.957 Y=1269.523 Z=137.150 Rotation: P=0.000000 Y=-30.185892 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+ID=1
+CreatureRockMonster_C
+Translation: X=1476.177 Y=1316.475 Z=137.150 Rotation: P=0.000000 Y=-161.004059 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+ID=2
+CreatureSlimySlug_C
+Translation: X=1921.322 Y=1357.476 Z=62.150 Rotation: P=0.000000 Y=42.545879 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+ID=3
+CreatureSmallSpider_C
+Translation: X=501.000 Y=1860.707 Z=32.150 Rotation: P=0.000000 Y=-113.091141 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+ID=4
+CreatureBat_C
+Translation: X=1151.971 Y=1984.789 Z=27.150 Rotation: P=0.000000 Y=78.790764 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+ID=5
+}
+blocks{
+}
+script{
+
+}

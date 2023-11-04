@@ -12,9 +12,9 @@ class EmptyCavePlanner(BaseCavePlanner):
 
   @classmethod
   def bids(cls, stem, conquest):
-    if stem.fluid_type == 2:
+    if stem.fluid_type == Tile.WATER:
       yield (1, lambda: cls(stem, conquest, Oysters.LAKE))
-    elif stem.fluid_type == 6:
+    elif stem.fluid_type == Tile.LAVA:
       yield (1, lambda: cls(stem, conquest, Oysters.LAVA_LAKE))
     else:
       yield (1, lambda: cls(stem, conquest, Oysters.OPEN_SPACE))
