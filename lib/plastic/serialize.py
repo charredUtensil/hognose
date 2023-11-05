@@ -31,7 +31,7 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield 'spiderrate:10'
   yield 'spidermin:2'
   yield 'spidermax:4'
-  yield 'version:2023-08-14-1'
+  yield 'version:2023-08-14-1'  # The version of MM this is for. 
   yield f'opencaves:{_tile_coords(diorama, sorted(diorama.open_cave_flags))}'
   yield '}'
 
@@ -69,6 +69,8 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield 'lavaspread{'
   yield '}'
   yield 'miners{'
+  for m in diorama.miners:
+    yield m.serialize((-left, -top))
   yield '}'
 
   yield 'briefing{'

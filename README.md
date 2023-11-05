@@ -1,4 +1,6 @@
-Hognose is a procedural map generator for [Manic Miners](https://manicminers.baraklava.com/)
+[Hognose](https://en.wikipedia.org/wiki/Hognose)
+is a procedural map generator for
+[Manic Miners](https://manicminers.baraklava.com/)
 
 # Running
 
@@ -22,7 +24,9 @@ project before submitting a pull request. I'll figure out pip and precommit
 hooks eventually, but this is the first time I've set up a Git project from
 scratch in a while. Feel free to send a PR that fixes this.
 
-# Why?
+# FAQ
+
+## Why?
 
 Rock Raiders is a rather unique game from 1999. It plays kind of like an RTS,
 but with a heavy focus on economy and logistics. I enjoyed it tremendously as
@@ -40,3 +44,15 @@ the cavern.
 
 I've had a lot of fun with this mainly because it's using an approach that
 would be feasible back in 1999, and I feel like that's appropriate.
+
+## Can I use this as a template to build my custom Manic Miners level on?
+
+Sure! I'd just appreciate a callout if you do.
+
+## Can Hognose make a level that...
+
+Add an issue and maybe!
+
+## Were any of these Qs actually FA'ed?
+
+No.

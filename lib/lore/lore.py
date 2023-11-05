@@ -2,7 +2,9 @@ from typing import Iterable, Optional, Sequence
 
 import collections
 
-from lib.plastic import ResourceObjective, Tile
+from . import conclusions, openings, orders, premises
+
+from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
 class Lore(object):
   def __init__(self, cavern: 'Cavern'):
@@ -10,24 +12,28 @@ class Lore(object):
 
   def briefing(self) -> str:
     rng = self.cavern.context.rng(-1)
-    opening = rng.choice(self._briefing_openings())
-    premise = ' '.join(self._premise())
-    objective = self._briefing_objective()
-    return '\n'.join((opening, premise, objective))
+    opening = self._opening(rng)
+    premise = self._premise(rng)
+    orders = self._orders(rng)
+    return '\n'.join((opening, premise, orders))
   
   def success(self) -> str:
     rng = self.cavern.context.rng(-2)
-    opening = rng.choice(self._success_openings())
-    return f'{opening}\nMission Complete!'
+    opening = rng.choice(openings.SUCCESS)
+    conclusion = self._objectives_achieved(rng)
+    congratulation = rng.choice(conclusions.CONGRATULATION)
+    return '\n'.join((opening, conclusion, congratulation))
   
   def failure(self) -> str:
     rng = self.cavern.context.rng(-3)
-    opening = rng.choice(self._failure_openings())
-    return f'{opening}\nMission Failed!'
+    opening = rng.choice(openings.FAILURE)
+    conclusion = self._objectives_failed(rng)
+    condolence = rng.choice(conclusions.CONDOLENCE)
+    return '\n'.join((opening, conclusion, condolence))
 
   # Opening lines.
     
-  def _briefing_openings(self) -> Iterable[str]:
+  def _opening(self, rng) -> str:
     lava = 0
     water = 0
     total = 0
@@ -38,37 +44,43 @@ class Lore(object):
         water += 1
       total += 1
     if lava / total > 0.4:
-      yield 'I hope you\'re not afraid of a little heat!'
+      return rng.choice(openings.LAVA_FLOODED)
     elif water / total > 0.4:
-      yield 'Are you ready to set sail?'
-      yield 'I hope you packed your lifejacket, Cadet.'
+      return rng.choice(openings.WATER_FLOODED)
     else:
-      yield 'Are you ready for the next mission?'
-      yield 'I hope you\'re prepared for this one, Cadet.'
-      yield 'Cadet, are you up for some more action?'
+      return rng.choice(openings.NORMAL)
 
-  def _success_openings(self) -> Iterable[str]:
-    yield 'Well done!'
-    yield 'Good job!'
-
-  def _failure_openings(self) -> Iterable[str]:
-    yield 'Oh, dear.'
-
-  # Premise - only used in briefings, for flavor.
+  # Premise - used in briefings, for flavor.
     
-  def _premise(self) -> Iterable[str]:
+  def _premise(self, rng) -> str:
     planner_kinds = collections.Counter()
     for p in self.cavern.conquest.somatic_planners:
       planner_kinds[type(p).__name__] += 1
+   
+    positive = []
+    negative = []
 
-    if planner_kinds['TreasureCavePlanner'] == 1:
-      yield (
-          'The Hognose scanner aboard the L.M.S. Explorer is picking up a '
-          'nearby cavern filled with Energy Crystals.')
-    elif planner_kinds['TreasureCavePlanner'] > 0:
-      yield 'We have located a cave system with an abundance of Energy Crystals.'
+    treasure = planner_kinds['TreasureCavePlanner']
+    if treasure > 0:
+      positive.append(rng.choice(
+          premises.ONE_TREASURE_CAVE if treasure == 1
+          else premises.TREASURE_CAVES))
 
-  # Objectives - phrased differently for briefing, success, and failure.
+    lost_miners = planner_kinds['LostMinersCavePlanner']
+    if lost_miners > 0:
+      negative.append(rng.choice(
+          premises.LOST_MINERS_TOGETHER if lost_miners == 1
+          else premises.LOST_MINERS_APART))
+
+    if positive and negative:
+      bridge = rng.choice(premises.POSITIVE_NEGATIVE_BRIDGE)
+      return (
+          f'{_capitalize_first(_join_human(positive))}. '
+          f'{bridge} {_join_human(negative)}.')
+    return f'{_capitalize_first(_join_human(positive or negative))}.'
+
+
+  # Orders - objectives phrased in briefings.
 
   def _resource_objective(self) -> Optional[ResourceObjective]:
     for o in self.cavern.diorama.objectives:
@@ -76,31 +88,101 @@ class Lore(object):
         return o
     return None
   
-  def _briefing_non_resource_objectives(self) -> Iterable[str]:
-    yield 'build up your base'
+  def _non_resource_orders(self, rng) -> Iterable[str]:
+    yield rng.choice(orders.GENERIC)
+    lost_miners = sum(
+        1 for o in self.cavern.diorama.objectives
+        if isinstance(o, FindMinerObjective))
+    if lost_miners > 0:
+      if lost_miners > 1:
+        miners = f'{_spell_number(lost_miners)} lost miners'
+      else:
+        miners = 'lost miner'
+      yield rng.choice(orders.FIND_LOST_MINERS) % miners
 
-  def _briefing_resource_objectives(self) -> Iterable[str]:
+  def _resource_orders(self) -> Iterable[str]:
     o = self._resource_objective()
     if o:
       if o.crystals:
-        yield f'{o.crystals} Energy Crystals'
+        yield f'{_spell_number(o.crystals)} Energy Crystals'
       if o.ore:
-        yield f'{o.ore} Ore'
+        yield f'{_spell_number(o.ore)} Ore'
       if o.studs:
-        yield f'{o.studs} Building Studs'
+        yield f'{_spell_number(o.studs)} Building Studs'
 
-  def _briefing_objective(self) -> str:
-    nro = tuple(self._briefing_non_resource_objectives())
-    ro = tuple(self._briefing_resource_objectives())
+  def _orders(self, rng) -> str:
+    nro = tuple(self._non_resource_orders(rng))
+    ro = tuple(self._resource_orders())
     if not ro:
-      return _join_human(nro).capitalize()
+      return f'{_capitalize_first(_join_human(nro))}.'
     if len(ro) == 1:
-      return _join_human(nro + (f'collect {ro[0]}',)).capitalize()
-    return f'{_join_human(nro).capitalize()}, then collect {_join_human(ro)}'
+      return f'{_capitalize_first(_join_human(nro + (f"collect {ro[0]}",)))}.'
+    return (
+        f'{_capitalize_first(_join_human(nro))}, '
+        f'then collect {_join_human(ro)}.')
 
-def _join_human(things: Sequence[str]) -> str:
+  # Conclusions - success and failure messages based on objectives.
+
+  def _objectives_conclusion(self, rng) -> str:
+    result = []
+
+    lost_miners = sum(
+        1 for o in self.cavern.diorama.objectives
+        if isinstance(o, FindMinerObjective))
+    if lost_miners > 0:
+      result.append(f'find the lost miner{"s" if lost_miners > 1 else ""}')
+    
+    ro = self._resource_objective()
+    if ro:
+      resources = tuple((s, qty) for s, qty in (
+          (f'Energy Crystals', ro.crystals),
+          (f'ore', ro.ore),
+          (f'Building Studs', ro.studs)) if qty > 0)
+      if len(resources) > 1:
+        resource = 'the resources'
+      else:
+        resource = f'{_spell_number(resources[0][1])} {resources[0][0]}'
+      result.append(rng.choice(conclusions.RESOURCES) % resource)
+
+    return _join_human(result)
+
+  def _objectives_achieved(self, rng) -> str:
+    return (
+        rng.choice(conclusions.ACHIEVED)
+        % self._objectives_conclusion(rng))
+
+  def _objectives_failed(self, rng) -> str:
+    return (
+        rng.choice(conclusions.FAILED)
+        % self._objectives_conclusion(rng))
+
+def _capitalize_first(s: str) -> str:
+  return s[0].upper() + s[1:] if s else s
+
+def _join_human(things: Sequence[str], conjunction: str = 'and') -> str:
   if len(things) == 0:
     return ''
   if len(things) == 1:
     return things[0]
-  return f'{", ".join(things[:-1])} and {things[-1]}'
+  return f'{", ".join(things[:-1])} {conjunction} {things[-1]}'
+
+def _spell_number(n: int) -> str:
+  if n > 999:
+    return str(n)
+  r = []
+  while n > 0:
+    if n >= 100:
+      r.append(f'{_spell_number(n // 100)} hundred')
+      n = n % 100
+    elif n >= 20:
+      r.append((
+          'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty',
+          'ninety')[(n // 10) - 2])
+      n = n % 10
+    else:
+      r.append((
+          'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
+          'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen',
+          'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen')[n - 1])
+      n = 0
+  return ' '.join(r)

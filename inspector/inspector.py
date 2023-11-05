@@ -10,7 +10,7 @@ from lib import Cavern
 from lib.base import Logger
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner
-from lib.plastic import ResourceObjective, Tile
+from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
 LOG_ITEM_COLOR                         = (0xff, 0xff, 0xff)
@@ -19,7 +19,7 @@ WARNING_COLOR                          = (0xff, 0xff, 0x00)
 BSOD_FG_COLOR                          = (0xff, 0xff, 0xff)
 BSOD_BG_COLOR                          = (0x22, 0x22, 0xDD)
 
-BUBBLE_COLOR                           = (0x08, 0x00, 0x44)
+BUBBLE_COLOR                           = None#(0x08, 0x00, 0x44)
 BUBBLE_OUTLINE_COLOR                   = (0x10, 0x00, 0x77)
 BUBBLE_LABEL_COLOR_MOVING              = (0xff, 0xff, 0xff)
 BUBBLE_LABEL_COLOR_STATIONARY          = (0x77, 0x77, 0xff)
@@ -50,8 +50,9 @@ PEARL_LAYER_COLORS = [
 ]
 CRYSTAL_COLOR = Tile.CRYSTAL_SEAM.inspect_color
 BUILDING_COLOR                          = (0xff, 0xff, 0x00)
-
 BUILDING_LABEL_RADIUS = 10
+
+MINER_COLOR                             = (0xff, 0xff, 0x00)
 
 class Inspector(Logger):
 
@@ -77,7 +78,7 @@ class Inspector(Logger):
       for first in (True, False):
         for space in cavern.spaces:
           color, outline_color, label_color = space_colors(space)
-          if color is None:
+          if color is None and outline_color is None:
             continue
           space_rect = (
               space.left,
@@ -85,7 +86,8 @@ class Inspector(Logger):
               space.width,
               space.height)
           if first:
-            frame.draw_rect(color, space_rect)
+            if color:
+              frame.draw_rect(color, space_rect)
             if outline_color:
               frame.draw_rect(outline_color, space_rect, 1)
           else:
@@ -151,27 +153,43 @@ class Inspector(Logger):
         (building.x, building.y, 1, 1),
         (0, 0))
 
+    # Draw miners
+    for miner in cavern.diorama.miners:
+      frame.draw_circle(
+          MINER_COLOR,
+          (miner.x, miner.y),
+          0.25)
+
+    # Draw objectives that have map positions
+    for objective in cavern.diorama.objectives:
+      if isinstance(objective, FindMinerObjective):
+        frame.draw_circle(
+            MINER_COLOR,
+            (objective.miner.x, objective.miner.y),
+            2,
+            2)
+
+    # Label height and width
+    if stage == 'fence':
+      if cavern.diorama.bounds:
+        left, top, width, height = cavern.diorama.bounds
+        label_rect = (left, top, width, height)
+        frame.draw_label_for_rect(
+            self.font_title,
+            str(width),
+            TITLE_COLOR,
+            None,
+            label_rect,
+            (0, -1))
+        frame.draw_label_for_rect(
+            self.font_title,
+            str(height),
+            TITLE_COLOR,
+            None,
+            label_rect,
+            (1, 0))
+
     if not done:
-      # Label height and width
-      if stage == 'bounds':
-        if cavern.diorama.bounds:
-          left, top, width, height = cavern.diorama.bounds
-          label_rect = (left, top, width, height)
-          frame.draw_label_for_rect(
-              self.font_title,
-              str(width),
-              TITLE_COLOR,
-              None,
-              label_rect,
-              (0, -1))
-          frame.draw_label_for_rect(
-              self.font_title,
-              str(height),
-              TITLE_COLOR,
-              None,
-              label_rect,
-              (1, 0))
-      
       # Draw circle markers for planners
       for planner in cavern.planners:
         fg_color = (0xff, 0xff, 0xff)

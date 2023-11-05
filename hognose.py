@@ -5,7 +5,6 @@ import sys
 import traceback
 import time
 
-from inspector import Inspector
 from lib import Cavern
 from lib.base import Context
 from lib.version import VERSION_INFO, VERSION
