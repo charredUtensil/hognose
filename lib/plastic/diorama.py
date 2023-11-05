@@ -31,6 +31,7 @@ class Diorama(object):
     self.briefing = ''
     self.briefing_success = ''
     self.briefing_failure = ''
+    self.level_name = ''
 
     self.camera_origin: Tuple[int, int] = (0, 0)
     self.bounds: Optional[Tuple[int, int, int, int]] = None

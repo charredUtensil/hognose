@@ -29,9 +29,11 @@ class Context(object):
     self.lava_spread           = 0.30
 
     self.base_richness         = 0.50
-    self.hop_richness          = 3.00
+    self.hop_richness          = 4.00
 
     self.cave_baroqueness      = 0.12
+
+    self.crystal_goal_ratio    = 0.20
 
   def __str__(self):
     return f'seed:0x{self.seed:08x}'

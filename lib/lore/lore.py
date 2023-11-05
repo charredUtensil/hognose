@@ -10,6 +10,10 @@ class Lore(object):
   def __init__(self, cavern: 'Cavern'):
     self.cavern = cavern
 
+  def level_name(self) -> str:
+    rng = self.cavern.context.rng(-4)
+    return f'HN-{hex(self.cavern.context.seed)[2:]}'
+
   def briefing(self) -> str:
     rng = self.cavern.context.rng(-1)
     opening = self._opening(rng)

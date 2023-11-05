@@ -28,11 +28,13 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield f'camerapos:{_camera_origin(diorama)}'
   yield 'biome:rock'
   yield 'creator:hognose'
+  if diorama.level_name:
+    yield f'levelname:{diorama.level_name}'
+  yield f'opencaves:{_tile_coords(diorama, sorted(diorama.open_cave_flags))}'
   yield 'spiderrate:10'
   yield 'spidermin:2'
   yield 'spidermax:4'
-  yield 'version:2023-08-14-1'  # The version of MM this is for. 
-  yield f'opencaves:{_tile_coords(diorama, sorted(diorama.open_cave_flags))}'
+  yield 'version:2023-08-14-1'  # The version of MM this is for.
   yield '}'
 
   yield 'tiles{'

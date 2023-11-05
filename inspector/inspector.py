@@ -10,6 +10,14 @@ from lib import Cavern
 from lib.base import Logger
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner
+from lib.planners.caves import (
+    EmptyCavePlanner,
+    LostMinersCavePlanner,
+    SpawnCavePlanner,
+    TreasureCavePlanner)
+from lib.planners.halls import (
+    EmptyHallPlanner,
+    ThinHallPlanner)
 from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
@@ -19,29 +27,52 @@ WARNING_COLOR                          = (0xff, 0xff, 0x00)
 BSOD_FG_COLOR                          = (0xff, 0xff, 0xff)
 BSOD_BG_COLOR                          = (0x22, 0x22, 0xDD)
 
-BUBBLE_COLOR                           = None#(0x08, 0x00, 0x44)
 BUBBLE_OUTLINE_COLOR                   = (0x10, 0x00, 0x77)
 BUBBLE_LABEL_COLOR_MOVING              = (0xff, 0xff, 0xff)
 BUBBLE_LABEL_COLOR_STATIONARY          = (0x77, 0x77, 0xff)
 
 BASEPLATE_COLORS = {
-  Baseplate.AMBIGUOUS                  : (0x20, 0x20, 0x20),
-  Baseplate.EXCLUDED                   : None,
-  Baseplate.SPECIAL                    : (0x77, 0x00, 0x10),
-  Baseplate.HALL                       : (0x44, 0x00, 0x08),
+    Baseplate.AMBIGUOUS                : (0x20, 0x20, 0x20),
+    Baseplate.EXCLUDED                 : None,
+    Baseplate.SPECIAL                  : (0x77, 0x00, 0x10),
+    Baseplate.HALL                     : (0x44, 0x00, 0x08),
 }
 BASEPLATE_OUTLINE_COLORS = {
-  Baseplate.AMBIGUOUS                  : (0x40, 0x40, 0x40),
-  Baseplate.EXCLUDED                   : None,
-  Baseplate.SPECIAL                    : None,
-  Baseplate.HALL                       : None,
+    Baseplate.AMBIGUOUS                : (0x40, 0x40, 0x40),
+    Baseplate.EXCLUDED                 : None,
+    Baseplate.SPECIAL                  : None,
+    Baseplate.HALL                     : None,
 }
+BASEPLATE_LABEL_COLORS = {
+    Baseplate.AMBIGUOUS                : (0x77, 0x77, 0x77),
+    Baseplate.EXCLUDED                 : None,
+    Baseplate.SPECIAL                  : (0xff, 0x77, 0x77),
+    Baseplate.HALL                     : None,
+}
+
 PATH_COLORS = {
-  Path.AMBIGUOUS                       : (0x66, 0x66, 0x66),
-  Path.EXCLUDED                        : None,
-  Path.SPANNING                        : (0xff, 0xff, 0x00),
-  Path.AUXILIARY                       : (0x44, 0xff, 0x00),
+    Path.AMBIGUOUS                     : (0x66, 0x66, 0x66),
+    Path.EXCLUDED                      : None,
+    Path.SPANNING                      : (0xff, 0xff, 0x00),
+    Path.AUXILIARY                     : (0x44, 0xff, 0x00),
 }
+
+PLANNER_FLUID_COLORS = {
+    None: Tile.FLOOR.inspect_color,
+    Tile.WATER: Tile.WATER.inspect_color,
+    Tile.LAVA: Tile.LAVA.inspect_color,
+}
+PLANNER_TYPE_BORDER_COLORS = {
+    EmptyCavePlanner                   : (0xff, 0xff, 0xff),
+    LostMinersCavePlanner              : (0xff, 0xff, 0x00),
+    SpawnCavePlanner                   : (0x00, 0xff, 0xff),
+    TreasureCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
+    EmptyHallPlanner                   : (0x77, 0x00, 0x10),
+    ThinHallPlanner                    : (0x77, 0x00, 0x10),
+}
+PLANNER_BORDER_COLOR = Tile.DIRT.inspect_color
+PLANNER_TEXT_COLOR                     = (0xff, 0xff, 0xff)
+
 PEARL_LAYER_COLORS = [
                                          (0xff, 0x00, 0xff),
                                          (0xff, 0xff, 0xff),
@@ -73,34 +104,32 @@ class Inspector(Logger):
     
     frame = Frame()
 
-    if not done:
-      # Draw spaces - all rectangles first, then all labels
-      for first in (True, False):
-        for space in cavern.spaces:
-          color, outline_color, label_color = space_colors(space)
-          if color is None and outline_color is None:
-            continue
-          space_rect = (
-              space.left,
-              space.top,
-              space.width,
-              space.height)
-          if first:
-            if color:
-              frame.draw_rect(color, space_rect)
-            if outline_color:
-              frame.draw_rect(outline_color, space_rect, 1)
-          else:
-            if label_color:
-              frame.draw_label_for_rect(
-                  self.font,
-                  f'{space.id:03d}',
-                  label_color,
-                  None,
-                  space_rect,
-                  (-1, -1))
 
-      # Draw paths
+    if cavern.diorama.bounds:
+      # If there are bounds, draw solid rock in those bounds
+      frame.draw_rect(
+          Tile.SOLID_ROCK.inspect_color,
+          cavern.diorama.bounds)
+    else:
+      # Draw bubbles and baseplates
+      for b in cavern.baseplates:
+        _draw_space(frame, b, BASEPLATE_COLORS[b.kind], BASEPLATE_OUTLINE_COLORS[b.kind])
+      if stage in ('bubble', 'separate', 'rasterize'):
+        for b in cavern.bubbles:
+          _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
+      if stage in ('bubble', 'separate'):
+        for b in cavern.bubbles:
+          color = (
+            BUBBLE_LABEL_COLOR_MOVING if b.moving
+            else BUBBLE_LABEL_COLOR_STATIONARY)
+          _draw_space_label(frame, b, self.font, color)
+      if not cavern.conquest:
+        for b in cavern.baseplates:
+          if b.kind == Baseplate.SPECIAL or stage in ('rasterize', 'discriminate'):
+            _draw_space_label(frame, b, self.font,BASEPLATE_LABEL_COLORS[b.kind])
+
+    # Draw paths
+    if not cavern.conquest:
       for path in cavern.paths:
         color = PATH_COLORS[path.kind]
         if color is None:
@@ -110,13 +139,34 @@ class Inspector(Logger):
             color,
             a.center,
             b.center,
-            2)
+            3 if path.kind == Path.SPANNING else 2)
 
-    # Draw solid rock in bounds
-    if cavern.diorama.bounds:
-      frame.draw_rect(
-          Tile.SOLID_ROCK.inspect_color,
-          cavern.diorama.bounds)
+    # Draw circle markers for planners
+    if stage in ('negotiate', 'flood', 'conquest'):
+      for planner in cavern.conquest.planners:
+        if isinstance(planner, StemPlanner):
+          bg_color = PLANNER_FLUID_COLORS[planner.fluid_type]
+          label_radius = 13 if planner.kind == StemPlanner.CAVE else 9
+          _draw_planner(
+              frame,
+              planner,
+              self.font,
+              PLANNER_BORDER_COLOR,
+              bg_color,
+              label_radius)
+    if stage in ('conquest', 'rough'):
+      for planner in cavern.conquest.somatic_planners:
+        if planner:
+          bg_color = (0,0,0)
+          border_color = PLANNER_TYPE_BORDER_COLORS[type(planner)]
+          label_radius = 9
+          _draw_planner(
+              frame,
+              planner,
+              self.font,
+              border_color,
+              bg_color,
+              label_radius)
 
     # Draw tiles
     for (x, y), tile in cavern.diorama.tiles.items():
@@ -139,7 +189,7 @@ class Inspector(Logger):
           self.font,
           f'{crystals:d}',
           CRYSTAL_COLOR,
-          (0,0,0),
+          (0, 0, 0),
           (x, y, 1, 1),
           (0, 0))
 
@@ -189,24 +239,6 @@ class Inspector(Logger):
             label_rect,
             (1, 0))
 
-    if not done:
-      # Draw circle markers for planners
-      for planner in cavern.planners:
-        fg_color = (0xff, 0xff, 0xff)
-        origin = planner.center
-        bg_color = planner_bg_color(planner)
-        if bg_color:
-          frame.draw_circle(
-            bg_color,
-            origin,
-            Absolute(10))
-          frame.draw_text(
-            self.font,
-            f'{planner.id:d}',
-            fg_color,
-            origin,
-            (0, 0))
-         
     # Draw titles
     frame.draw_text(
         self.font_title,
@@ -248,7 +280,7 @@ class Inspector(Logger):
           LOG_ITEM_COLOR,
           (Relative(0.5), Relative(1)),
           (0, -1))
-      if hasattr(item, 'pearl') and item.pearl:
+      if stage == 'rough':
         for ((x1, y1), l1, _), ((x2, y2), l2, _) in itertools.pairwise(item._pearl):
           if l1 > 0 and l1 == l2 and (x1 in range(x2-1,x2+2)) and (y1 in range(y2-1,y2+2)):
             frame.draw_line(
@@ -344,27 +376,63 @@ class Inspector(Logger):
     except KeyboardInterrupt as e:
       pass
 
-def space_colors(space):
-  if isinstance(space, Bubble):
-    label_color = (
-      BUBBLE_LABEL_COLOR_MOVING
-      if space.moving
-      else BUBBLE_LABEL_COLOR_STATIONARY)
-    return BUBBLE_COLOR, BUBBLE_OUTLINE_COLOR, label_color
-  elif isinstance(space, Baseplate):
-    return (
-        BASEPLATE_COLORS[space.kind],
-        BASEPLATE_OUTLINE_COLORS[space.kind],
-        None)
-  else:
-    return (None, None, None)
+def _draw_space(frame, space, color, outline_color):
+  rect = (
+      space.left,
+      space.top,
+      space.width,
+      space.height)
+  if color:
+    frame.draw_rect(color, rect)
+  if outline_color:
+    frame.draw_rect(outline_color, rect, 1)
 
-def planner_bg_color(planner):
-  if isinstance(planner, StemPlanner):
-    if planner.fluid_type is None:
-      return (0, 0, 0)
-    return {
-      Tile.WATER: Tile.WATER.inspect_color,
-      Tile.LAVA: Tile.LAVA.inspect_color
-    }[planner.fluid_type]
-  return None
+def _draw_space_label(frame, space, font, color):
+  if color:
+    rect = (
+        space.left,
+        space.top,
+        space.width,
+        space.height)
+    frame.draw_label_for_rect(
+        font,
+        f'{space.id:03d}',
+        color,
+        None,
+        rect,
+        (-1, -1))
+
+def _draw_planner(frame, planner, font, border_color, bg_color, label_radius):
+  origin = planner.center
+  frame.draw_circle(
+    border_color,
+    origin,
+    Absolute(label_radius + 2))
+  for a, b in itertools.pairwise(planner.baseplates):
+    frame.draw_line(
+      border_color,
+      a.center,
+      b.center,
+      7)
+  frame.draw_circle(
+    bg_color,
+    origin,
+    Absolute(label_radius))
+  for a, b in itertools.pairwise(planner.baseplates):
+    frame.draw_line(
+      bg_color,
+      a.center,
+      b.center,
+      3)
+  if len(planner.baseplates) > 1:
+    for i in 0, -1:
+      frame.draw_circle(
+        border_color,
+        planner.baseplates[i].center,
+        Absolute(4))
+  frame.draw_text(
+    font,
+    f'{planner.id:d}',
+    PLANNER_TEXT_COLOR,
+    origin,
+    (0, 0))

@@ -179,36 +179,44 @@ class Cavern(object):
         path.weave()
 
   def _bore(self):
+    """Add unused baseplates to paths they intersect."""
     Path.bore(self.paths, self.baseplates)
 
   def _negotiate(self):
-    """Give lots to planners"""
+    """Give baseplates to planners."""
     self.conquest = Conquest(
         self.context,
         StemPlanner.from_outlines(self.context, self.paths, self.baseplates))
 
   def _flood(self):
+    """Put water and lava in some planners."""
     self.conquest.flood()
   
   def _conquest(self):
+    """Move outward from spawn and decide how to specialize planners."""
     yield from self.conquest.conquest()
 
   def _rough(self):
+    """Do a rough draft of tile placement that may be overwritten."""
     for planner in self.conquest.somatic_planners:
       planner.rough(self.diorama.tiles)
       yield planner
 
   def _patch(self):
+    """Fix walls that would immediately collapse on load."""
     patch(self.diorama.tiles)
 
   def _fine(self):
+    """Put anything else in the level the planners want to have."""
     for planner in self.conquest.somatic_planners:
       planner.fine(self.diorama)
 
   def _discover(self):
+    """Make discovered caverns visible at start."""
     self.diorama.discover()
 
   def _adjure(self):
+    """Figure out objectives for the level."""
     def objectives():
       for planner in self.conquest.somatic_planners:
         yield from planner.objectives
@@ -216,22 +224,23 @@ class Cavern(object):
     # If none of the caverns have objectives, generate one to collect a
     # resaonable number of crystals.
     if not self.diorama.objectives:
-      # Most levels in the Standard campaign have a goal of about 1/4 - 1/8 of
-      # all crystals in the level. Baz' mod levels tend to want more.
-      crystals = self.diorama.total_crystals // 4
-      # Round down to the nearest 5.
+      crystals = math.floor(
+          self.diorama.total_crystals * self.context.crystal_goal_ratio)
       crystals -= (crystals % 5)
       self.diorama.objectives.append(
         ResourceObjective(crystals=crystals)
       )
 
   def _enscribe(self):
+    """Generate copy for briefings, etc..."""
     lore = Lore(self)
     self.diorama.briefing = lore.briefing()
     self.diorama.briefing_success = lore.success()
     self.diorama.briefing_failure = lore.failure()
+    self.diorama.level_name = lore.level_name()
 
   def _fence(self):
+    """Compute the final bounds of the level."""
     left   = min(x for x, _ in self.diorama.tiles) - 1
     top    = min(y for _, y in self.diorama.tiles) - 1
     width  = max(x for x, _ in self.diorama.tiles) + 2 - left
