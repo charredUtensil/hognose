@@ -7,6 +7,10 @@ class ThinHallPlanner(BaseHallPlanner):
   def __init__(self, stem, conquest, oyster):
     super().__init__(stem, oyster)
 
+  @property
+  def pearl_radius(self):
+    return 0
+
   @classmethod
   def bids(cls, stem, conquest):
     if stem.fluid_type is None:

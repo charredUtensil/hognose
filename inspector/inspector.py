@@ -104,7 +104,6 @@ class Inspector(Logger):
     
     frame = Frame()
 
-
     if cavern.diorama.bounds:
       # If there are bounds, draw solid rock in those bounds
       frame.draw_rect(
@@ -113,7 +112,11 @@ class Inspector(Logger):
     else:
       # Draw bubbles and baseplates
       for b in cavern.baseplates:
-        _draw_space(frame, b, BASEPLATE_COLORS[b.kind], BASEPLATE_OUTLINE_COLORS[b.kind])
+        _draw_space(
+            frame,
+            b,
+            BASEPLATE_COLORS[b.kind],
+            BASEPLATE_OUTLINE_COLORS[b.kind])
       if stage in ('bubble', 'separate', 'rasterize'):
         for b in cavern.bubbles:
           _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
@@ -125,8 +128,12 @@ class Inspector(Logger):
           _draw_space_label(frame, b, self.font, color)
       if not cavern.conquest:
         for b in cavern.baseplates:
-          if b.kind == Baseplate.SPECIAL or stage in ('rasterize', 'discriminate'):
-            _draw_space_label(frame, b, self.font,BASEPLATE_LABEL_COLORS[b.kind])
+          if (b.kind == Baseplate.SPECIAL
+              or stage in ('rasterize', 'discriminate')):
+            _draw_space_label(
+                frame,
+                b,
+                self.font,BASEPLATE_LABEL_COLORS[b.kind])
 
     # Draw paths
     if not cavern.conquest:
@@ -178,6 +185,8 @@ class Inspector(Logger):
 
     # Draw crystals
     for (x, y), crystals in cavern.diorama.crystals.items():
+      if cavern.diorama.tiles.get((x, y)) == Tile.CRYSTAL_SEAM:
+        crystals += 4
       if crystals < 5:
         frame.draw_circle(
           CRYSTAL_COLOR,
@@ -237,21 +246,24 @@ class Inspector(Logger):
             TITLE_COLOR,
             None,
             label_rect,
-            (1, 0))
+           (1, 0))
 
     # Draw titles
+    # Top left: Frame + Stage
     frame.draw_text(
         self.font_title,
-        f'{len(self.frames):4d} {stage}',
+        f'{len(self.frames):d} {stage}',
         TITLE_COLOR,
         (Relative(0), Relative(0)),
         (1, 1))
+    # Top right: Name or Seed
     frame.draw_text(
         self.font_title,
-        f'seed: {hex(cavern.context.seed)}',
+        cavern.diorama.level_name or f'seed: {hex(cavern.context.seed)}',
         TITLE_COLOR,
         (Relative(1), Relative(0)),
         (-1, 1))
+    # Bottom left: Crystal count
     total_crystals = (
       cavern.diorama.total_crystals or
       sum(p.expected_crystals for p in cavern.planners)

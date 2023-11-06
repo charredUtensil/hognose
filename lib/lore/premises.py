@@ -29,3 +29,10 @@ LOST_MINERS_APART = (
     'after a recent cave-in, our miners were scattered and lost',
     'a teleporter malfunction has scattered some of our miners throughout the cavern',
 )
+
+# Generic things
+
+GENERIC = (
+    'our mining operations have been going smoothly, and we are ready to move '
+    'on to the next cavern',
+)

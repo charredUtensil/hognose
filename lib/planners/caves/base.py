@@ -1,3 +1,4 @@
+import collections
 import itertools
 import math
 
@@ -19,14 +20,16 @@ class BaseCavePlanner(SomaticPlanner):
     return sorted(set(itertools.chain(self.walk_stream(), h())))
 
   def fine(self, diorama):
+    self.place_crystals(diorama)
+
+  def place_crystals(self, diorama):
     t = tuple(
-      (x, y)
-      for (x, y), layer, sequence
+      pearl_info.pos
+      for pearl_info
       in self.pearl
-      if diorama.tiles.get((x, y)) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
+      if diorama.tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       crystals = self.expected_crystals
-      
       for _ in range(crystals):
         x, y = self.rng.choice(t)
         existing = diorama.crystals.get((x, y), 0)
@@ -36,5 +39,22 @@ class BaseCavePlanner(SomaticPlanner):
         else:
           diorama.crystals[x, y] = existing + 1
     else:
-      self.context.logger.log_warning(f'Nowhere to put crystals in {self.id}')
-      diorama.crystals[self.pearl[0].pos] += self.expected_crystals
+      def placements():
+        for pearl_info in self.walk_pearl(
+            (p.pos for p in self.pearl),
+            max_layers = 2,
+            include_nucleus = False,
+            baroqueness = 0):
+          x, y = pearl_info.pos
+          if diorama.tiles.get((x, y), Tile.SOLID_ROCK) == Tile.SOLID_ROCK:
+            neighbor_count = collections.Counter()
+            for (ox, oy) in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+              neighbor_count[diorama.tiles.get((x + ox, y + oy), Tile.SOLID_ROCK)] += 1
+            if any(n.passable_by_miner for n in neighbor_count):
+              yield neighbor_count[Tile.SOLID_ROCK], (x, y)
+      _, (x, y) = max(placements())
+      crystals = self.expected_crystals
+      if crystals >= 4:
+        diorama.tiles[x, y] = Tile.CRYSTAL_SEAM
+        crystals -= 4
+      diorama.crystals[x, y] += crystals

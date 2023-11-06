@@ -58,7 +58,11 @@ class SomaticPlanner(Planner):
   def walk_pearl(
       self,
       nucleus: Iterable[Tuple[int, int]],
-      max_layers: int) -> Iterable[PearlInfo]:
+      max_layers: int,
+      include_nucleus: bool = True,
+      baroqueness: float = None) -> Iterable[PearlInfo]:
+    if baroqueness is None:
+      baroqueness = self.context.cave_baroqueness
     last_layer = list(nucleus)
     for i, (x, y) in enumerate(last_layer):
       yield PearlInfo(pos=(x, y), layer=0, sequence=i)
@@ -106,7 +110,9 @@ class SomaticPlanner(Planner):
                 # Finish exploring from this point.
                 done = True
             # And the rng allows it...
-            elif self.rng.random() > self.context.cave_baroqueness:
+            elif (
+                not baroqueness
+                or self.rng.random() > baroqueness):
               # Move to it
               cx, cy, cvx, cvy = nx, ny, vx, vy
               break

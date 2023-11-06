@@ -81,7 +81,9 @@ class Lore(object):
       return (
           f'{_capitalize_first(_join_human(positive))}. '
           f'{bridge} {_join_human(negative)}.')
-    return f'{_capitalize_first(_join_human(positive or negative))}.'
+    return _capitalize_first(
+        _join_human(positive or negative)
+        or rng.choice(premises.GENERIC)) + '.'
 
 
   # Orders - objectives phrased in briefings.
