@@ -32,6 +32,9 @@ class Context(object):
     self.hop_richness          = 4.00
 
     self.cave_baroqueness      = 0.12
+    self.hall_baroqueness      = 0.05
+
+    self.recharge_seam_chance  = 0.07
 
     self.crystal_goal_ratio    = 0.20
 

@@ -24,10 +24,10 @@ def main():
     help='Draw the cavern generation process to the screen.')
   parser.add_argument(
     '-o', '--out',
-    help='Output file to write, or - for stdout.')
+    help='Write file to OUT (- for stdout).')
   parser.add_argument(
     '-s', '--seed',
-    help='Main seed for cavern generation.')
+    help='Use SEED for cavern generation.')
   parser.add_argument(
     '-v', '--version',
     action='version',
@@ -47,21 +47,22 @@ def main():
     seed = args.seed,
     logger = inx)
   cavern = Cavern(context)
+  if inx:
+    inx.cavern = cavern
 
   start_time = time.time_ns()
   try:
     cavern.generate()
-    serialized = cavern.serialize()
   except Exception as e:
-    if inx:
-      inx.log_exception(cavern, e)
-      inx.wait()
+    print(
+        f'Failed to generate cave {hex(context.seed)}',
+        file=sys.stderr)
     sys.exit(1)
   if args.out == '-':
-    print(serialized)
+    print(cavern.serialized)
   elif args.out:
     with open(args.out, 'w') as f:
-      f.write(serialized)
+      f.write(cavern.serialized)
   print((
     f'Generated cave {hex(context.seed)} '
     f'in {(time.time_ns() - start_time) // 1_000_000}ms'),

@@ -9,14 +9,13 @@ import traceback
 
 class Logger(abc.ABC):
 
-  def log(self, cavern: 'Cavern', stage: str, item: Any):
+  def log_stage(self, stage: str, index: int, total_stages: int, details: Any):
     pass
 
   def log_warning(self, message: str):
     print(f'warning: {message}', file=sys.stderr)
 
-  def log_exception(self, cavern: 'Cavern', e: Exception):
-    print(f'error: Exception on seed {hex(cavern.context.seed)}', file=sys.stderr)
+  def log_exception(self, e: Exception):
     print(
         ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
         file=sys.stderr)

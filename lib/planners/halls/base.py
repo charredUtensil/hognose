@@ -4,6 +4,10 @@ from lib.planners.base import SomaticPlanner
 from lib.plastic import Tile
 
 class BaseHallPlanner(SomaticPlanner):
+  
+  @property
+  def baroqueness(self) -> float:
+    return self.context.hall_baroqueness
 
   def walk(self):
     r = min(min(bp.width, bp.height) for bp in self.baseplates) // 2

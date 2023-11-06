@@ -13,9 +13,9 @@ MINOR    = 0
 # Changing the revision number means:
 #   A generated cavern will have almost identical gameplay as before. Maybe
 #   some crystals are in slightly different places, or landslides happen more
-#   or less frequently, or there are small variations in the shape of rooms.
-#   There are three monsters now instead of four.
+#   or less frequently, or there are small variations in the shape of rooms
+#   i.e. there are three monsters now instead of four.
 REVISION = 0
 
 VERSION_INFO = (MAJOR, MINOR, REVISION)
-VERSION = '.'.join(str(v) for v in VERSION_INFO)
+VERSION = f'{MAJOR:d}.{MINOR:02d}.{REVISION:02d}'

@@ -1,4 +1,5 @@
-from typing import List, Tuple
+from collections.abc import Callable
+from typing import List, Optional, Tuple
 
 import itertools
 import math
@@ -21,8 +22,11 @@ from lib.planners.halls import (
 from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
-LOG_ITEM_COLOR                         = (0xff, 0xff, 0xff)
+LOG_DETAILS_COLOR                      = (0xff, 0xff, 0xff)
 WARNING_COLOR                          = (0xff, 0xff, 0x00)
+PROGRESS_COLOR                         = (0x00, 0xff, 0x22)
+
+FRAME_BG_COLOR                         = (0x00, 0x00, 0x00)
 
 BSOD_FG_COLOR                          = (0xff, 0xff, 0xff)
 BSOD_BG_COLOR                          = (0x22, 0x22, 0xDD)
@@ -88,6 +92,7 @@ MINER_COLOR                             = (0xff, 0xff, 0x00)
 class Inspector(Logger):
 
   def __init__(self):
+    self.cavern = None
     pygame.init()
     pygame.font.init()
     self.window_surface = pygame.display.set_mode((800, 600), pygame.RESIZABLE, 32)
@@ -98,36 +103,38 @@ class Inspector(Logger):
     self.font_title = pygame.font.SysFont('trebuchetms', 24, bold=True)
     self.warnings = []
 
-  def log(self, cavern: Cavern, stage, item):
-    done = cavern.is_done()
-    pygame.display.set_caption('A new cavern has been discovered!' if done else 'Speleogenesis...')
+  def log_stage(self, stage, index, total_stages, details):
+    done = self.cavern.is_done()
+    pygame.display.set_caption(
+        'A new cavern has been discovered!' if done
+        else f'Speleogenesis {100 * index // total_stages:d}%')
     
     frame = Frame()
 
-    if cavern.diorama.bounds:
+    if self.cavern.diorama.bounds:
       # If there are bounds, draw solid rock in those bounds
       frame.draw_rect(
           Tile.SOLID_ROCK.inspect_color,
-          cavern.diorama.bounds)
+          self.cavern.diorama.bounds)
     else:
       # Draw bubbles and baseplates
-      for b in cavern.baseplates:
+      for b in self.cavern.baseplates:
         _draw_space(
             frame,
             b,
             BASEPLATE_COLORS[b.kind],
             BASEPLATE_OUTLINE_COLORS[b.kind])
       if stage in ('bubble', 'separate', 'rasterize'):
-        for b in cavern.bubbles:
+        for b in self.cavern.bubbles:
           _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
       if stage in ('bubble', 'separate'):
-        for b in cavern.bubbles:
+        for b in self.cavern.bubbles:
           color = (
             BUBBLE_LABEL_COLOR_MOVING if b.moving
             else BUBBLE_LABEL_COLOR_STATIONARY)
           _draw_space_label(frame, b, self.font, color)
-      if not cavern.conquest:
-        for b in cavern.baseplates:
+      if not self.cavern.conquest:
+        for b in self.cavern.baseplates:
           if (b.kind == Baseplate.SPECIAL
               or stage in ('rasterize', 'discriminate')):
             _draw_space_label(
@@ -136,8 +143,8 @@ class Inspector(Logger):
                 self.font,BASEPLATE_LABEL_COLORS[b.kind])
 
     # Draw paths
-    if not cavern.conquest:
-      for path in cavern.paths:
+    if not self.cavern.conquest:
+      for path in self.cavern.paths:
         color = PATH_COLORS[path.kind]
         if color is None:
           continue
@@ -150,42 +157,48 @@ class Inspector(Logger):
 
     # Draw circle markers for planners
     if stage in ('negotiate', 'flood', 'conquest'):
-      for planner in cavern.conquest.planners:
+      for planner in self.cavern.conquest.planners:
         if isinstance(planner, StemPlanner):
           bg_color = PLANNER_FLUID_COLORS[planner.fluid_type]
           label_radius = 13 if planner.kind == StemPlanner.CAVE else 9
+          line_thickness = 3
           _draw_planner(
               frame,
               planner,
               self.font,
               PLANNER_BORDER_COLOR,
               bg_color,
-              label_radius)
+              label_radius,
+              line_thickness)
     if stage in ('conquest', 'rough'):
-      for planner in cavern.conquest.somatic_planners:
-        if planner:
-          bg_color = (0,0,0)
-          border_color = PLANNER_TYPE_BORDER_COLORS[type(planner)]
+      for stem, somatic in zip(
+          self.cavern.conquest.stem_planners,
+          self.cavern.conquest.somatic_planners):
+        if somatic:
+          bg_color = PLANNER_FLUID_COLORS[stem.fluid_type]
+          border_color = PLANNER_TYPE_BORDER_COLORS[type(somatic)]
           label_radius = 9
+          line_thickness = 5
           _draw_planner(
               frame,
-              planner,
+              somatic,
               self.font,
               border_color,
               bg_color,
-              label_radius)
+              label_radius,
+              line_thickness)
 
     # Draw tiles
-    for (x, y), tile in cavern.diorama.tiles.items():
+    for (x, y), tile in self.cavern.diorama.tiles.items():
       color = tile.inspect_color
-      if stage == 'discover' and (x, y) not in cavern.diorama.discovered:
+      if stage == 'discover' and (x, y) not in self.cavern.diorama.discovered:
         c = sum(color) / 6
         color = (c, c, c)
       frame.draw_rect(color, (x, y, 1, 1))
 
     # Draw crystals
-    for (x, y), crystals in cavern.diorama.crystals.items():
-      if cavern.diorama.tiles.get((x, y)) == Tile.CRYSTAL_SEAM:
+    for (x, y), crystals in self.cavern.diorama.crystals.items():
+      if self.cavern.diorama.tiles.get((x, y)) == Tile.CRYSTAL_SEAM:
         crystals += 4
       if crystals < 5:
         frame.draw_circle(
@@ -203,7 +216,7 @@ class Inspector(Logger):
           (0, 0))
 
     # Draw buildings
-    for building in cavern.diorama.buildings:
+    for building in self.cavern.diorama.buildings:
       frame.draw_label_for_rect(
         self.font,
         building.type.inspect_abbrev,
@@ -213,14 +226,14 @@ class Inspector(Logger):
         (0, 0))
 
     # Draw miners
-    for miner in cavern.diorama.miners:
+    for miner in self.cavern.diorama.miners:
       frame.draw_circle(
           MINER_COLOR,
           (miner.x, miner.y),
           0.25)
 
     # Draw objectives that have map positions
-    for objective in cavern.diorama.objectives:
+    for objective in self.cavern.diorama.objectives:
       if isinstance(objective, FindMinerObjective):
         frame.draw_circle(
             MINER_COLOR,
@@ -230,8 +243,8 @@ class Inspector(Logger):
 
     # Label height and width
     if stage == 'fence':
-      if cavern.diorama.bounds:
-        left, top, width, height = cavern.diorama.bounds
+      if self.cavern.diorama.bounds:
+        left, top, width, height = self.cavern.diorama.bounds
         label_rect = (left, top, width, height)
         frame.draw_label_for_rect(
             self.font_title,
@@ -259,18 +272,18 @@ class Inspector(Logger):
     # Top right: Name or Seed
     frame.draw_text(
         self.font_title,
-        cavern.diorama.level_name or f'seed: {hex(cavern.context.seed)}',
+        self.cavern.diorama.level_name or f'seed: {hex(self.cavern.context.seed)}',
         TITLE_COLOR,
         (Relative(1), Relative(0)),
         (-1, 1))
     # Bottom left: Crystal count
     total_crystals = (
-      cavern.diorama.total_crystals or
-      sum(p.expected_crystals for p in cavern.planners)
+      self.cavern.diorama.total_crystals or
+      sum(p.expected_crystals for p in self.cavern.planners)
     )
     if total_crystals > 0:
       goal_crystals = sum((
-          o.crystals for o in cavern.diorama.objectives
+          o.crystals for o in self.cavern.diorama.objectives
           if isinstance(o, ResourceObjective)), 0)
       if goal_crystals:
         message = f'Collect {goal_crystals:d}/{total_crystals:d} EC'
@@ -283,17 +296,17 @@ class Inspector(Logger):
           (Relative(0), Relative(1)),
           (1, -1))
 
-    # Draw the log item
-    if item:
+    # Draw the log details
+    if details:
       position = None
       frame.draw_text(
           self.font_med,
-          str(item),
-          LOG_ITEM_COLOR,
+          str(details),
+          LOG_DETAILS_COLOR,
           (Relative(0.5), Relative(1)),
           (0, -1))
       if stage == 'rough':
-        for ((x1, y1), l1, _), ((x2, y2), l2, _) in itertools.pairwise(item._pearl):
+        for ((x1, y1), l1, _), ((x2, y2), l2, _) in itertools.pairwise(details._pearl):
           if l1 > 0 and l1 == l2 and (x1 in range(x2-1,x2+2)) and (y1 in range(y2-1,y2+2)):
             frame.draw_line(
               PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
@@ -313,20 +326,50 @@ class Inspector(Logger):
 
     # Save the frame
     self.frames.append((frame, stage))
-    self.draw_frame(frame)
+
+    # Draw a progress bar
+    def after():
+      if stage != 'done':
+        ox = self.window_surface.get_width() // 2
+        oy = self.window_surface.get_height() - 100
+        w = 400
+        h = 20
+        rect = pygame.Rect(
+            ox - w // 2,
+            oy - h // 2,
+            w,
+            h)
+        pygame.draw.rect(
+          self.window_surface,
+          FRAME_BG_COLOR,
+          rect)
+        pygame.draw.rect(
+          self.window_surface,
+          PROGRESS_COLOR,
+          pygame.Rect(
+            ox - w // 2,
+            oy - h // 2,
+            w * index // total_stages,
+            h))
+        pygame.draw.rect(
+          self.window_surface,
+          PROGRESS_COLOR,
+          rect,
+          2)
+    self.draw_frame(frame, after=after)
 
   def log_warning(self, message: str):
     super().log_warning(message)
     self.warnings.append(message)
 
-  def log_exception(self, cavern: Cavern, e: Exception):
-    super().log_exception(cavern, e)
+  def log_exception(self, e: Exception):
+    super().log_exception(e)
     pygame.display.set_caption('Crashed :(')
     frame = Frame()
     frame.fill(BSOD_BG_COLOR)
     frame.draw_text(
       self.font_title,
-      f'{type(e).__name__} in {hex(cavern.context.seed)}',
+      f'{type(e).__name__} in {hex(self.cavern.context.seed)}',
       BSOD_FG_COLOR,
       (Relative(0), Relative(0.25)),
       (1, -1))
@@ -338,10 +381,16 @@ class Inspector(Logger):
       (1, 1))
     self.frames.append((frame, 'crash'))
     self.draw_frame(frame)
+    self.wait()
 
-  def draw_frame(self, frame: Frame):
-    self.window_surface.fill((0, 0, 0))
+  def draw_frame(
+      self,
+      frame: Frame,
+      after: Optional[Callable[[], None]] = None):
+    self.window_surface.fill(FRAME_BG_COLOR)
     frame.playback(self.window_surface, self.scale)
+    if after:
+      after()
     pygame.display.flip()
 
   def wait(self):
@@ -414,7 +463,7 @@ def _draw_space_label(frame, space, font, color):
         rect,
         (-1, -1))
 
-def _draw_planner(frame, planner, font, border_color, bg_color, label_radius):
+def _draw_planner(frame, planner, font, border_color, bg_color, label_radius, line_thickness):
   origin = planner.center
   frame.draw_circle(
     border_color,
@@ -425,7 +474,7 @@ def _draw_planner(frame, planner, font, border_color, bg_color, label_radius):
       border_color,
       a.center,
       b.center,
-      7)
+      line_thickness + 4)
   frame.draw_circle(
     bg_color,
     origin,
@@ -435,7 +484,7 @@ def _draw_planner(frame, planner, font, border_color, bg_color, label_radius):
       bg_color,
       a.center,
       b.center,
-      3)
+      line_thickness)
   if len(planner.baseplates) > 1:
     for i in 0, -1:
       frame.draw_circle(

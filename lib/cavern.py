@@ -22,11 +22,12 @@ class Cavern(object):
     self.context = context
 
     # Actual content data, which steps will fill in
-    self.bubbles:    List[Bubble] = []
-    self.baseplates: List[Baseplate] = []
-    self.paths:      List[Path] = []
-    self.conquest:   Optional[Conquest] = None
-    self._diorama = Diorama(context)
+    self.bubbles:     List[Bubble] = []
+    self.baseplates:  List[Baseplate] = []
+    self.paths:       List[Path] = []
+    self.conquest:    Optional[Conquest] = None
+    self._diorama:    Diorama = Diorama(context)
+    self._serialized: Optional[str] = None
 
   @property
   def spaces(self) -> List[Space]:
@@ -39,6 +40,10 @@ class Cavern(object):
   @property
   def diorama(self) -> Diorama:
     return self._diorama
+
+  @property
+  def serialized(self) -> Optional[str]:
+    return self._serialized
 
   def generate(self):
     """Generates the cavern."""
@@ -113,20 +118,28 @@ class Cavern(object):
       ('adjure',       self._adjure),
       # Write the objectives
       ('enscribe',     self._enscribe),
+      # Serialize the output
+      ('serialize',    self._serialize),
     )
-
-    for stage, fn in stages:
-      self.context.stage = stage
-      r = fn()
-      if r:
-        # THIS LINE IS IMPORTANT!
-        # Need to iterate through r even if there is no logger
-        for item in r:
-          self.context.logger.log(self, stage, item)
-      else:
-        self.context.logger.log(self, stage, None)
-    self.context.stage = 'done'
-    self.context.logger.log(self, 'done', None)
+    try:
+      for i, (stage, fn) in enumerate(stages):
+        self.context.stage = stage
+        r = fn()
+        if r:
+          # THIS LINE IS IMPORTANT!
+          # Need to iterate through r even if there is no logger
+          for details in r:
+            self.context.logger.log_stage(
+                stage, i, len(stages), details)
+        else:
+          self.context.logger.log_stage(
+              stage, i, len(stages), None)
+      self.context.stage = 'done'
+      self.context.logger.log_stage(
+          'done', len(stages), len(stages), None)
+    except Exception as e:
+      self.context.logger.log_exception(e)
+      raise
 
   def is_done(self) -> bool:
     return self.context.stage == 'done'
@@ -255,5 +268,5 @@ class Cavern(object):
       height = width
     self.diorama.bounds = (left, top, width, height)
 
-  def serialize(self):
-    return self.diorama.serialize()
+  def _serialize(self):
+    self._serialized = self.diorama.serialize()

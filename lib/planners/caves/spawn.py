@@ -17,7 +17,7 @@ class SpawnCavePlanner(BaseCavePlanner):
         stem.suggested_crystal_count(conquest))
 
   def fine(self, diorama):
-    self._place_recharge_seam(diorama)
+    self.place_recharge_seam(diorama)
     super().fine(diorama)
     for (a, b) in itertools.pairwise(self.pearl):
       x1, y1 = a.pos
@@ -28,23 +28,6 @@ class SpawnCavePlanner(BaseCavePlanner):
     else:
       x, y = self.pearl[0].pos
       self._place_toolstore(diorama, (x, y), (x, y + 1))
-
-  def _place_recharge_seam(self, diorama):
-    def placements():
-      for pearl_info in self.walk_pearl(
-          (p.pos for p in self.pearl),
-          max_layers = 2,
-          include_nucleus = False,
-          baroqueness = 0):
-        x, y = pearl_info.pos
-        if diorama.tiles.get((x, y), Tile.SOLID_ROCK) == Tile.SOLID_ROCK:
-          neighbor_count = collections.Counter()
-          for (ox, oy) in ((0, -1), (0, 1), (-1, 0), (1, 0)):
-            neighbor_count[diorama.tiles.get((x + ox, y + oy), Tile.SOLID_ROCK)] += 1
-          if any(n.passable_by_miner for n in neighbor_count):
-            yield neighbor_count[Tile.SOLID_ROCK], (x, y)
-    _, (x, y) = max(placements())
-    diorama.tiles[x, y] = Tile.RECHARGE_SEAM
 
   def _place_toolstore(self, diorama, a, b):
     diorama.tiles[a] = Tile.FOUNDATION

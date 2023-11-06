@@ -19,6 +19,11 @@ class SomaticPlanner(Planner):
     self._pearl = None
 
   @property
+  @abc.abstractmethod
+  def baroqueness(self) -> float:
+    pass
+
+  @property
   def oyster(self) -> Oyster:
     return self._oyster
 
@@ -32,7 +37,9 @@ class SomaticPlanner(Planner):
 
   def rough(self, tiles: Dict[Tuple[int, int], Tile]):
     self._pearl = tuple(self.walk_pearl(
-        self.pearl_nucleus(), self.pearl_radius))
+        nucleus = self.pearl_nucleus(),
+        max_layers = self.pearl_radius,
+        baroqueness = self.baroqueness))
     nacre = self.oyster.create(self._pearl[-1].layer)
     for (x, y), layer, sequence in self._pearl:
       nacre.apply(tiles, (x, y), layer, sequence)
@@ -59,10 +66,8 @@ class SomaticPlanner(Planner):
       self,
       nucleus: Iterable[Tuple[int, int]],
       max_layers: int,
-      include_nucleus: bool = True,
-      baroqueness: float = None) -> Iterable[PearlInfo]:
-    if baroqueness is None:
-      baroqueness = self.context.cave_baroqueness
+      baroqueness: float,
+      include_nucleus: bool = True) -> Iterable[PearlInfo]:
     last_layer = list(nucleus)
     for i, (x, y) in enumerate(last_layer):
       yield PearlInfo(pos=(x, y), layer=0, sequence=i)
