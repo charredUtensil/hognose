@@ -3,19 +3,19 @@ from typing import Dict, Iterable, Optional, Tuple
 import itertools
 import math
 
-from lib.plastic import Tile
+from lib.plastic import BasicTile, Tile
 
 class Layer(object):
 
   def __init__(
       self,
-      floor:      Optional[Tile] = None,
-      dirt:       Optional[Tile] = None,
-      loose_rock: Optional[Tile] = None,
-      hard_rock:  Optional[Tile] = None,
-      solid_rock: Optional[Tile] = None,
-      water:      Optional[Tile] = None,
-      lava:       Optional[Tile] = None):
+      floor:      Optional[BasicTile] = None,
+      dirt:       Optional[BasicTile] = None,
+      loose_rock: Optional[BasicTile] = None,
+      hard_rock:  Optional[BasicTile] = None,
+      solid_rock: Optional[BasicTile] = None,
+      water:      Optional[BasicTile] = None,
+      lava:       Optional[BasicTile] = None):
     self._data = {
       Tile.FLOOR: floor,
       Tile.DIRT: dirt,
@@ -26,15 +26,42 @@ class Layer(object):
       Tile.LAVA: lava,
     }
 
+  @classmethod
+  def _always(cls, tile: BasicTile):
+    return cls(
+        floor      = tile,
+        dirt       = tile,
+        loose_rock = tile,
+        hard_rock  = tile,
+        solid_rock = tile,
+        water      = tile,
+        lava       = tile)
+
+# VOID: No effect whatsoever
 Layer.VOID = Layer()
+
+# ALWAYS_*: Ignores existing tile
+Layer.ALWAYS_FLOOR      = Layer._always(Tile.FLOOR)
+Layer.ALWAYS_DIRT       = Layer._always(Tile.DIRT)
+Layer.ALWAYS_LOOSE_ROCK = Layer._always(Tile.LOOSE_ROCK)
+Layer.ALWAYS_HARD_ROCK  = Layer._always(Tile.HARD_ROCK)
+Layer.ALWAYS_SOLID_ROCK = Layer._always(Tile.SOLID_ROCK)
+Layer.ALWAYS_WATER      = Layer._always(Tile.WATER)
+Layer.ALWAYS_LAVA       = Layer._always(Tile.LAVA)
+
+# AT_MOST_*: Replaces only if the existing tile is harder rock
+Layer.AT_MOST_DIRT = Layer(
+    loose_rock = Tile.DIRT,
+    hard_rock  = Tile.DIRT,
+    solid_rock = Tile.DIRT)
+Layer.AT_MOST_LOOSE_ROCK = Layer(
+    hard_rock  = Tile.LOOSE_ROCK,
+    solid_rock = Tile.LOOSE_ROCK)
+Layer.AT_MOST_HARD_ROCK = Layer(
+    solid_rock = Tile.HARD_ROCK)
+
+# No prefix: Replaces any non-flooded tile with the given tile
 Layer.FLOOR = Layer(
-    dirt       = Tile.FLOOR,
-    loose_rock = Tile.FLOOR,
-    hard_rock  = Tile.FLOOR,
-    solid_rock = Tile.FLOOR,
-    water      = Tile.FLOOR,
-    lava       = Tile.FLOOR)
-Layer.OPEN = Layer(
     dirt       = Tile.FLOOR,
     loose_rock = Tile.FLOOR,
     hard_rock  = Tile.FLOOR,
@@ -50,7 +77,9 @@ Layer.LOOSE_ROCK = Layer(
     hard_rock  = Tile.LOOSE_ROCK,
     solid_rock = Tile.LOOSE_ROCK)
 Layer.HARD_ROCK = Layer(
-    floor      = Tile.LOOSE_ROCK,
+    floor      = Tile.HARD_ROCK,
+    dirt       = Tile.HARD_ROCK,
+    loose_rock = Tile.HARD_ROCK,
     solid_rock = Tile.HARD_ROCK)
 Layer.WATER = Layer(
     floor      = Tile.WATER,
@@ -64,6 +93,13 @@ Layer.LAVA = Layer(
     loose_rock = Tile.LAVA,
     hard_rock  = Tile.LAVA,
     solid_rock = Tile.LAVA)
+
+# Special cases
+# Replaces up to loose or down to hard rock
+Layer.LOOSE_OR_HARD_ROCK = Layer(
+    floor      = Tile.LOOSE_ROCK,
+    dirt       = Tile.LOOSE_ROCK,
+    solid_rock = Tile.HARD_ROCK)
 
 class Oyster(object):
 

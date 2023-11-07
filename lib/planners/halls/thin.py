@@ -25,6 +25,6 @@ class ThinHallPlanner(BaseHallPlanner):
         yield (0.4, lambda: cls(stem, conquest, Oysters.HARD_ROCK))
 
 class Oysters:
-  OPEN = Oyster('Open').layer(Layer.OPEN)
+  OPEN = Oyster('Open').layer(Layer.FLOOR)
   FILLED = Oyster('Filled').layer(Layer.LOOSE_ROCK)
   HARD_ROCK = Oyster('Hard Rock').layer(Layer.HARD_ROCK)

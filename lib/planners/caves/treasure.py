@@ -25,7 +25,7 @@ class TreasureCavePlanner(BaseCavePlanner):
 class Oysters:
   DEFAULT = (
     Oyster('Default')
-      .layer(Layer.FLOOR, width=2, grow=3)
+      .layer(Layer.ALWAYS_FLOOR, width=2, grow=3)
       .layer(Layer.LOOSE_ROCK, shrink=1)
       .layer(Layer.HARD_ROCK, grow=0.5)
   )

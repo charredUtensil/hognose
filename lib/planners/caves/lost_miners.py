@@ -27,7 +27,7 @@ class LostMinersCavePlanner(BaseCavePlanner):
 class Oysters:
   DEFAULT = (
     Oyster('Default')
-      .layer(Layer.FLOOR, width=2, grow=2)
-      .layer(Layer.LOOSE_ROCK, width=0, grow=1)
+      .layer(Layer.ALWAYS_FLOOR, width=2, grow=2)
+      .layer(Layer.ALWAYS_LOOSE_ROCK, width=0, grow=1)
       .layer(Layer.HARD_ROCK, grow=0.5)
   )

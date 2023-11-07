@@ -48,12 +48,19 @@ class SpawnCavePlanner(BaseCavePlanner):
 
   @classmethod
   def bids(cls, stem, conquest):
-    yield (1, lambda: cls(stem, conquest, Oysters.DEFAULT))
+    yield (1, lambda: cls(stem, conquest, Oysters.OPEN))
+    yield (1, lambda: cls(stem, conquest, Oysters.EMPTY))
 
 class Oysters:
-  DEFAULT = (
-    Oyster('Default')
-      .layer(Layer.FLOOR, width=2, grow=2)
+  OPEN = (
+    Oyster('Open')
+      .layer(Layer.ALWAYS_FLOOR, width=2, grow=2)
+      .layer(Layer.AT_MOST_LOOSE_ROCK, grow=1)
+      .layer(Layer.AT_MOST_HARD_ROCK)
+  )
+  EMPTY = (
+    Oyster('Empty')
+      .layer(Layer.ALWAYS_FLOOR, width=2, grow=2)
       .layer(Layer.LOOSE_ROCK, grow=1)
-      .layer(Layer.HARD_ROCK)
+      .layer(Layer.AT_MOST_HARD_ROCK)
   )

@@ -4,4 +4,4 @@ from .building import Building
 from .diorama import Diorama
 from .objectives import Objective, FindMinerObjective, ResourceObjective
 from .position import Position
-from .tile import Tile
+from .tile import BasicTile, Tile
