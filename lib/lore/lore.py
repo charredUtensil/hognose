@@ -22,21 +22,21 @@ class Lore(object):
     opening = self._opening(rng)
     premise = self._premise(rng)
     orders = self._orders(rng)
-    return '\n'.join((opening, premise, orders))
+    return f'{opening}\n{premise}\n{orders}'
   
   def success(self) -> str:
     rng = self.cavern.context.rng(-2)
     opening = rng.choice(openings.SUCCESS)
     conclusion = self._objectives_achieved(rng)
     congratulation = rng.choice(conclusions.CONGRATULATION)
-    return '\n'.join((opening, conclusion, congratulation))
+    return f'{opening} {conclusion} {congratulation}'
   
   def failure(self) -> str:
     rng = self.cavern.context.rng(-3)
     opening = rng.choice(openings.FAILURE)
     conclusion = self._objectives_failed(rng)
     condolence = rng.choice(conclusions.CONDOLENCE)
-    return '\n'.join((opening, conclusion, condolence))
+    return f'{opening} {conclusion} {condolence}'
 
   # Opening lines.
     

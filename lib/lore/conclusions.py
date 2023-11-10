@@ -14,6 +14,8 @@ FAILED = (
 )
 
 CONGRATULATION = (
+    'Mission complete!',
+    'Outstanding work! Mission complete.',
     'Well done! Mission complete.',
     'You\'re doing well! Mission complete.',
 )
