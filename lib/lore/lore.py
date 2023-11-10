@@ -1,4 +1,7 @@
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Optional, Sequence, TYPE_CHECKING
+
+if TYPE_CHECKING:
+  from lib import Cavern
 
 import collections
 
