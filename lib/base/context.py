@@ -1,8 +1,7 @@
 from typing import Optional
 
 from .logger import Logger
-from .seeder import Seeder
-from .thing_random import ThingRandom
+from .pseudorandom import DiceBox, Rng, coerce_seed
 
 class Context(object):
 
@@ -12,8 +11,8 @@ class Context(object):
       logger: Optional[Logger]
       ):
     self.logger = logger or Logger()
-    self.seed = Seeder.coerce_seed(seed)
-    self._seeder = Seeder(self.seed)
+    self.seed = coerce_seed(seed)
+    self._rng = DiceBox(self.seed)
     self.stage = 'init'
 
     self.bubble_count          = 80
@@ -45,5 +44,6 @@ class Context(object):
   def __str__(self):
     return f'seed:0x{self.seed:08x}'
 
-  def rng(self, id: int) -> ThingRandom:
-    return self._seeder.rng(self.stage, id)
+  @property
+  def rng(self) -> DiceBox:
+    return self._rng

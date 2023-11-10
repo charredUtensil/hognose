@@ -6,6 +6,7 @@ import math
 
 from .pearl import Oyster
 from .planner import Planner
+from lib.base import Rng
 from lib.plastic import Diorama, Landslide, Objective, Tile
 from lib.utils.geometry import plot_line
 
@@ -37,19 +38,21 @@ class SomaticPlanner(Planner):
 
   def place_landslides(
       self, diorama: Diorama, chance: float, pearl = None):
+    rng = self.rng['fine.place_landslides']
     if not pearl:
       pearl = self.pearl
     for info in pearl:
       if (diorama.tiles.get(info.pos) in (
           Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)
-          and self.rng.random() < chance):
+          and rng.random() < chance):
         diorama.landslides[info.pos] = Landslide.DEFAULT
 
   def rough(self, tiles: Dict[Tuple[int, int], Tile]):
     self._pearl = tuple(self.walk_pearl(
         nucleus = self.pearl_nucleus(),
         max_layers = self.pearl_radius,
-        baroqueness = self.baroqueness))
+        baroqueness = self.baroqueness,
+        rng = self.rng['rough.pearl']))
     nacre = self.oyster.create(self._pearl[-1].layer)
     for (x, y), layer, sequence in self._pearl:
       nacre.apply(tiles, (x, y), layer, sequence)
@@ -77,7 +80,10 @@ class SomaticPlanner(Planner):
       nucleus: Iterable[Tuple[int, int]],
       max_layers: int,
       baroqueness: float,
+      rng: Optional[Rng] = None,
       include_nucleus: bool = True) -> Iterable[PearlInfo]:
+    if baroqueness and not rng:
+      raise ArgumentError('Must supply rng when using baroqueness')
     last_layer = list(nucleus)
     for i, (x, y) in enumerate(last_layer):
       yield PearlInfo(pos=(x, y), layer=0, sequence=i)
@@ -127,7 +133,7 @@ class SomaticPlanner(Planner):
             # And the rng allows it...
             elif (
                 not baroqueness
-                or self.rng.random() > baroqueness):
+                or rng.random() > baroqueness):
               # Move to it
               cx, cy, cvx, cvy = nx, ny, vx, vy
               break

@@ -10,7 +10,8 @@ class TreasureCavePlanner(BaseCavePlanner):
   def __init__(self, stem, conquest, oyster):
     super().__init__(stem, oyster)
     self.expected_crystals = math.floor(
-      stem.suggested_crystal_count(conquest) * (1 + abs(self.rng.normal(0, 3))))
+      stem.suggested_crystal_count(conquest)
+      * (1 + abs(self.rng['conquest.expected_crystals'].normal(0, 3))))
 
   def fine(self, canvas):
     places = tuple(pos for pos, layer, _ in self.pearl if layer == 0)

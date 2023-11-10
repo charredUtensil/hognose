@@ -34,7 +34,7 @@ class Path(ProceduralThing):
     return 'Path {self.kind}: ' + '>'.join(str(b.id) for b in self.baseplates)
 
   def weave(self):
-    if self.rng.random() < self._context.auxiliary_edge_chance:
+    if self.rng['weave'].random() < self._context.auxiliary_edge_chance:
       self.kind = Path.AUXILIARY
     else:
       self.kind = Path.EXCLUDED

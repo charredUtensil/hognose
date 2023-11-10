@@ -14,25 +14,25 @@ class Lore(object):
     self.cavern = cavern
 
   def level_name(self) -> str:
-    rng = self.cavern.context.rng(-4)
+    #rng = self.cavern.context.rng['lore', 0]
     return f'HN-{hex(self.cavern.context.seed)[2:]}'
 
   def briefing(self) -> str:
-    rng = self.cavern.context.rng(-1)
+    rng = self.cavern.context.rng['lore', 1]
     opening = self._opening(rng)
     premise = self._premise(rng)
     orders = self._orders(rng)
     return f'{opening}\n{premise}\n{orders}'
   
   def success(self) -> str:
-    rng = self.cavern.context.rng(-2)
+    rng = self.cavern.context.rng['lore', 2]
     opening = rng.choice(openings.SUCCESS)
     conclusion = self._objectives_achieved(rng)
     congratulation = rng.choice(conclusions.CONGRATULATION)
     return f'{opening} {conclusion} {congratulation}'
   
   def failure(self) -> str:
-    rng = self.cavern.context.rng(-3)
+    rng = self.cavern.context.rng['lore', 3]
     opening = rng.choice(openings.FAILURE)
     conclusion = self._objectives_failed(rng)
     condolence = rng.choice(conclusions.CONDOLENCE)

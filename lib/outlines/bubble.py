@@ -73,7 +73,7 @@ class Bubble(Space):
 
   @classmethod
   def from_rng(cls, id: int, context: Context) -> 'Bubble':
-    rng    = context.rng(id)
+    rng    = context.rng['bubble', id]
     x, y   = rng.point_in_circle(context.bubble_radius)
     area   = rng.pareto(2, context.bubble_area_mode)
     aspect = rng.normal(stddev=0.1)

@@ -1,11 +1,14 @@
+from typing import Literal
+
 from .context import Context
-from .thing_random import ThingRandom
+from .pseudorandom import KINDS, Rng
 
 class ProceduralThing(object):
 
   def __init__(self, id: int, context: Context):
     self._id = id
     self._context = context
+    self.rng = BoundDiceBox(self)
 
   @property
   def id(self) -> int:
@@ -15,6 +18,9 @@ class ProceduralThing(object):
   def context(self) -> Context:
     return self._context
 
-  @property
-  def rng(self) -> ThingRandom:
-    return self._context.rng(self._id)
+class BoundDiceBox(object):
+  def __init__(self, thing: ProceduralThing):
+    self._thing = thing
+
+  def __getitem__(self, kind: Literal[KINDS]):
+    return self._thing._context.rng[kind, self._thing._id]

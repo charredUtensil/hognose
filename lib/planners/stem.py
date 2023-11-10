@@ -37,7 +37,7 @@ class StemPlanner(Planner):
       + self.context.hop_richness * self.hops_to_spawn / conquest.total
     )
     return (
-      math.floor(max(0, self.rng.normal(1, 0.3)) * cf)
+      math.floor(max(0, self.rng['conquest.expected_crystals'].normal(1, 0.3)) * cf)
     )
 
   def differentiate(self, conquest: 'Conquest') -> SomaticPlanner:
@@ -51,7 +51,7 @@ class StemPlanner(Planner):
     def bids():
       for klass in bidders:
         yield from klass.bids(self, conquest)
-    return self.rng.bid(bids())()
+    return self.rng['conquest.differentiate'].bid(bids())()
 
   def rough(self, tiles):
     pass

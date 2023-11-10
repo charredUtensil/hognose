@@ -64,12 +64,13 @@ class Conquest(ProceduralThing):
         self.context.water_level * len(self._stem_planners))
     lava_count = math.floor(
         self.context.lava_level * len(self._stem_planners))
-
+    rng = self.rng['flood']
+    
     def fill(count, fluid_type, spread):
       stack: List[StemPlanner] = []
       for _ in range(count):
         if not stack:
-          stack.append(self.rng.choice(
+          stack.append(rng.choice(
             p for p in queue if p.kind == StemPlanner.CAVE))
         planner = stack.pop()
         planner.fluid_type = fluid_type
@@ -78,7 +79,7 @@ class Conquest(ProceduralThing):
           if (p not in stack
               and p.fluid_type is None
               and p.kind != planner.kind
-              and self.rng.random() < spread):
+              and rng.random() < spread):
             stack.append(p)
 
     fill(water_count, Tile.WATER, self.context.water_spread)

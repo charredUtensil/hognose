@@ -13,7 +13,7 @@ class SpawnCavePlanner(BaseCavePlanner):
     super().__init__(stem, oyster)
     self.expected_crystals = max(
         0,
-        math.floor(self.rng.normal(mean=5, stddev=1)),
+        math.floor(self.rng['conquest.expected_crystals'].normal(mean=5, stddev=1)),
         stem.suggested_crystal_count(conquest))
 
   def fine(self, diorama):
