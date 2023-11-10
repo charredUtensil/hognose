@@ -9,6 +9,7 @@ import random
 import time
 
 from .building import Building
+from .hazards import Erosion, Landslide
 from .miners import Miner
 from .objectives import Objective
 from .serialize import serialize
@@ -18,24 +19,31 @@ class Diorama(object):
   def __init__(self, context):
     self.context = context
 
+    # Tile-indexed
     self._tiles = {}
     self._crystals = collections.Counter()
     self._ore = collections.Counter()
-    self._buildings = []
-    self._open_cave_flags = set()
+    self._landslides = {}
+    self._erosions = {}
     self._discovered = set()
-    self._objectives = []
+    self._open_cave_flags = set()
+
+    # Entities with positions
+    self._buildings = []
     self._miner_ids = itertools.count()
     self._miners = []
-
-    self.briefing = ''
-    self.briefing_success = ''
-    self.briefing_failure = ''
-    self.level_name = ''
-
     self.camera_origin: Tuple[int, int] = (0, 0)
+
+    # Non-positional items
+    self._objectives = []
+    self.briefing: str = ''
+    self.briefing_success: str = ''
+    self.briefing_failure: str = ''
+    self.level_name: str = ''
+
     self.bounds: Optional[Tuple[int, int, int, int]] = None
 
+  # Tile-indexed
   @property
   def tiles(self) -> Dict[Tuple[int, int], Tile]:
     return self._tiles
@@ -49,25 +57,40 @@ class Diorama(object):
     return self._ore
 
   @property
-  def buildings(self) -> List[Building]:
-    return self._buildings
+  def landslides(self) -> Dict[Tuple[int, int], Landslide]:
+    return self._landslides
 
   @property
-  def miners(self) -> List[Miner]:
-    return self._miners
-
-  @property
-  def objectives(self) -> List[Objective]:
-    return self._objectives
+  def erosions(self) -> Dict[Tuple[int, int], Erosion]:
+    return self._erosions
   
+  @property
+  def discovered(self) -> Set[Tuple[int, int]]:
+    return self._discovered
+
   @property
   def open_cave_flags(self) -> Set[Tuple[int, int]]:
     return self._open_cave_flags
+
+  # Entities with positions
+  @property
+  def buildings(self) -> List[Building]:
+    return self._buildings
 
   def miner(self, *args, **kwargs) -> Miner:
     m = Miner(next(self._miner_ids), *args, **kwargs)
     self._miners.append(m)
     return m
+
+  @property
+  def miners(self) -> List[Miner]:
+    return self._miners
+
+  # Non-positional items and helpers
+
+  @property
+  def objectives(self) -> List[Objective]:
+    return self._objectives
 
   @property
   def total_crystals(self) -> int:
@@ -87,9 +110,6 @@ class Diorama(object):
             if (x + ox, y + oy) not in self._discovered:
               queue.add((x + ox, y + oy))
             
-  @property
-  def discovered(self) -> Set[Tuple[int, int]]:
-    return self._discovered
 
   def serialize(self):
     return serialize(self)

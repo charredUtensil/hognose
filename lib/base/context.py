@@ -35,6 +35,10 @@ class Context(object):
     self.hall_baroqueness      = 0.05
 
     self.recharge_seam_chance  = 0.07
+    self.cave_has_landslides_chance = 0.40
+    self.cave_landslides       = 0.20
+    self.hall_has_landslides_chance = 0.60
+    self.hall_landslides       = 0.40
 
     self.crystal_goal_ratio    = 0.20
 

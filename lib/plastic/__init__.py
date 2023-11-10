@@ -2,6 +2,7 @@
 
 from .building import Building
 from .diorama import Diorama
+from .hazards import Erosion, Landslide
 from .objectives import Objective, FindMinerObjective, ResourceObjective
 from .position import Position
 from .tile import BasicTile, Tile

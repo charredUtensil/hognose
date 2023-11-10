@@ -27,6 +27,8 @@ class BaseCavePlanner(SomaticPlanner):
     if self.rng.random() < self.context.recharge_seam_chance:
       self.place_recharge_seam(diorama)
     self.place_crystals(diorama)
+    if self.rng.random() < self.context.cave_has_landslides_chance:
+      self.place_landslides(diorama, self.context.cave_landslides)
 
   def place_crystals(self, diorama):
     t = tuple(

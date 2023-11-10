@@ -5,6 +5,7 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
+from .hazards import Hazard
 from .position import Position
 from .tile import Tile
 from lib.version import VERSION
@@ -16,6 +17,7 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   left, top, width, height = diorama.bounds
   eox = width // 2
   eoy = height // 2
+  offset = (-left, -top)
 
   yield 'comments{'
   for c in _comments(diorama):
@@ -30,7 +32,9 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield 'creator:hognose'
   if diorama.level_name:
     yield f'levelname:{diorama.level_name}'
-  yield f'opencaves:{_tile_coords(diorama, sorted(diorama.open_cave_flags))}'
+  yield 'opencaves:' + _tile_coords(
+      # Open cave flags are in the form 'y,x/' for some reason.
+      sorted((x, y) for (y, x) in diorama.open_cave_flags), (-top, -left))
   yield 'spiderrate:10'
   yield 'spidermin:2'
   yield 'spidermax:4'
@@ -63,16 +67,19 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
 
   yield 'buildings{'
   for b in diorama.buildings:
-    yield b.serialize((-left, -top))
+    yield b.serialize(offset)
   yield '}'
 
   yield 'landslidefrequency{'
+  yield from _hazard(diorama.landslides.items(), offset)
   yield '}'
   yield 'lavaspread{'
+  yield from _hazard(diorama.erosions.items(), offset)
   yield '}'
+
   yield 'miners{'
   for m in diorama.miners:
-    yield m.serialize((-left, -top))
+    yield m.serialize(offset)
   yield '}'
 
   yield 'briefing{'
@@ -106,26 +113,42 @@ def _camera_origin(diorama: 'Diorama') -> str:
   x, y = diorama.camera_origin
   return Position((x, y, 0), (45, 90, 0)).serialize((-left, -top))
 
+def _hazard(
+    hazards: Iterable[Tuple[Tuple[int, int], Hazard]],
+    offset: Tuple[int, int]):
+  """Yields data for landslides or erosions."""
+  out = {}
+  for (x, y), h in hazards:
+    key = h.serial_key
+    if key not in out:
+      out[key] = []
+    out[key].append((x, y))
+  for key, coords in sorted(out.items(), reverse=True):
+    yield f'{key}:{_tile_coords(coords, offset)}'
+
 def _tile_export_values(
     diorama: 'Diorama') -> Iterable[Tuple[Tuple[int, int], int]]:
+  """Yields the correct export value for all tiles, considering discovery."""
   for coord, tile in diorama.tiles.items():
     v = tile.export_value
     if not tile.is_wall and coord not in diorama._discovered:
       v += 100
     yield coord, v
 
+def _tile_coords(
+    coords: Iterable[Tuple[int, int]],
+    offset: Tuple[int, int]) -> str:
+  """Yields tile coordinate data for anything that uses 'x,y/' format."""
+  ox, oy = offset
+  return ''.join(f'{x + ox :d},{y + oy :d}/' for x, y in coords)
+
 def _tile_grid(
     diorama: 'Diorama',
     default: T,
     grid: Dict[Tuple[int, int], T]) -> Iterable[str]:
+  """Yields the tile-grid for tile, ore, and crystal sections."""
   left, top, width, height = diorama.bounds
   for y in range(top, top + height):
     yield ''.join(
       f'{grid.get((x, y), default)},'
       for x in range(left, left + width))
-
-def _tile_coords(
-    diorama: 'Diorama',
-    coords: Iterable[Tuple[int, int]]) -> str:
-  left, top, _, _ = diorama.bounds
-  return ''.join(f'{y - top :d},{x - left :d}/' for x, y in coords)

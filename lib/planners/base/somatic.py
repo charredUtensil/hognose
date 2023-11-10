@@ -6,7 +6,7 @@ import math
 
 from .pearl import Oyster
 from .planner import Planner
-from lib.plastic import Diorama, Objective, Tile
+from lib.plastic import Diorama, Landslide, Objective, Tile
 from lib.utils.geometry import plot_line
 
 PearlInfo = NamedTuple('PearlRow', pos=Tuple[int, int], layer=int, sequence=int)
@@ -34,6 +34,16 @@ class SomaticPlanner(Planner):
   @abc.abstractmethod
   def pearl_nucleus(self) -> Iterable[Tuple[int, int]]:
     pass
+
+  def place_landslides(
+      self, diorama: Diorama, chance: float, pearl = None):
+    if not pearl:
+      pearl = self.pearl
+    for info in pearl:
+      if (diorama.tiles.get(info.pos) in (
+          Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)
+          and self.rng.random() < chance):
+        diorama.landslides[info.pos] = Landslide.DEFAULT
 
   def rough(self, tiles: Dict[Tuple[int, int], Tile]):
     self._pearl = tuple(self.walk_pearl(
