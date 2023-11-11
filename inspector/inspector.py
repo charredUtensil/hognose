@@ -75,6 +75,7 @@ PLANNER_TYPE_BORDER_COLORS = {
     ThinHallPlanner                    : (0x77, 0x00, 0x10),
 }
 PLANNER_BORDER_COLOR = Tile.DIRT.inspect_color
+PLANNER_ERODES_BORDER_COLOR = Tile.LAVA.inspect_color
 PLANNER_TEXT_COLOR                     = (0xff, 0xff, 0xff)
 
 PEARL_LAYER_COLORS = [
@@ -83,6 +84,9 @@ PEARL_LAYER_COLORS = [
                                          (0xff, 0xff, 0x00),
                                          (0x00, 0xff, 0xff),
 ]
+
+EROSION_COLOR = Tile.LAVA.inspect_color
+LANDSLIDE_COLOR                         = (0xff, 0x00, 0x00)
 CRYSTAL_COLOR = Tile.CRYSTAL_SEAM.inspect_color
 BUILDING_COLOR                          = (0xff, 0xff, 0x00)
 BUILDING_LABEL_RADIUS = 10
@@ -160,13 +164,16 @@ class Inspector(Logger):
       for planner in self.cavern.conquest.planners:
         if isinstance(planner, StemPlanner):
           bg_color = PLANNER_FLUID_COLORS[planner.fluid_type]
+          color = (
+              PLANNER_ERODES_BORDER_COLOR if planner.has_erosion
+              else PLANNER_BORDER_COLOR)
           label_radius = 13 if planner.kind == StemPlanner.CAVE else 9
           line_thickness = 3
           _draw_planner(
               frame,
               planner,
               self.font,
-              PLANNER_BORDER_COLOR,
+              color,
               bg_color,
               label_radius,
               line_thickness)
@@ -195,6 +202,24 @@ class Inspector(Logger):
         c = sum(color) / 6
         color = (c, c, c)
       frame.draw_rect(color, (x, y, 1, 1))
+
+    # Draw landslides
+    for (x, y), event in self.cavern.diorama.landslides.items():
+      frame.draw_line(
+        LANDSLIDE_COLOR,
+        (x + 0.25, y + 0.25),
+        (x + 0.75, y + 0.75))
+      frame.draw_line(
+        LANDSLIDE_COLOR,
+        (x + 0.25, y + 0.75),
+        (x + 0.75, y + 0.25))
+
+    # Draw erosion
+    for (x, y), event in self.cavern.diorama.erosions.items():
+      frame.draw_rect(
+        EROSION_COLOR,
+        (x, y, 1, 1),
+        1)
 
     # Draw crystals
     for (x, y), crystals in self.cavern.diorama.crystals.items():

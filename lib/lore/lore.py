@@ -79,6 +79,9 @@ class Lore(object):
           premises.LOST_MINERS_TOGETHER if lost_miners == 1
           else premises.LOST_MINERS_APART))
 
+    if self.cavern.conquest.spawn_planner.has_erosion:
+      negative.append(rng.choice(premises.SPAWN_HAS_EROSION))
+
     if positive and negative:
       bridge = rng.choice(premises.POSITIVE_NEGATIVE_BRIDGE)
       return (
@@ -98,7 +101,10 @@ class Lore(object):
     return None
   
   def _non_resource_orders(self, rng) -> Iterable[str]:
-    yield rng.choice(orders.GENERIC)
+    if self.cavern.conquest.spawn_planner.has_erosion:
+      yield rng.choice(orders.SPAWN_HAS_EROSION)
+    else:
+      yield rng.choice(orders.GENERIC)
     lost_miners = sum(
         1 for o in self.cavern.diorama.objectives
         if isinstance(o, FindMinerObjective))

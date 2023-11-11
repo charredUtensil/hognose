@@ -30,6 +30,11 @@ LOST_MINERS_APART = (
     'a teleporter malfunction has scattered some of our miners throughout the cavern',
 )
 
+SPAWN_HAS_EROSION = (
+    'a nearby lava lake is threatening our Rock Raider HQ',
+    'we are dangerously close to a cavern full of lava',
+)
+
 # Generic things
 
 GENERIC = (

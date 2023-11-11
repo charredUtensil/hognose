@@ -7,7 +7,7 @@ import math
 from .pearl import Oyster
 from .planner import Planner
 from lib.base import Rng
-from lib.plastic import Diorama, Landslide, Objective, Tile
+from lib.plastic import Diorama, Erosion, Landslide, Objective, Tile
 from lib.utils.geometry import plot_line
 
 PearlInfo = NamedTuple('PearlRow', pos=Tuple[int, int], layer=int, sequence=int)
@@ -18,6 +18,7 @@ class SomaticPlanner(Planner):
     super().__init__(stem.id, stem.context, stem.baseplates)
     self._oyster = oyster
     self._pearl = None
+    self.has_erosion = stem.has_erosion
 
   @property
   @abc.abstractmethod
@@ -78,6 +79,12 @@ class SomaticPlanner(Planner):
       event = Landslide(period)
       for pos in positions:
         diorama.landslides[pos] = event
+
+  def fine_erosion(self, diorama: Diorama):
+    if self.has_erosion:
+      for info in self.pearl:
+        if diorama.tiles.get(info.pos, Tile.SOLID_ROCK).passable_by_miner:
+          diorama.erosions[info.pos] = Erosion.DEFAULT
 
   def walk_stream(self, baseplates=None):
     """Walks a contiguous 1-tile wide stream between contiguous baseplates."""

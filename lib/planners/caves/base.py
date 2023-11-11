@@ -28,6 +28,7 @@ class BaseCavePlanner(SomaticPlanner):
     self.fine_buildings(diorama)
     self.fine_crystals(diorama)
     self.fine_landslides(diorama)
+    self.fine_erosion(diorama)
 
   def fine_recharge_seam(self, diorama: Diorama):
     if self.rng['fine.place_recharge_seam'].random() < self.context.recharge_seam_chance:

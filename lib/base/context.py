@@ -27,6 +27,9 @@ class Context(object):
     self.lava_level            = 0.06
     self.lava_spread           = 0.30
 
+    self.cave_erode_chance     = 0.37
+    self.hall_erode_chance     = 0.60
+
     self.cave_baroqueness      = 0.12
     self.hall_baroqueness      = 0.05
 

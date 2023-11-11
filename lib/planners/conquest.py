@@ -15,6 +15,7 @@ class Conquest(ProceduralThing):
     self._stem_planners = list(stem_planners)
     self._somatic_planners = [None] * len(self._stem_planners)
 
+    self.spawn_planner: Optional[SomaticPlanner] = None
     self.expected_crystals = 0
 
     self._bp_index: Dict[int, Set[int]] = {}
@@ -85,12 +86,28 @@ class Conquest(ProceduralThing):
     fill(water_count, Tile.WATER, self.context.water_spread)
     fill(lava_count, Tile.LAVA, self.context.lava_spread)
 
+    queue = list(p for p in self.stem_planners if p.fluid_type == Tile.LAVA)
+    while queue:
+      planner = queue.pop(math.floor(rng.random() * len(queue)))
+      erode_chance = (
+          self.context.cave_erode_chance if planner.kind == StemPlanner.CAVE
+          else self.context.hall_erode_chance)
+      if rng.random() < erode_chance:
+        planner.has_erosion = True
+        for p in self.intersecting(planner):
+          if (p not in queue
+              and not p.has_erosion
+              and p.fluid_type != Tile.WATER
+              and p.kind != planner.kind):
+            queue.append(p)
+
   
   def conquest(self):
     # Choose a cave to be the origin
-    queue: List[StemPlanner] = [next(
+    self.spawn_planner = next(
       p for p in self.stem_planners
-      if p.kind == StemPlanner.CAVE)]
+      if p.kind == StemPlanner.CAVE)
+    queue: List[StemPlanner] = [self.spawn_planner]
 
     queue[0].hops_to_spawn = 0
 
