@@ -36,17 +36,6 @@ class SomaticPlanner(Planner):
   def pearl_nucleus(self) -> Iterable[Tuple[int, int]]:
     pass
 
-  def place_landslides(
-      self, diorama: Diorama, chance: float, pearl = None):
-    rng = self.rng['fine.place_landslides']
-    if not pearl:
-      pearl = self.pearl
-    for info in pearl:
-      if (diorama.tiles.get(info.pos) in (
-          Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)
-          and rng.random() < chance):
-        diorama.landslides[info.pos] = Landslide.DEFAULT
-
   def rough(self, tiles: Dict[Tuple[int, int], Tile]):
     self._pearl = tuple(self.walk_pearl(
         nucleus = self.pearl_nucleus(),
@@ -64,6 +53,31 @@ class SomaticPlanner(Planner):
   @property
   def objectives(self) -> Iterable[Objective]:
     return []
+
+  def place_landslides(
+      self,
+      diorama: Diorama,
+      total_frequency: float,
+      pearl = None):
+    rng = self.rng['fine.place_landslides']
+    coverage = rng.random() * 0.6 + 0.2
+    if not pearl:
+      pearl = self.pearl
+    def h():
+      for info in pearl:
+        if (diorama.tiles.get(info.pos) in (
+            Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)
+            and info.pos not in diorama.landslides
+            and rng.random() < coverage):
+          yield info.pos
+    positions = tuple(h())
+    if positions:
+      # Total activity is in total landslides per minute, but the file takes
+      # delay seconds per landslide per tile.
+      period = len(positions) * 60 / total_frequency
+      event = Landslide(period)
+      for pos in positions:
+        diorama.landslides[pos] = event
 
   def walk_stream(self, baseplates=None):
     """Walks a contiguous 1-tile wide stream between contiguous baseplates."""

@@ -3,7 +3,7 @@ import itertools
 import math
 
 from lib.planners.base import SomaticPlanner
-from lib.plastic import Tile
+from lib.plastic import Diorama, Tile
 from lib.utils.geometry import plot_line
 
 class BaseCavePlanner(SomaticPlanner):
@@ -24,13 +24,27 @@ class BaseCavePlanner(SomaticPlanner):
     return sorted(set(itertools.chain(self.walk_stream(), h())))
 
   def fine(self, diorama):
+    self.fine_recharge_seam(diorama)
+    self.fine_buildings(diorama)
+    self.fine_crystals(diorama)
+    self.fine_landslides(diorama)
+
+  def fine_recharge_seam(self, diorama: Diorama):
     if self.rng['fine.place_recharge_seam'].random() < self.context.recharge_seam_chance:
       self.place_recharge_seam(diorama)
-    self.place_crystals(diorama)
-    if self.rng['fine.place_landslides'].random() < self.context.cave_has_landslides_chance:
-      self.place_landslides(diorama, self.context.cave_landslides)
 
-  def place_crystals(self, diorama):
+  def fine_buildings(self, diorama: Diorama):
+    pass
+
+  def fine_crystals(self, diorama: Diorama):
+    self.place_crystals(diorama, self.expected_crystals)
+
+  def fine_landslides(self, diorama: Diorama):
+    if self.rng['fine.place_landslides'].random() < self.context.cave_landslide_chance:
+      freq = self.context.cave_landslide_freq * sum(math.sqrt(bp.area()) for bp in self.baseplates)
+      self.place_landslides(diorama, freq)
+
+  def place_crystals(self, diorama: Diorama, count: int):
     rng = self.rng['fine.place_crystals']
     t = tuple(
       pearl_info.pos
@@ -38,8 +52,7 @@ class BaseCavePlanner(SomaticPlanner):
       in self.pearl
       if diorama.tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
-      crystals = self.expected_crystals
-      for _ in range(crystals):
+      for _ in range(count):
         x, y = rng.choice(t)
         existing = diorama.crystals.get((x, y), 0)
         if existing >= 3 and diorama.tiles.get((x, y)) != Tile.CRYSTAL_SEAM:
@@ -69,7 +82,7 @@ class BaseCavePlanner(SomaticPlanner):
             yield 4, (x, y)
       try:
         _, (x, y) = max(placements())
-        crystals = self.expected_crystals
+        crystals = count
         if crystals >= 4:
           diorama.tiles[x, y] = Tile.CRYSTAL_SEAM
           crystals -= 4
@@ -84,7 +97,7 @@ class BaseCavePlanner(SomaticPlanner):
     def placements():
       for pearl_info in self.walk_pearl(
           (p.pos for p in self.pearl),
-          max_layers = 2,
+          max_layers = 4,
           include_nucleus = False,
           baroqueness = 0):
         x, y = pearl_info.pos
@@ -95,7 +108,12 @@ class BaseCavePlanner(SomaticPlanner):
                 diorama.tiles.get((x + ox, y + oy),
                 Tile.SOLID_ROCK)] += 1
           if any(n.passable_by_miner for n in neighbor_count):
-            yield neighbor_count[Tile.SOLID_ROCK], (x, y)
+            value = neighbor_count[Tile.SOLID_ROCK] * 5
+            for ox in (-1, 1):
+              for oy in (-1, 1):
+                if diorama.tiles.get((), Tile.SOLID_ROCK) == Tile.SOLID_ROCK:
+                  value += 1
+            yield value, (x, y)
     try:
       _, (x, y) = max(placements())
       diorama.tiles[x, y] = Tile.RECHARGE_SEAM

@@ -27,17 +27,18 @@ class Context(object):
     self.lava_level            = 0.06
     self.lava_spread           = 0.30
 
-    self.base_richness         = 0.50
-    self.hop_richness          = 4.00
-
     self.cave_baroqueness      = 0.12
     self.hall_baroqueness      = 0.05
 
+    self.base_richness         = 0.50
+    self.hop_richness          = 4.00
+    
     self.recharge_seam_chance  = 0.07
-    self.cave_has_landslides_chance = 0.40
-    self.cave_landslides       = 0.20
-    self.hall_has_landslides_chance = 0.60
-    self.hall_landslides       = 0.40
+
+    self.cave_landslide_chance = 0.40
+    self.cave_landslide_freq   = 0.50
+    self.hall_landslide_chance = 0.80
+    self.hall_landslide_freq   = 1.20
 
     self.crystal_goal_ratio    = 0.20
 

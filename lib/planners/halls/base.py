@@ -13,5 +13,9 @@ class BaseHallPlanner(SomaticPlanner):
     return self.walk_stream()
 
   def fine(self, diorama):
-    if self.rng['fine.place_landslides'].random() < self.context.hall_has_landslides_chance:
-      self.place_landslides(diorama, self.context.hall_landslides)
+    self.fine_landslides(diorama)
+
+  def fine_landslides(self, diorama):
+    if self.rng['fine.place_landslides'].random() < self.context.hall_landslide_chance:
+      freq = self.context.hall_landslide_freq * sum(1 for _ in self.walk_stream())
+      self.place_landslides(diorama, freq)

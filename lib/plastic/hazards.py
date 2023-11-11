@@ -1,9 +1,11 @@
+from typing import Tuple
+
 import abc
 
 class Hazard(abc.ABC):
   @property
   @abc.abstractmethod
-  def serial_key(self) -> str:
+  def serial_key(self) -> Tuple[float]:
     pass
 
 class Erosion(Hazard):
@@ -13,7 +15,7 @@ class Erosion(Hazard):
 
   @property
   def serial_key(self):
-    return f'{self.cooldown:0.1f}/{self.initial_delay:0.1f}'
+    return (self.cooldown, self.initial_delay)
 
 Erosion.DEFAULT = Erosion(30, 10)
 
@@ -23,6 +25,6 @@ class Landslide(Hazard):
 
   @property
   def serial_key(self):
-    return f'{self.cooldown:0.1f}'
+    return (self.cooldown,)
 
 Landslide.DEFAULT = Landslide(30)

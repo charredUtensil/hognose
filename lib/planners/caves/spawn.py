@@ -16,9 +16,14 @@ class SpawnCavePlanner(BaseCavePlanner):
         math.floor(self.rng['conquest.expected_crystals'].normal(mean=5, stddev=1)),
         stem.suggested_crystal_count(conquest))
 
-  def fine(self, diorama):
+  def fine_recharge_seam(self, diorama):
     self.place_recharge_seam(diorama)
-    super().fine(diorama)
+
+  def fine_landslides(self, diorama):
+    if self.pearl_radius > 5:
+      super().fine_landslides(diorama)
+
+  def fine_buildings(self, diorama):
     for (a, b) in itertools.pairwise(self.pearl):
       x1, y1 = a.pos
       x2, y2 = b.pos

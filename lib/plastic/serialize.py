@@ -124,7 +124,8 @@ def _hazard(
       out[key] = []
     out[key].append((x, y))
   for key, coords in sorted(out.items(), reverse=True):
-    yield f'{key}:{_tile_coords(coords, offset)}'
+    key_str = '/'.join(f'{k:0.1f}' for k in key)
+    yield f'{key_str}:{_tile_coords(coords, offset)}'
 
 def _tile_export_values(
     diorama: 'Diorama') -> Iterable[Tuple[Tuple[int, int], int]]:
