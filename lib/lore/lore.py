@@ -79,7 +79,7 @@ class Lore(object):
           premises.LOST_MINERS_TOGETHER if lost_miners == 1
           else premises.LOST_MINERS_APART))
 
-    if self.cavern.conquest.spawn_planner.has_erosion:
+    if _spawn_has_erosion(self.cavern):
       negative.append(rng.choice(premises.SPAWN_HAS_EROSION))
 
     if positive and negative:
@@ -101,7 +101,7 @@ class Lore(object):
     return None
   
   def _non_resource_orders(self, rng) -> Iterable[str]:
-    if self.cavern.conquest.spawn_planner.has_erosion:
+    if _spawn_has_erosion(self.cavern):
       yield rng.choice(orders.SPAWN_HAS_EROSION)
     else:
       yield rng.choice(orders.GENERIC)
@@ -171,6 +171,8 @@ class Lore(object):
         rng.choice(conclusions.FAILED)
         % self._objectives_conclusion(rng))
 
+
+# String manipulation methods
 def _capitalize_first(s: str) -> str:
   return s[0].upper() + s[1:] if s else s
 
@@ -201,3 +203,11 @@ def _spell_number(n: int) -> str:
           'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen')[n - 1])
       n = 0
   return ' '.join(r)
+
+# Helper methods
+def _spawn_has_erosion(cavern: 'Cavern'):
+  spawn_planner = cavern.conquest.spawn_planner
+  return (
+      spawn_planner.has_erosion
+      or any(p.has_erosion
+             for p in cavern.conquest.intersecting(spawn_planner)))

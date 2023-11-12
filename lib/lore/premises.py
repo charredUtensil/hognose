@@ -17,7 +17,7 @@ TREASURE_CAVES = (
 POSITIVE_NEGATIVE_BRIDGE = (
     'However,',
     'Unfortunately,',
-    'The problem is,',
+    'The problem is that',
 )
 
 LOST_MINERS_TOGETHER = (
