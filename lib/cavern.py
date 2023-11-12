@@ -12,7 +12,7 @@ from lib.base import NotHaltingError
 from lib.lore import Lore
 from lib.outlines import Path, Space, Bubble, Baseplate
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
-from lib.plastic import Diorama, ResourceObjective, serialize, Tile
+from lib.plastic import Diorama, Objective, ResourceObjective, serialize, Tile
 from lib.utils.cleanup import patch
 from lib.utils.delaunay import slorp
 
@@ -227,19 +227,23 @@ class Cavern(object):
 
   def _adjure(self):
     """Figure out objectives for the level."""
-    def objectives():
+    def gen():
       for planner in self.conquest.somatic_planners:
         yield from planner.objectives
-    self.diorama.objectives.extend(objectives())
+    objs = list(Objective.uniq(gen()))
     # If none of the caverns have objectives, generate one to collect a
-    # resaonable number of crystals.
-    if not self.diorama.objectives:
-      crystals = math.floor(
-          self.diorama.total_crystals * self.context.crystal_goal_ratio)
-      crystals -= (crystals % 5)
-      self.diorama.objectives.append(
-        ResourceObjective(crystals=crystals)
-      )
+    # reasonable number of crystals.
+    crystals = math.floor(
+        self.diorama.total_crystals * self.context.crystal_goal_ratio)
+    crystals -= (crystals % 5)
+    if (not objs
+        or (len(objs) == 1
+            and isinstance(objs[0], ResourceObjective)
+            and not objs[0].ore
+            and not objs[0].studs
+            and objs[0].crystals < crystals)):
+      objs = [ResourceObjective(crystals=crystals)]
+    self.diorama.objectives.extend(objs)
 
   def _enscribe(self):
     """Generate copy for briefings, etc..."""

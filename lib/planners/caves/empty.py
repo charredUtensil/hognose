@@ -23,7 +23,8 @@ class EmptyCavePlanner(BaseCavePlanner):
         yield (0.5, lambda: cls(stem, conquest, Oysters.LAVA_LAKE))
       if pr > 7:
         yield (1, lambda: cls(stem, conquest, Oysters.LAVA_ISLAND))
-        yield (1, lambda: cls(stem, conquest, Oysters.LAVA_PENINSULA))
+        if not any(p.fluid_type for p in conquest.intersects(stem)):
+          yield (1, lambda: cls(stem, conquest, Oysters.LAVA_PENINSULA))
     else:
       if pr < 5:
         yield (0.04, lambda: cls(stem, conquest, Oysters.FILLED))

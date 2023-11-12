@@ -102,7 +102,9 @@ Layer.LOOSE_OR_HARD_ROCK = Layer(
     solid_rock = Tile.HARD_ROCK)
 
 # Bridges - Replaces placed rock with floor and floods solid rock
-# This can be used by caves to create "paths" to an island
+# This can be used by caves to create a path to an island.
+# Avoid using these if the cave intersects halls with fluid as the results
+# will look extremely strange.
 Layer.BRIDGE_ON_WATER = Layer(
       dirt       = Tile.FLOOR,
       loose_rock = Tile.FLOOR,

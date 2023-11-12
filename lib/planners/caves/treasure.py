@@ -5,7 +5,7 @@ import math
 
 from .base import BaseCavePlanner
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Tile
+from lib.plastic import ResourceObjective, Tile
 
 class TreasureCavePlanner(BaseCavePlanner):
 
@@ -21,6 +21,15 @@ class TreasureCavePlanner(BaseCavePlanner):
     for x, y in itertools.islice(
         itertools.cycle(places), math.ceil(self.expected_crystals * 0.8)):
       diorama.crystals[x, y] += 1
+  
+  @property
+  def objectives(self):
+    crystals = self.expected_crystals
+    crystals -= (crystals % 5)
+    if crystals >= 15:
+      return [ResourceObjective(crystals=crystals)]
+    else:
+      return []
 
   @classmethod
   def bids(cls, stem, conquest):

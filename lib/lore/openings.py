@@ -22,5 +22,6 @@ SUCCESS = (
 FAILURE = (
     'Bad luck!',
     'Oh, dear.',
+    'Oh no!',
     'Unlucky!',
 )

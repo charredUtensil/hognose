@@ -1,4 +1,4 @@
-from typing import Iterable, Optional, Sequence, TYPE_CHECKING
+from typing import Iterable, Optional, Sequence, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
   from lib import Cavern
@@ -7,6 +7,7 @@ import collections
 
 from . import conclusions, openings, orders, premises
 
+from lib.planners.caves import LostMinersCavePlanner, TreasureCavePlanner
 from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
 class Lore(object):
@@ -60,24 +61,11 @@ class Lore(object):
   # Premise - used in briefings, for flavor.
     
   def _premise(self, rng) -> str:
-    planner_kinds = collections.Counter()
-    for p in self.cavern.conquest.somatic_planners:
-      planner_kinds[type(p).__name__] += 1
-   
     positive = []
     negative = []
 
-    treasure = planner_kinds['TreasureCavePlanner']
-    if treasure > 0:
-      positive.append(rng.choice(
-          premises.ONE_TREASURE_CAVE if treasure == 1
-          else premises.TREASURE_CAVES))
-
-    lost_miners = planner_kinds['LostMinersCavePlanner']
-    if lost_miners > 0:
-      negative.append(rng.choice(
-          premises.LOST_MINERS_TOGETHER if lost_miners == 1
-          else premises.LOST_MINERS_APART))
+    positive.extend(self._premise_treasure(rng))
+    negative.extend(self._premise_lost_miners(rng))
 
     if _spawn_has_erosion(self.cavern):
       negative.append(rng.choice(premises.SPAWN_HAS_EROSION))
@@ -90,6 +78,30 @@ class Lore(object):
     return _capitalize_first(
         _join_human(positive or negative)
         or rng.choice(premises.GENERIC)) + '.'
+
+  def _premise_treasure(self, rng) -> Iterable[str]:
+    planners = tuple(
+        p for p in self.cavern.conquest.planners
+        if isinstance(p, TreasureCavePlanner))
+    if len(planners) == 1:
+      yield rng.choice(premises.ONE_TREASURE_CAVE)
+    elif planners:
+      yield rng.choice(premises.TREASURE_CAVES)
+
+  def _premise_lost_miners(self, rng) -> Iterable[str]:
+    planners = tuple(
+        p for p in self.cavern.conquest.planners
+        if isinstance(p, LostMinersCavePlanner))
+    if len(planners) == 1:
+      lost_miners = sum(
+          1 for o in self.cavern.diorama.objectives
+          if isinstance(o, FindMinerObjective))
+      if lost_miners == 1:
+        yield rng.choice(premises.LOST_MINER)
+      else:
+        yield rng.choice(premises.LOST_MINERS_TOGETHER)
+    elif planners:
+      yield rng.choice(premises.LOST_MINERS_APART)
 
 
   # Orders - objectives phrased in briefings.
@@ -182,6 +194,16 @@ def _join_human(things: Sequence[str], conjunction: str = 'and') -> str:
   if len(things) == 1:
     return things[0]
   return f'{", ".join(things[:-1])} {conjunction} {things[-1]}'
+
+def _spell_cardinal(
+    origin: Tuple[float, float],
+    destination: Tuple[float, float]):
+  x1, y1 = origin
+  x2, y2 = destination
+  return (
+    'east', 'north east', 'north', 'north west',
+    'west', 'south west', 'south', 'south east', 'east'
+  )[math.round(4 * (math.atan2(y2 - y1, x2 - x1) / math.PI + 1))]
 
 def _spell_number(n: int) -> str:
   if n > 999:
