@@ -107,10 +107,6 @@ class Oysters:
       .layer(Layer.ALWAYS_HARD_ROCK, width=0, grow=0.2)
       .layer(Layer.ALWAYS_LOOSE_ROCK, grow=0.2)
       .layer(Layer.ALWAYS_FLOOR, grow=0.1)
-      .layer(Layer(
-          dirt       = Tile.FLOOR,
-          loose_rock = Tile.FLOOR,
-          hard_rock  = Tile.FLOOR,
-          solid_rock = Tile.LAVA), grow=2)
+      .layer(Layer.BRIDGE_ON_LAVA, grow=2)
       .layer(Layer.AT_MOST_HARD_ROCK)
   )

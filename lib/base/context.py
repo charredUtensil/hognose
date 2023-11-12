@@ -13,14 +13,13 @@ class Context(object):
     self.logger = logger or Logger()
     self.seed = coerce_seed(seed)
     self._rng = DiceBox(self.seed)
-    self.stage = 'init'
 
     self.bubble_count          = 80
     self.bubble_radius         = 17
     self.bubble_area_mode      = 30
-
-    self.auxiliary_edge_chance = 0.20
-    self.special_lot_ratio     = 0.25
+    
+    self.cave_count            = 20
+    self.weave_chance          = 0.20
 
     self.water_level           = 0.20
     self.water_spread          = 0.75

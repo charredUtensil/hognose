@@ -21,7 +21,7 @@ KINDS = (
   'rough.pearl',
   'fine.place_crystals',
   'flood',
-  'biome',
+  'init',
   'lore',
   'conquest.expected_crystals',
   'fine.place_recharge_seam',

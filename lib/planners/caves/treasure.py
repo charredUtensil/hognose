@@ -56,11 +56,7 @@ class Oysters:
   PENINSULA_HOARD = (
     Oyster('Peninsula Hoard')
       .layer(Layer.ALWAYS_FLOOR, width=2, grow=1)
-      .layer(Layer(
-          dirt       = Tile.FLOOR,
-          loose_rock = Tile.FLOOR,
-          hard_rock  = Tile.FLOOR,
-          solid_rock = Tile.WATER), width=2, grow=3)
+      .layer(Layer.BRIDGE_ON_WATER, width=2, grow=3)
       .layer(Layer.LOOSE_ROCK, shrink=1)
       .layer(Layer.HARD_ROCK, grow=0.5)
   )
@@ -75,10 +71,6 @@ class Oysters:
   LAVA_PENINSULA_HOARD = (
     Oyster('Lava Peninsula Hoard')
       .layer(Layer.ALWAYS_FLOOR, width=2, grow=1)
-      .layer(Layer(
-          dirt       = Tile.FLOOR,
-          loose_rock = Tile.FLOOR,
-          hard_rock  = Tile.FLOOR,
-          solid_rock = Tile.LAVA), width=2, grow=3)
+      .layer(Layer.BRIDGE_ON_LAVA, width=2, grow=3)
       .layer(Layer.HARD_ROCK, grow=0.5)
   )

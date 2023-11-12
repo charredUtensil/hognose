@@ -101,6 +101,19 @@ Layer.LOOSE_OR_HARD_ROCK = Layer(
     dirt       = Tile.LOOSE_ROCK,
     solid_rock = Tile.HARD_ROCK)
 
+# Bridges - Replaces placed rock with floor and floods solid rock
+# This can be used by caves to create "paths" to an island
+Layer.BRIDGE_ON_WATER = Layer(
+      dirt       = Tile.FLOOR,
+      loose_rock = Tile.FLOOR,
+      hard_rock  = Tile.FLOOR,
+      solid_rock = Tile.WATER)
+Layer.BRIDGE_ON_LAVA = Layer(
+      dirt       = Tile.FLOOR,
+      loose_rock = Tile.FLOOR,
+      hard_rock  = Tile.FLOOR,
+      solid_rock = Tile.LAVA)
+
 class Oyster(object):
 
   def __init__(self, name: str):

@@ -123,7 +123,6 @@ class Cavern(object):
     )
     try:
       for i, (stage, fn) in enumerate(stages):
-        self.context.stage = stage
         r = fn()
         if r:
           # THIS LINE IS IMPORTANT!
@@ -134,7 +133,6 @@ class Cavern(object):
         else:
           self.context.logger.log_stage(
               stage, i, len(stages), None)
-      self.context.stage = 'done'
       self.context.logger.log_stage(
           'done', len(stages), len(stages), None)
     except Exception as e:
@@ -142,7 +140,7 @@ class Cavern(object):
       raise
 
   def is_done(self) -> bool:
-    return self.context.stage == 'done'
+    return self._serialized is not None
 
   def _bubble(self):
     """Randomly place randomly sized rectangular bubbles near the center."""
@@ -166,11 +164,10 @@ class Cavern(object):
  
   def _discriminate(self):
     """Choose the largest lots to become special."""
-    special_count = round(len(self.baseplates) * self.context.special_lot_ratio)
     for baseplate in sorted(
         self.baseplates,
         key=Baseplate.area,
-        reverse=True)[:special_count]:
+        reverse=True)[:self.context.cave_count]:
       baseplate.kind = Baseplate.SPECIAL
 
   def _triangulate(self):
