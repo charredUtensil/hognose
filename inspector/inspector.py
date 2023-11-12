@@ -203,59 +203,64 @@ class Inspector(Logger):
         color = (c, c, c)
       frame.draw_rect(color, (x, y, 1, 1))
 
-    # Draw landslides
-    for (x, y), event in self.cavern.diorama.landslides.items():
-      frame.draw_line(
-        LANDSLIDE_COLOR,
-        (x + 0.25, y + 0.25),
-        (x + 0.75, y + 0.75))
-      frame.draw_line(
-        LANDSLIDE_COLOR,
-        (x + 0.25, y + 0.75),
-        (x + 0.75, y + 0.25))
+    if stage != 'discover':
+      # Draw erosions
+      for (x, y), event in self.cavern.diorama.erosions.items():
+        frame.draw_line(
+          EROSION_COLOR,
+          (x + 0.5, y + 0.25),
+          (x + 0.5, y + 0.75))
+        frame.draw_line(
+          EROSION_COLOR,
+          (x + 0.25, y + 0.5),
+          (x + 0.75, y + 0.5))
 
-    # Draw erosion
-    for (x, y), event in self.cavern.diorama.erosions.items():
-      frame.draw_rect(
-        EROSION_COLOR,
-        (x, y, 1, 1),
-        1)
+      # Draw landslides
+      for (x, y), event in self.cavern.diorama.landslides.items():
+        frame.draw_line(
+          LANDSLIDE_COLOR,
+          (x + 0.25, y + 0.25),
+          (x + 0.75, y + 0.75))
+        frame.draw_line(
+          LANDSLIDE_COLOR,
+          (x + 0.25, y + 0.75),
+          (x + 0.75, y + 0.25))
 
-    # Draw crystals
-    for (x, y), crystals in self.cavern.diorama.crystals.items():
-      if self.cavern.diorama.tiles.get((x, y)) == Tile.CRYSTAL_SEAM:
-        crystals += 4
-      if crystals < 5:
-        frame.draw_circle(
-          CRYSTAL_COLOR,
-          (x + 0.5, y + 0.5),
-          crystals / 4,
-          1)
-      else:
+      # Draw crystals
+      for (x, y), crystals in self.cavern.diorama.crystals.items():
+        if self.cavern.diorama.tiles.get((x, y)) == Tile.CRYSTAL_SEAM:
+          crystals += 4
+        if crystals < 5:
+          frame.draw_circle(
+            CRYSTAL_COLOR,
+            (x + 0.5, y + 0.5),
+            crystals / 4,
+            1)
+        else:
+          frame.draw_label_for_rect(
+            self.font,
+            f'{crystals:d}',
+            CRYSTAL_COLOR,
+            (0, 0, 0),
+            (x, y, 1, 1),
+            (0, 0))
+
+      # Draw buildings
+      for building in self.cavern.diorama.buildings:
         frame.draw_label_for_rect(
           self.font,
-          f'{crystals:d}',
-          CRYSTAL_COLOR,
-          (0, 0, 0),
-          (x, y, 1, 1),
+          building.type.inspect_abbrev,
+          BUILDING_COLOR,
+          None,
+          (building.x, building.y, 1, 1),
           (0, 0))
 
-    # Draw buildings
-    for building in self.cavern.diorama.buildings:
-      frame.draw_label_for_rect(
-        self.font,
-        building.type.inspect_abbrev,
-        BUILDING_COLOR,
-        None,
-        (building.x, building.y, 1, 1),
-        (0, 0))
-
-    # Draw miners
-    for miner in self.cavern.diorama.miners:
-      frame.draw_circle(
-          MINER_COLOR,
-          (miner.x, miner.y),
-          0.25)
+      # Draw miners
+      for miner in self.cavern.diorama.miners:
+        frame.draw_circle(
+            MINER_COLOR,
+            (miner.x, miner.y),
+            0.25)
 
     # Draw objectives that have map positions
     for objective in self.cavern.diorama.objectives:
