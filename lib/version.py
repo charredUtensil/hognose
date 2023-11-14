@@ -8,7 +8,7 @@ MAJOR    = 0
 #   There is some significant gameplay difference between this and a previous
 #   cavern. Perhaps there's a new planner available, or the position of a
 #   lake has changed.
-MINOR    = 1
+MINOR    = 2
 
 # Changing the revision number means:
 #   A generated cavern will have almost identical gameplay as before. Maybe

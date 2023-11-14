@@ -1,7 +1,15 @@
+from . import empty, lost_miners, spawn, treasure
 from .empty import EmptyCavePlanner
 from .lost_miners import LostMinersCavePlanner
 from .spawn import SpawnCavePlanner
-from .treasure import TreasureCavePlanner
+from .treasure import HoardCavePlanner, NougatCavePlanner, TreasureCavePlanner
 
-CAVES = (EmptyCavePlanner, LostMinersCavePlanner, TreasureCavePlanner)
-SPAWNS = (SpawnCavePlanner, )
+CAVE_BIDDERS = (
+    empty.bids,
+    lost_miners.bids,
+    treasure.bids,
+)
+
+SPAWN_BIDDERS = (
+    spawn.bids,
+)

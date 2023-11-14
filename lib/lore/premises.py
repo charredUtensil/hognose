@@ -3,6 +3,7 @@
 ONE_TREASURE_CAVE = (
     'the Hognose scanner aboard the L.M.S. Explorer is picking up a nearby '
     'cavern filled with Energy Crystals',
+    'the Hognose scanner indicates a large Energy Crystal signature near here'
     'we have located a nearby cavern with an abundance of Energy Crystals',
 )
 
@@ -17,7 +18,7 @@ TREASURE_CAVES = (
 POSITIVE_NEGATIVE_BRIDGE = (
     'However,',
     'Unfortunately,',
-    'The problem is that',
+    'The bad news?',
 )
 
 LOST_MINER = (

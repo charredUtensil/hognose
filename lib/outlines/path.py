@@ -34,9 +34,7 @@ class Path(ProceduralThing):
     return 'Path {self.kind}: ' + '>'.join(str(b.id) for b in self.baseplates)
 
   def weave(self):
-    if self.rng['weave'].random() < self._context.weave_chance:
-      self.kind = Path.AUXILIARY
-    else:
+    if not self.rng['weave'].chance(self.context.weave_chance):
       self.kind = Path.EXCLUDED
 
   def bat_distance(self) -> float:
@@ -87,7 +85,7 @@ class Path(ProceduralThing):
         for y in range(bp.top, bp.bottom):
           baseplate_index[x, y] = bp
 
-    def plates(path: 'Path') -> Iterable[Baseplate]:
+    def gen_path_plates(path: 'Path') -> Iterable[Baseplate]:
       last = path.origin
       seen = set((last,))
       yield last
@@ -106,10 +104,19 @@ class Path(ProceduralThing):
               yield last
               break
 
-    relevant_kinds = frozenset((Path.SPANNING, Path.AUXILIARY))
     for path in paths:
-      if path.kind in relevant_kinds:
-        path.baseplates = tuple(plates(path))
+      if path.kind == Path.EXCLUDED:
+        continue
+      path_plates = tuple(gen_path_plates(path))
+      if path.kind == Path.AMBIGUOUS:
+        if len(path_plates) == 2:
+          path.kind = Path.EXCLUDED
+          continue
+        path.kind = Path.AUXILIARY
+      for bp in path_plates:
+        if bp.kind == Baseplate.AMBIGUOUS:
+          bp.kind = Baseplate.HALL
+      path.baseplates = path_plates
     
     for bp in baseplates:
       if bp.kind == Baseplate.AMBIGUOUS:

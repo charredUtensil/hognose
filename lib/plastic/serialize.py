@@ -28,7 +28,7 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield f'rowcount:{width:d}'
   yield f'colcount:{height:d}'
   yield f'camerapos:{_camera_origin(diorama)}'
-  yield 'biome:rock'
+  yield f'biome:{diorama.context.biome.value}'
   yield 'creator:hognose'
   if diorama.level_name:
     yield f'levelname:{diorama.level_name}'

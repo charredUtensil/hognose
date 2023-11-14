@@ -74,9 +74,9 @@ class Bubble(Space):
   @classmethod
   def from_rng(cls, id: int, context: Context) -> 'Bubble':
     rng    = context.rng['bubble', id]
-    x, y   = rng.point_in_circle(context.bubble_radius)
-    area   = rng.pareto(2, context.bubble_area_mode)
-    aspect = rng.normal(stddev=0.1)
+    x, y   = rng.uniform_point_in_circle(context.bubble_spawn_radius)
+    area   = rng.beta(a = 0.2, b = 1.4, min = 4, max = context.bubble_max_area)
+    aspect = rng.beta(a = 5, b = 5, min = -0.3, max = 0.3)
     width  = math.sqrt(area) * (abs(aspect) + 1)
     height = area / width
     if aspect < 0:

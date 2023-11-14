@@ -17,13 +17,15 @@ Coord = Union[float, Absolute, Relative]
 ScaleCoord = Union[float, Absolute]
 
 class DrawContext(object):
-  def __init__(self, surface, scale):
+  def __init__(self, surface, scale, offset_x, offset_y):
     self.surface = surface
     self.scale = scale
     self.width = surface.get_width()
     self.height = surface.get_height()
-    self.ox = self.width / 2
-    self.oy = self.height / 2
+    self.cx = self.width  / 2
+    self.cy = self.height / 2
+    self.ox = self.cx + scale * offset_x
+    self.oy = self.cy + scale * offset_y
   
   def sx(self, x: Coord):
     if isinstance(x, Absolute):
@@ -49,8 +51,8 @@ class Frame(object):
   def __init__(self):
     self._calls = []
 
-  def playback(self, surface, scale):
-    dc = DrawContext(surface, scale)
+  def playback(self, surface, scale, offset_x, offset_y):
+    dc = DrawContext(surface, scale, offset_x, offset_y)
     for call in self._calls:
       call(dc)
 
@@ -237,12 +239,12 @@ def _draw_radial_label(
   cos = math.cos(theta)
   radius = min((
       abs(r) for r
-      in ((dc.oy - 50) / sin if sin != 0 else None,
-          (dc.ox - 50) / cos if cos != 0 else None)
+      in ((dc.cy - 50) / sin if sin != 0 else None,
+          (dc.cx - 50) / cos if cos != 0 else None)
       if r is not None))
 
-  label_sx = radius * cos + dc.ox
-  label_sy = radius * sin + dc.oy
+  label_sx = radius * cos + dc.cx
+  label_sy = radius * sin + dc.cy
   pygame.draw.line(
       dc.surface,
       fg_color,

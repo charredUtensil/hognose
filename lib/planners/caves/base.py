@@ -4,7 +4,6 @@ import math
 
 from lib.planners.base import SomaticPlanner
 from lib.plastic import Diorama, Tile
-from lib.utils.geometry import plot_line
 
 class BaseCavePlanner(SomaticPlanner):
 
@@ -31,7 +30,7 @@ class BaseCavePlanner(SomaticPlanner):
     self.fine_erosion(diorama)
 
   def fine_recharge_seam(self, diorama: Diorama):
-    if self.rng['fine.place_recharge_seam'].random() < self.context.recharge_seam_chance:
+    if self.rng['fine.place_recharge_seam'].chance(self.context.recharge_seam_chance):
       self.place_recharge_seam(diorama)
 
   def fine_buildings(self, diorama: Diorama):
@@ -41,7 +40,7 @@ class BaseCavePlanner(SomaticPlanner):
     self.place_crystals(diorama, self.expected_crystals)
 
   def fine_landslides(self, diorama: Diorama):
-    if self.rng['fine.place_landslides'].random() < self.context.cave_landslide_chance:
+    if self.rng['fine.place_landslides'].chance(self.context.cave_landslide_chance):
       freq = self.context.cave_landslide_freq * sum(math.sqrt(bp.area()) for bp in self.baseplates)
       self.place_landslides(diorama, freq)
 
@@ -54,7 +53,7 @@ class BaseCavePlanner(SomaticPlanner):
       if diorama.tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       for _ in range(count):
-        x, y = rng.choice(t)
+        x, y = rng.uniform_choice(t)
         existing = diorama.crystals.get((x, y), 0)
         if existing >= 3 and diorama.tiles.get((x, y)) != Tile.CRYSTAL_SEAM:
           diorama.tiles[x, y] = Tile.CRYSTAL_SEAM

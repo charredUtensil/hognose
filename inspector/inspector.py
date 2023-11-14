@@ -13,6 +13,8 @@ from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner
 from lib.planners.caves import (
     EmptyCavePlanner,
+    HoardCavePlanner,
+    NougatCavePlanner,
     LostMinersCavePlanner,
     SpawnCavePlanner,
     TreasureCavePlanner)
@@ -70,7 +72,8 @@ PLANNER_TYPE_BORDER_COLORS = {
     EmptyCavePlanner                   : (0xff, 0xff, 0xff),
     LostMinersCavePlanner              : (0xff, 0xff, 0x00),
     SpawnCavePlanner                   : (0x00, 0xff, 0xff),
-    TreasureCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
+    HoardCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
+    NougatCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
     EmptyHallPlanner                   : (0x77, 0x00, 0x10),
     ThinHallPlanner                    : (0x77, 0x00, 0x10),
 }
@@ -102,6 +105,8 @@ class Inspector(Logger):
     self.window_surface = pygame.display.set_mode((800, 600), pygame.RESIZABLE, 32)
     self.frames: List[Tuple[Frame, str]] = []
     self.scale = 6
+    self.offset_x = 0
+    self.offset_y = 0
     self.font = pygame.font.SysFont('monospace', 10, bold=True)
     self.font_med = pygame.font.SysFont('trebuchetms', 16, bold=True)
     self.font_title = pygame.font.SysFont('trebuchetms', 24, bold=True)
@@ -343,6 +348,11 @@ class Inspector(Logger):
               (x1 + 0.5, y1 + 0.5),
               (x2 + 0.5, y2 + 0.5),
               2)
+          else:
+            frame.draw_circle(
+              PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
+              (x1 + 0.5, y1 + 0.5),
+              0.3)
 
     # Draw warnings since the last frame
     if self.warnings:
@@ -418,7 +428,7 @@ class Inspector(Logger):
       frame: Frame,
       after: Optional[Callable[[], None]] = None):
     self.window_surface.fill(FRAME_BG_COLOR)
-    frame.playback(self.window_surface, self.scale)
+    frame.playback(self.window_surface, self.scale, self.offset_x, self.offset_y)
     if after:
       after()
     pygame.display.flip()
@@ -437,7 +447,8 @@ class Inspector(Logger):
         if event.type == pygame.KEYDOWN:
           if event.key in (pygame.K_ESCAPE, pygame.K_q):
             return
-          elif event.key in (pygame.K_LEFT, pygame.K_a):
+          elif event.key == pygame.K_LEFT:
+            # Back in time
             if pygame.key.get_mods() & pygame.KMOD_SHIFT:
               stage = self.frames[index][1]
               while index > 0 and self.frames[index][1] == stage:
@@ -446,7 +457,8 @@ class Inspector(Logger):
             else:
               index = max(index - 1, 0)
               draw()
-          elif event.key in (pygame.K_RIGHT, pygame.K_d):
+          elif event.key == pygame.K_RIGHT:
+            # Forward in time
             if pygame.key.get_mods() & pygame.KMOD_SHIFT:
               if index < last_index:
                 index += 1
@@ -458,10 +470,20 @@ class Inspector(Logger):
             else:
               index = min(index + 1, last_index)
               draw()
-          elif event.key in (pygame.K_UP, pygame.K_w):
-            self.scale = min(self.scale + 1, 10)
-          elif event.key in (pygame.K_DOWN, pygame.K_s):
+          elif event.key == pygame.K_UP:
+            # Zoom in
+            self.scale = min(self.scale + 1, 20)
+          elif event.key == pygame.K_DOWN:
+            # Zoom out
             self.scale = max(self.scale - 1, 1)
+          elif event.key == pygame.K_w:
+            self.offset_y += 5 if pygame.key.get_mods() & pygame.KMOD_SHIFT else 1
+          elif event.key == pygame.K_a:
+            self.offset_x += 5 if pygame.key.get_mods() & pygame.KMOD_SHIFT else 1
+          elif event.key == pygame.K_s:
+            self.offset_y -= 5 if pygame.key.get_mods() & pygame.KMOD_SHIFT else 1
+          elif event.key == pygame.K_d:
+            self.offset_x -= 5 if pygame.key.get_mods() & pygame.KMOD_SHIFT else 1
         else:
           draw()
     except KeyboardInterrupt as e:

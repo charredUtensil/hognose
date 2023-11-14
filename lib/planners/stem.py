@@ -8,8 +8,8 @@ import math
 
 from lib.outlines import Baseplate, Path
 from lib.planners.base import Planner, SomaticPlanner
-from lib.planners.caves import CAVES, SPAWNS
-from lib.planners.halls import HALLS
+from lib.planners.caves import CAVE_BIDDERS, SPAWN_BIDDERS
+from lib.planners.halls import HALL_BIDDERS
 from lib.plastic import Tile
 
 class StemPlanner(Planner):
@@ -21,9 +21,6 @@ class StemPlanner(Planner):
     self._kind: Literal[
       StemPlanner.HALL,
       StemPlanner.CAVE] = kind
-    self.fluid_type: Optional[Literal[
-      Tile.WATER,
-      Tile.LAVA]] = None
     self.hops_to_spawn: Optional[int] = None
 
   @property
@@ -32,26 +29,26 @@ class StemPlanner(Planner):
 
   def suggested_crystal_count(self, conquest):
     area = sum(bp.area() for bp in self.baseplates)
-    cf = math.sqrt(area) * (
+    mean = math.sqrt(area) * (
       self.context.base_richness
-      + self.context.hop_richness * self.hops_to_spawn / conquest.total
+      + self.context.distance_richness * self.hops_to_spawn / conquest.total
+      + self.context.completion_richness * conquest.completed / conquest.total
     )
-    return (
-      math.floor(max(0, self.rng['conquest.expected_crystals'].normal(1, 0.3)) * cf)
-    )
+    return math.floor(self.rng['conquest.expected_crystals'].beta(
+        a = 5, b = 2, min = 0, max = mean * 1.25))
 
   def differentiate(self, conquest: 'Conquest') -> SomaticPlanner:
     bidders = None
     if all(isinstance(p, StemPlanner) for p in conquest.intersecting(self)):
-      bidders = SPAWNS
+      bidders = SPAWN_BIDDERS
     elif self._kind == StemPlanner.CAVE:
-      bidders = CAVES
+      bidders = CAVE_BIDDERS
     else:
-      bidders = HALLS
+      bidders = HALL_BIDDERS
     def bids():
-      for klass in bidders:
-        yield from klass.bids(self, conquest)
-    return self.rng['conquest.differentiate'].bid(bids())()
+      for bidder in bidders:
+        yield from bidder(self, conquest)
+    return self.rng['conquest.differentiate'].weighted_choice(bids())()
 
   def rough(self, tiles):
     pass

@@ -12,9 +12,8 @@ class SpawnCavePlanner(BaseCavePlanner):
   def __init__(self, stem, conquest, oyster):
     super().__init__(stem, oyster)
     self.expected_crystals = max(
-        0,
-        math.floor(self.rng['conquest.expected_crystals'].normal(mean=5, stddev=1)),
-        stem.suggested_crystal_count(conquest))
+        stem.suggested_crystal_count(conquest),
+        math.floor(self.rng['conquest.expected_crystals'].beta(min = 2, max = 7)))
 
   def fine_recharge_seam(self, diorama):
     self.place_recharge_seam(diorama)
@@ -51,10 +50,9 @@ class SpawnCavePlanner(BaseCavePlanner):
     diorama.open_cave_flags.add(a)
     diorama.camera_origin = a
 
-  @classmethod
-  def bids(cls, stem, conquest):
-    yield (1, lambda: cls(stem, conquest, Oysters.OPEN))
-    yield (1, lambda: cls(stem, conquest, Oysters.EMPTY))
+def bids(stem, conquest):
+  yield (1, lambda: SpawnCavePlanner(stem, conquest, Oysters.OPEN))
+  yield (1, lambda: SpawnCavePlanner(stem, conquest, Oysters.EMPTY))
 
 class Oysters:
   OPEN = (

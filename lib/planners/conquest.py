@@ -1,11 +1,11 @@
-from typing import Dict, List, Set, TYPE_CHECKING
+from typing import Dict, Iterable, List, Set, TYPE_CHECKING
 
 import collections
 import math
 
 from .stem import StemPlanner
 from lib.base import ProceduralThing
-from lib.planners.base import SomaticPlanner
+from lib.planners.base import Planner, SomaticPlanner
 from lib.plastic import Tile
 
 class Conquest(ProceduralThing):
@@ -51,36 +51,36 @@ class Conquest(ProceduralThing):
   def total(self):
     return sum(1 for p in self._somatic_planners)
 
-  def intersecting(self, planner):
+  def intersecting(self, planner: Planner) -> Iterable[Planner]:
     indexes = set()
     for bp in planner.baseplates:
       indexes.update(self._bp_index[bp.id])
-    return tuple(
-        (self._somatic_planners[index] or self._stem_planners[index])
-        for index in sorted(indexes))
+    for index in sorted(indexes):
+      p = self._somatic_planners[index] or self._stem_planners[index]
+      if p != planner:
+        yield p
 
   def flood(self):
-    queue: List[StemPlanner] = list(self.stem_planners)
-    water_count = math.floor(
-        self.context.water_level * len(self._stem_planners))
-    lava_count = math.floor(
-        self.context.lava_level * len(self._stem_planners))
     rng = self.rng['flood']
+    def coverage(min, max):
+      return math.floor(
+          rng.beta(a = 1.4, b = 1.4, min = min, max = max) * len(self._stem_planners))
+    water_count = coverage(*self.context.water_coverage)
+    lava_count = coverage(*self.context.lava_coverage)
+    queue: List[StemPlanner] = list(self.stem_planners)
     
     def fill(count, fluid_type, spread):
       stack: List[StemPlanner] = []
       for _ in range(count):
-        if not stack:
-          stack.append(rng.choice(
-            p for p in queue if p.kind == StemPlanner.CAVE))
-        planner = stack.pop()
+        planner = stack.pop() if stack else rng.uniform_choice(
+            p for p in queue if p.kind == StemPlanner.CAVE)
         planner.fluid_type = fluid_type
         queue.remove(planner)
         for p in self.intersecting(planner):
           if (p not in stack
               and p.fluid_type is None
               and p.kind != planner.kind
-              and rng.random() < spread):
+              and rng.chance(spread)):
             stack.append(p)
 
     fill(water_count, Tile.WATER, self.context.water_spread)
@@ -88,11 +88,11 @@ class Conquest(ProceduralThing):
 
     queue = list(p for p in self.stem_planners if p.fluid_type == Tile.LAVA)
     while queue:
-      planner = queue.pop(math.floor(rng.random() * len(queue)))
+      planner = queue.pop(rng.uniform_choice(range(len(queue))))
       erode_chance = (
           self.context.cave_erode_chance if planner.kind == StemPlanner.CAVE
           else self.context.hall_erode_chance)
-      if rng.random() < erode_chance:
+      if rng.chance(erode_chance):
         planner.has_erosion = True
         for p in self.intersecting(planner):
           if (p not in queue

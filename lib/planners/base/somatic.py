@@ -19,6 +19,7 @@ class SomaticPlanner(Planner):
     self._oyster = oyster
     self._pearl = None
     self.has_erosion = stem.has_erosion
+    self.fluid_type = stem.fluid_type
 
   @property
   @abc.abstractmethod
@@ -61,7 +62,7 @@ class SomaticPlanner(Planner):
       total_frequency: float,
       pearl = None):
     rng = self.rng['fine.place_landslides']
-    coverage = rng.random() * 0.6 + 0.2
+    coverage = rng.uniform(min = 0.2, max = 0.8)
     if not pearl:
       pearl = self.pearl
     def h():
@@ -69,7 +70,7 @@ class SomaticPlanner(Planner):
         if (diorama.tiles.get(info.pos) in (
             Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)
             and info.pos not in diorama.landslides
-            and rng.random() < coverage):
+            and rng.chance(coverage)):
           yield info.pos
     positions = tuple(h())
     if positions:
@@ -91,7 +92,9 @@ class SomaticPlanner(Planner):
     if baseplates is None:
       baseplates = self.baseplates
     for a, b in itertools.pairwise(baseplates):
-      for (x1, y1), (x2, y2) in itertools.pairwise(plot_line(a.center, b.center)):
+      ac = a.center
+      yield (math.floor(ac[0]), math.floor(ac[1]))
+      for (x1, y1), (x2, y2) in itertools.pairwise(plot_line(ac, b.center)):
         yield x2, y2
         if x1 != x2 and y1 != y2:
           yield x1, y2
@@ -114,12 +117,12 @@ class SomaticPlanner(Planner):
       # Starting at each point in the last layer,
       for x1, y1 in last_layer:
         done = False
-        if (x1, y1 - 1) not in visited:
-          # Put the cursor at the point north of it facing east.
-          cx, cy, cvx, cvy = x1, y1 - 1, 1, 0
-        elif (x1, y1 + 1) not in visited:
-          # Put the cursor at the point south of it facing west.
-          cx, cy, cvx, cvy = x1, y1 + 1, -1, 0
+        cx, cy, cvx, cvy = x1, y1, 0, 0
+        for ox, oy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+          cx, cy = (x1 + ox, y1 + oy)
+          if (cx, cy) not in visited:
+            cvx, cvy = -oy, ox
+            break
         else:
           # Skip
           done = True
@@ -153,8 +156,7 @@ class SomaticPlanner(Planner):
                 done = True
             # And the rng allows it...
             elif (
-                not baroqueness
-                or rng.random() > baroqueness):
+                not baroqueness or not rng.chance(baroqueness)):
               # Move to it
               cx, cy, cvx, cvy = nx, ny, vx, vy
               break

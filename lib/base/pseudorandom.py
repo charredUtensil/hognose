@@ -34,36 +34,34 @@ class Rng(object):
   def __init__(self, seed: int):
     self._rng = np.random.default_rng(seed)
 
-  def random(self) -> float:
-    """A uniform random float between 0 and 1"""
-    return self._rng.random()
+  def chance(
+      self,
+      chance: float) -> bool:
+    return self._rng.random() < chance
 
-  def bid(self, bids: Iterable[Tuple[float, T]]) -> T:
-    """Given tuples of (bid, item), choose an item.
-    Higher bids are more likely to be chosen."""
-    bids = tuple(b for b in bids if b[0] > 0)
-    n = self._rng.random() * sum(bid for (bid, _) in bids)
-    for bid, result in bids:
-      n -= bid
-      if n <= 0:
-        return result
-    return bids[-1][1]
+  def uniform(
+      self,
+      min: float = 0,
+      max: float = 1) -> float:
+    return self._rng.random() * (max - min) + min
 
-  def choice(self, choices: Iterable[T]) -> T:
-    """A uniformly random choice of one of the given items."""
-    c = tuple(choices)
-    return c[self._rng.integers(0, len(c))]
+  def beta(
+      self,
+      a: float = 5,
+      b: float = 5,
+      min: float = 0,
+      max: float = 1) -> float:
+    """Use a beta distribution to choose a value between min and max.
+    This is incredibly useful, since it is strictly bounded and many different
+    curve shapes can be achieved by changing a and b.
+    See https://eurekastatistics.com/beta-distribution-pdf-grapher/
+    """
+    return self._rng.beta(a, b) * (max - min) + min
 
-  def normal(self, mean: float = 0, stddev: float = 1) -> float:
-    """A randomly chosen number with a normal distribution."""
-    return self._rng.normal(loc=mean, scale=stddev)
-
-  def pareto(self, shape: float, mode: float) -> float:
-    """A randomly chosen number with a Pareto distribution."""
-    return self._rng.pareto(shape) * mode
-
-  def point_in_circle(
-      self, radius: float, origin: Tuple[float, float] = (0, 0)
+  def uniform_point_in_circle(
+      self,
+      radius: float,
+      origin: Tuple[float, float] = (0, 0)
       ) -> Tuple[float, float]:
     """A uniformly random point in a circle with the given radius."""
     t = self._rng.random() * 2 * math.pi
@@ -72,6 +70,27 @@ class Rng(object):
     return (
         radius * r * math.cos(t) + origin[0],
         radius * r * math.sin(t) + origin[1])
+
+  def beta_choice(self, choices: Iterable[T], a: float = 5, b: float = 5) -> T:
+    """Use a beta distribution to choose one of the given items."""
+    c = tuple(choices)
+    return c[math.floor(self._rng.beta(a, b) * len(c))]
+
+  def uniform_choice(self, choices: Iterable[T]) -> T:
+    """A uniformly random choice of one of the given items."""
+    c = tuple(choices)
+    return c[self._rng.integers(0, len(c))]
+
+  def weighted_choice(self, bids: Iterable[Tuple[float, T]]) -> T:
+    """Given tuples of (weight, item), choose an item.
+    Higher weights are more likely to be chosen."""
+    bids = tuple(b for b in bids if b[0] > 0)
+    n = self._rng.random() * sum(w for (w, _) in bids)
+    for w, result in bids:
+      n -= w
+      if n <= 0:
+        return result
+    return bids[-1][1]
 
 class DiceBox(object):
 

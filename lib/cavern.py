@@ -167,7 +167,7 @@ class Cavern(object):
     for baseplate in sorted(
         self.baseplates,
         key=Baseplate.area,
-        reverse=True)[:self.context.cave_count]:
+        reverse=True)[:self.context.special_baseplate_count]:
       baseplate.kind = Baseplate.SPECIAL
 
   def _triangulate(self):

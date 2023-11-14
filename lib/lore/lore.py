@@ -16,7 +16,11 @@ class Lore(object):
 
   def level_name(self) -> str:
     #rng = self.cavern.context.rng['lore', 0]
-    return f'HN-{hex(self.cavern.context.seed)[2:]}'
+    seed = f'{self.cavern.context.seed:08X}'
+    return (
+      'HN-'
+      f'{self.cavern.context.biome.value[-1].upper()}'
+      f'{seed[:3]}-{seed[3:]}')
 
   def briefing(self) -> str:
     rng = self.cavern.context.rng['lore', 1]
@@ -27,16 +31,16 @@ class Lore(object):
   
   def success(self) -> str:
     rng = self.cavern.context.rng['lore', 2]
-    opening = rng.choice(openings.SUCCESS)
+    opening = rng.uniform_choice(openings.SUCCESS)
     conclusion = self._objectives_achieved(rng)
-    congratulation = rng.choice(conclusions.CONGRATULATION)
+    congratulation = rng.uniform_choice(conclusions.CONGRATULATION)
     return f'{opening} {conclusion} {congratulation}'
   
   def failure(self) -> str:
     rng = self.cavern.context.rng['lore', 3]
-    opening = rng.choice(openings.FAILURE)
+    opening = rng.uniform_choice(openings.FAILURE)
     conclusion = self._objectives_failed(rng)
-    condolence = rng.choice(conclusions.CONDOLENCE)
+    condolence = rng.uniform_choice(conclusions.CONDOLENCE)
     return f'{opening} {conclusion} {condolence}'
 
   # Opening lines.
@@ -52,11 +56,11 @@ class Lore(object):
         water += 1
       total += 1
     if lava / total > 0.4:
-      return rng.choice(openings.LAVA_FLOODED)
+      return rng.uniform_choice(openings.LAVA_FLOODED)
     elif water / total > 0.4:
-      return rng.choice(openings.WATER_FLOODED)
+      return rng.uniform_choice(openings.WATER_FLOODED)
     else:
-      return rng.choice(openings.NORMAL)
+      return rng.uniform_choice(openings.NORMAL)
 
   # Premise - used in briefings, for flavor.
     
@@ -68,25 +72,28 @@ class Lore(object):
     negative.extend(self._premise_lost_miners(rng))
 
     if _spawn_has_erosion(self.cavern):
-      negative.append(rng.choice(premises.SPAWN_HAS_EROSION))
+      negative.append(rng.uniform_choice(premises.SPAWN_HAS_EROSION))
 
     if positive and negative:
-      bridge = rng.choice(premises.POSITIVE_NEGATIVE_BRIDGE)
+      bridge = rng.uniform_choice(premises.POSITIVE_NEGATIVE_BRIDGE)
+      negative = _join_human(negative)
+      if bridge[-1] in '.!?':
+        negative = _capitalize_first(negative)
       return (
           f'{_capitalize_first(_join_human(positive))}. '
-          f'{bridge} {_join_human(negative)}.')
+          f'{bridge} {negative}.')
     return _capitalize_first(
         _join_human(positive or negative)
-        or rng.choice(premises.GENERIC)) + '.'
+        or rng.uniform_choice(premises.GENERIC)) + '.'
 
   def _premise_treasure(self, rng) -> Iterable[str]:
     planners = tuple(
         p for p in self.cavern.conquest.planners
         if isinstance(p, TreasureCavePlanner))
     if len(planners) == 1:
-      yield rng.choice(premises.ONE_TREASURE_CAVE)
+      yield rng.uniform_choice(premises.ONE_TREASURE_CAVE)
     elif planners:
-      yield rng.choice(premises.TREASURE_CAVES)
+      yield rng.uniform_choice(premises.TREASURE_CAVES)
 
   def _premise_lost_miners(self, rng) -> Iterable[str]:
     planners = tuple(
@@ -97,11 +104,11 @@ class Lore(object):
           1 for o in self.cavern.diorama.objectives
           if isinstance(o, FindMinerObjective))
       if lost_miners == 1:
-        yield rng.choice(premises.LOST_MINER)
+        yield rng.uniform_choice(premises.LOST_MINER)
       else:
-        yield rng.choice(premises.LOST_MINERS_TOGETHER)
+        yield rng.uniform_choice(premises.LOST_MINERS_TOGETHER)
     elif planners:
-      yield rng.choice(premises.LOST_MINERS_APART)
+      yield rng.uniform_choice(premises.LOST_MINERS_APART)
 
 
   # Orders - objectives phrased in briefings.
@@ -114,18 +121,18 @@ class Lore(object):
   
   def _non_resource_orders(self, rng) -> Iterable[str]:
     if _spawn_has_erosion(self.cavern):
-      yield rng.choice(orders.SPAWN_HAS_EROSION)
+      yield rng.uniform_choice(orders.SPAWN_HAS_EROSION)
     else:
-      yield rng.choice(orders.GENERIC)
+      yield rng.uniform_choice(orders.GENERIC)
     lost_miners = sum(
         1 for o in self.cavern.diorama.objectives
         if isinstance(o, FindMinerObjective))
     if lost_miners > 0:
       if lost_miners > 1:
-        miners = f'{_spell_number(lost_miners)} lost miners'
+        miners = f'{_spell_number(lost_miners)} lost Rock Raiders'
       else:
-        miners = 'lost miner'
-      yield rng.choice(orders.FIND_LOST_MINERS) % miners
+        miners = 'lost Rock Raider'
+      yield rng.uniform_choice(orders.FIND_LOST_MINERS) % miners
 
   def _resource_orders(self) -> Iterable[str]:
     o = self._resource_objective()
@@ -157,7 +164,7 @@ class Lore(object):
         1 for o in self.cavern.diorama.objectives
         if isinstance(o, FindMinerObjective))
     if lost_miners > 0:
-      result.append(f'find the lost miner{"s" if lost_miners > 1 else ""}')
+      result.append(f'find the lost Rock Raider{"s" if lost_miners > 1 else ""}')
     
     ro = self._resource_objective()
     if ro:
@@ -169,18 +176,18 @@ class Lore(object):
         resource = 'the resources'
       else:
         resource = f'{_spell_number(resources[0][1])} {resources[0][0]}'
-      result.append(rng.choice(conclusions.RESOURCES) % resource)
+      result.append(rng.uniform_choice(conclusions.RESOURCES) % resource)
 
     return _join_human(result)
 
   def _objectives_achieved(self, rng) -> str:
     return (
-        rng.choice(conclusions.ACHIEVED)
+        rng.uniform_choice(conclusions.ACHIEVED)
         % self._objectives_conclusion(rng))
 
   def _objectives_failed(self, rng) -> str:
     return (
-        rng.choice(conclusions.FAILED)
+        rng.uniform_choice(conclusions.FAILED)
         % self._objectives_conclusion(rng))
 
 
