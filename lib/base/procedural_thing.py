@@ -22,5 +22,5 @@ class BoundDiceBox(object):
   def __init__(self, thing: ProceduralThing):
     self._thing = thing
 
-  def __getitem__(self, kind: Literal[KINDS]):
+  def __getitem__(self, kind: str):
     return self._thing._context.rng[kind, self._thing._id]

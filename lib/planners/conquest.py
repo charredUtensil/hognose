@@ -1,4 +1,5 @@
-from typing import Dict, Iterable, List, Set, TYPE_CHECKING
+import typing
+from typing import Dict, Iterable, List, Optional, Set, TYPE_CHECKING
 
 import collections
 import math
@@ -77,6 +78,7 @@ class Conquest(ProceduralThing):
         planner.fluid_type = fluid_type
         queue.remove(planner)
         for p in self.intersecting(planner):
+          p = typing.cast(StemPlanner, p)
           if (p not in stack
               and p.fluid_type is None
               and p.kind != planner.kind
@@ -95,6 +97,7 @@ class Conquest(ProceduralThing):
       if rng.chance(erode_chance):
         planner.has_erosion = True
         for p in self.intersecting(planner):
+          p = typing.cast(StemPlanner, p)
           if (p not in queue
               and not p.has_erosion
               and p.fluid_type != Tile.WATER

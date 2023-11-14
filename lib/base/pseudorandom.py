@@ -1,4 +1,4 @@
-from typing import Iterable, Literal, Optional, Tuple, TypeVar
+from typing import Dict, Iterable, Literal, Optional, Tuple, TypeVar
 
 T = TypeVar("T")
 
@@ -99,9 +99,9 @@ class DiceBox(object):
     self._seeds = {
         kind: main_rng.integers(0, MAX_SEED)
         for kind in KINDS}
-    self._rng: Dict[Tuple[Literal[KINDS], int], Rng] = {}
+    self._rng: Dict[Tuple[str, int], Rng] = {}
 
-  def __getitem__(self, index: Tuple[Literal[KINDS], int]) -> Rng:
+  def __getitem__(self, index: Tuple[str, int]) -> Rng:
     if index not in self._rng:
       # To get the seed for this specific RNG, just shift it by a fixed amount.
       # 1999 is an arbitrarily chosen constant.

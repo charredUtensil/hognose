@@ -4,6 +4,7 @@ if TYPE_CHECKING:
   from lib import Cavern
 
 import collections
+import math
 
 from . import conclusions, openings, orders, premises
 
@@ -210,7 +211,7 @@ def _spell_cardinal(
   return (
     'east', 'north east', 'north', 'north west',
     'west', 'south west', 'south', 'south east', 'east'
-  )[math.round(4 * (math.atan2(y2 - y1, x2 - x1) / math.PI + 1))]
+  )[round(4 * (math.atan2(y2 - y1, x2 - x1) / math.pi + 1))]
 
 def _spell_number(n: int) -> str:
   if n > 999:

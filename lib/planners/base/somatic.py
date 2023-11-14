@@ -1,4 +1,6 @@
+import typing
 from typing import Dict, Iterable, NamedTuple, Optional, Tuple
+
 import abc
 import collections
 import itertools
@@ -106,8 +108,8 @@ class SomaticPlanner(Planner):
       baroqueness: float,
       rng: Optional[Rng] = None,
       include_nucleus: bool = True) -> Iterable[PearlInfo]:
-    if baroqueness and not rng:
-      raise ArgumentError('Must supply rng when using baroqueness')
+    if baroqueness and rng is None:
+      raise AttributeError('Must supply rng when using baroqueness')
     last_layer = list(nucleus)
     for i, (x, y) in enumerate(last_layer):
       yield PearlInfo(pos=(x, y), layer=0, sequence=i)
@@ -156,7 +158,8 @@ class SomaticPlanner(Planner):
                 done = True
             # And the rng allows it...
             elif (
-                not baroqueness or not rng.chance(baroqueness)):
+                not baroqueness
+                or not typing.cast(Rng, rng).chance(baroqueness)):
               # Move to it
               cx, cy, cvx, cvy = nx, ny, vx, vy
               break

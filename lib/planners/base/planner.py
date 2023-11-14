@@ -1,9 +1,10 @@
-from typing import Iterable, Tuple
+from typing import Iterable, Literal, Optional, Tuple
 
 import abc
 
 from lib.base import ProceduralThing
 from lib.outlines import Baseplate
+from lib.plastic import Tile
 
 class Planner(ProceduralThing, abc.ABC):
 
