@@ -46,7 +46,7 @@ class SpawnCavePlanner(BaseCavePlanner):
       facing = Position.FACING_WEST
     else:
       facing = Position.FACING_EAST
-    diorama.buildings.append(Building(Building.TOOL_STORE, a, facing))
+    diorama.buildings.append(Building.at_tile(Building.Type.TOOL_STORE, a, facing))
     diorama.open_cave_flags.add(a)
     diorama.camera_origin = a
 

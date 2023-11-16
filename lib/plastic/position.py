@@ -1,3 +1,7 @@
+from typing import Optional, Tuple
+
+from lib.base import Rng
+
 class Position(object):
   ENTITY_SCALE = 300
 
@@ -11,7 +15,20 @@ class Position(object):
     self.rp, self.ry, self.rr = rotation
     self.sx, self.sy, self.sz = scale
 
-  def serialize(self, offset):
+  @classmethod
+  def at_center_of_tile(cls, pos: Tuple[int, int], facing: float = 0):
+    x, y = pos
+    return cls((x + 0.5, y + 0.5, 0), (0, facing, 0))
+
+  @classmethod
+  def randomly_in_tile(cls, rng: Rng, pos: Tuple[int, int], facing: Optional[float] = None):
+    f = rng.uniform(-180, 180) if facing is None else facing
+    x, y = pos
+    px = rng.uniform(x, x + 1)
+    py = rng.uniform(y, y + 1)
+    return cls((px, py, 0), (0, f, 0))
+
+  def serialize(self, offset: Tuple[int, int]):
     tx = (self.tx + offset[0]) * Position.ENTITY_SCALE
     ty = (self.ty + offset[1]) * Position.ENTITY_SCALE
     tz = self.tz

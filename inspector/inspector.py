@@ -257,7 +257,7 @@ class Inspector(Logger):
           building.type.inspect_abbrev,
           BUILDING_COLOR,
           None,
-          (building.x, building.y, 1, 1),
+          (building.x - 0.5, building.y - 0.5, 1, 1),
           (0, 0))
 
       # Draw miners

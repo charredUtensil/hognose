@@ -34,3 +34,18 @@ def plot_line(a, b) -> Iterable[Tuple[int, int]]:
         error = error + dx
         y0 = y0 + sy
   yield (x1, y1)
+
+def offset(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple[int, int]:
+  return (p1[0] + p2[0], p1[1] + p2[1])
+
+# (1, 2) -> (-2, 1) -> (-1, -2) -> (2, -1) -> ...
+def rotate_right(x: int, y: int) -> Tuple[int, int]:
+  return (-y, x)
+
+# (1, 2) -> (2, -1) -> (-1, -2) -> (-2, 1) -> ...
+def rotate_left(x: int, y: int) -> Tuple[int, int]:
+  return (y, -x)
+
+# (1, 2) -> (-1, -2) -> ...
+def rotate_180(x: int, y: int) -> Tuple[int, int]:
+  return (-x, -y)

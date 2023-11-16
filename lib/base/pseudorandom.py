@@ -26,6 +26,7 @@ KINDS = (
   'conquest.expected_crystals',
   'fine.place_recharge_seam',
   'fine.place_landslides',
+  'fine.place_entities',
 )
 
 class Rng(object):

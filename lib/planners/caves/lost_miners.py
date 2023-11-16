@@ -1,7 +1,9 @@
+import math
+
 from .base import BaseCavePlanner
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import FindMinerObjective, Tile
+from lib.plastic import FindMinerObjective, Position, Tile
 
 class LostMinersCavePlanner(BaseCavePlanner):
 
@@ -12,10 +14,13 @@ class LostMinersCavePlanner(BaseCavePlanner):
 
   def fine(self, diorama):
     super().fine(diorama)
-    x, y = self.pearl[0].pos
-    diorama.tiles[x, y] = Tile.FLOOR
-    self._miners.append(diorama.miner(
-        (x + 0.5, y + 0.5), 0))
+    rng = self.rng['fine.place_entities']
+    pos = self.pearl[0].pos
+    diorama.tiles[pos] = Tile.FLOOR
+    miners_count = math.floor(rng.beta(a = 1, b = 2, min = 1, max = 6))
+    for _ in range(miners_count):
+      self._miners.append(diorama.miner(
+        Position.randomly_in_tile(rng, pos)))
   
   @property
   def objectives(self):
