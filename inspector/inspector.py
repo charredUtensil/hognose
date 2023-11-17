@@ -95,6 +95,7 @@ BUILDING_COLOR                          = (0xff, 0xff, 0x00)
 BUILDING_LABEL_RADIUS = 10
 
 MINER_COLOR                             = (0xff, 0xff, 0x00)
+CREATURE_COLOR                          = (0xff, 0x00, 0x00)
 
 class Inspector(Logger):
 
@@ -259,6 +260,13 @@ class Inspector(Logger):
           None,
           (building.x - 0.5, building.y - 0.5, 1, 1),
           (0, 0))
+
+      # Draw creatures
+      for creature in self.cavern.diorama.creatures:
+        frame.draw_circle(
+            CREATURE_COLOR,
+            (creature.x, creature.y),
+            0.25)
 
       # Draw miners
       for miner in self.cavern.diorama.miners:

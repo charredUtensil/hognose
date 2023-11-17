@@ -5,7 +5,7 @@ import math
 
 from .base import BaseCavePlanner
 from lib.planners.base import Oyster, Layer
-from lib.plastic import ResourceObjective, Tile
+from lib.plastic import Creature, Position, ResourceObjective, Tile
 
 class TreasureCavePlanner(BaseCavePlanner):
 
@@ -25,6 +25,14 @@ class TreasureCavePlanner(BaseCavePlanner):
       return []
 
 class HoardCavePlanner(TreasureCavePlanner):
+  
+  def fine(self, diorama):
+    super().fine(diorama)
+    rng = self.rng['fine.place_entities']
+    for _ in range(3):
+      diorama.creature(Creature.Type.ROCK_MONSTER, Position(
+          rng.uniform_point_in_circle(2, self.pearl[0].pos) + (0,),
+          (0, 0, 0)))
 
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))

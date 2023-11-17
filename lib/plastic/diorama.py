@@ -9,6 +9,7 @@ import random
 import time
 
 from .building import Building
+from .creatures import Creature
 from .hazards import Erosion, Landslide
 from .miners import Miner
 from .objectives import Objective
@@ -32,6 +33,8 @@ class Diorama(object):
     self._buildings = []
     self._miner_ids = itertools.count()
     self._miners = []
+    self._creature_ids = itertools.count()
+    self._creatures = []
     self.camera_origin: Tuple[int, int] = (0, 0)
 
     # Non-positional items
@@ -85,6 +88,15 @@ class Diorama(object):
   @property
   def miners(self) -> List[Miner]:
     return self._miners
+
+  def creature(self, *args, **kwargs) -> Creature:
+    c = Creature(next(self._creature_ids), *args, **kwargs)
+    self._creatures.append(c)
+    return c
+
+  @property
+  def creatures(self) -> List[Creature]:
+    return self._creatures
 
   # Non-positional items and helpers
 
