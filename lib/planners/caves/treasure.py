@@ -29,10 +29,11 @@ class HoardCavePlanner(TreasureCavePlanner):
   def fine(self, diorama):
     super().fine(diorama)
     rng = self.rng['fine.place_entities']
+    monster_type = Creature.Type.monster_for_biome(self.context.biome)
     for _ in range(3):
-      diorama.creature(Creature.Type.ROCK_MONSTER, Position(
-          rng.uniform_point_in_circle(2, self.pearl[0].pos) + (0,),
-          (0, 0, 0)))
+      diorama.creature(
+        monster_type,
+        Position.randomly_in_tile(rng, self.pearl[0].pos))
 
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))

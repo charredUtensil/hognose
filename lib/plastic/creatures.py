@@ -4,6 +4,7 @@ import enum
 
 from .entities import Entity
 from .position import Position
+from lib.base import Biome
 
 class Creature(Entity):
 
@@ -22,3 +23,14 @@ class Creature(Entity):
 
   def serialize(self, offset: Tuple[int, int]):
     return f'{self.type.value}\n{self.position.serialize(offset)}\nID={self.id}'
+
+MONSTER_FOR_BIOME = {
+    Biome.ROCK : Creature.Type.ROCK_MONSTER,
+    Biome.ICE  : Creature.Type.ICE_MONSTER,
+    Biome.LAVA : Creature.Type.LAVA_MONSTER,
+}
+
+def monster_for_biome(biome: Biome):
+  return MONSTER_FOR_BIOME[biome]
+
+Creature.Type.monster_for_biome = monster_for_biome
