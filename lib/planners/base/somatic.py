@@ -20,6 +20,7 @@ class SomaticPlanner(Planner):
     super().__init__(stem.id, stem.context, stem.baseplates)
     self._oyster = oyster
     self._pearl = None
+    self._nacre = None
     self.has_erosion = stem.has_erosion
     self.fluid_type = stem.fluid_type
 
@@ -46,9 +47,9 @@ class SomaticPlanner(Planner):
         max_layers = self.pearl_radius,
         baroqueness = self.baroqueness,
         rng = self.rng['rough.pearl']))
-    nacre = self.oyster.create(self._pearl[-1].layer)
+    self._nacre = self.oyster.create(self._pearl[-1].layer)
     for (x, y), layer, sequence in self._pearl:
-      nacre.apply(tiles, (x, y), layer, sequence)
+      self._nacre.apply(tiles, (x, y), layer, sequence)
 
   @abc.abstractmethod
   def fine(self, diorama: Diorama):

@@ -1,3 +1,5 @@
+import math
+
 from .position import Position
 
 class Entity(object):
@@ -11,3 +13,7 @@ class Entity(object):
   @property
   def y(self):
     return self.position.ty
+
+  @property
+  def theta(self):
+    return math.pi * (self.position.ry - 90) / 180

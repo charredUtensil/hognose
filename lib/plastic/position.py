@@ -1,4 +1,6 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
+
+import math
 
 from lib.base import Rng
 
@@ -21,11 +23,20 @@ class Position(object):
     return cls((x + 0.5, y + 0.5, 0), (0, facing, 0))
 
   @classmethod
-  def randomly_in_tile(cls, rng: Rng, pos: Tuple[int, int], facing: Optional[float] = None):
-    f = rng.uniform(-180, 180) if facing is None else facing
+  def randomly_in_tile(
+      cls,
+      rng: Rng,
+      pos: Tuple[int, int],
+      facing: Optional[Union[float, Tuple[float, float]]] = None):
     x, y = pos
     px = rng.uniform(x, x + 1)
     py = rng.uniform(y, y + 1)
+    if facing is None:
+      f = rng.uniform(-180, 180)
+    elif isinstance(facing, float):
+      f = facing
+    else:
+      f = 180 * math.atan2(facing[1] - py, facing[0] - px) / math.pi + 90
     return cls((px, py, 0), (0, f, 0))
 
   def serialize(self, offset: Tuple[int, int]):

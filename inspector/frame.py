@@ -161,11 +161,20 @@ class Frame(object):
     def draw(dc):
       if (dc.sv(width) > text_sw) and (dc.sv(height) > text_sh):
         # Text fits in rect; draw it inplace in rect
+        ax = dc.sx(left + ox)
+        ay = dc.sy(top + oy)
+        if bg_color:
+          _draw_text_lines(
+            dc,
+            font,
+            bg_color,
+            (Absolute(ax + 1), Absolute(ay + 1)),
+            inplace_infos)
         _draw_text_lines(
           dc,
           font,
           fg_color,
-          (Absolute(dc.sx(left + ox)), Absolute(dc.sy(top + oy))),
+          (Absolute(ax), Absolute(ay)),
           inplace_infos)
       else:
         # draw a radial label pointing to the position
@@ -234,7 +243,7 @@ def _draw_radial_label(
     origin: Tuple[Coord, Coord],
     infos: TextInfos):
   cx, cy = origin
-  theta = math.atan2(cy, cx)
+  theta = math.atan2(dc.sy(cy) - dc.cy, dc.sx(cx) - dc.cx)
   sin = math.sin(theta)
   cos = math.cos(theta)
   radius = min((

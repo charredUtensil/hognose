@@ -4,6 +4,7 @@ import itertools
 import math
 
 from .base import BaseCavePlanner
+from lib.base import Biome
 from lib.planners.base import Oyster, Layer
 from lib.plastic import Creature, Position, ResourceObjective, Tile
 
@@ -25,15 +26,40 @@ class TreasureCavePlanner(BaseCavePlanner):
       return []
 
 class HoardCavePlanner(TreasureCavePlanner):
+
+  def _monster_placements(self, diorama):
+    accepted_tiles = set((Tile.FLOOR,))
+    if self.context.biome == Biome.ICE:
+      accepted_tiles.add(Tile.WATER)
+    if self.context.biome == Biome.LAVA:
+      accepted_tiles.add(Tile.LAVA)
+    
+    layer = 0
+    r = []
+    for info in self._pearl:
+      if info.layer > layer + 1:
+        break
+      if diorama.tiles[info.pos] in accepted_tiles:
+        if info.layer > layer:
+          r.clear()
+          layer = info.layer
+        r.append(info.pos)
+    return r
   
   def fine(self, diorama):
     super().fine(diorama)
     rng = self.rng['fine.place_entities']
     monster_type = Creature.Type.monster_for_biome(self.context.biome)
-    for _ in range(3):
+    monster_count = math.floor(rng.beta(a = 1, b = 2, min = 1, max = 6))
+    center = self.center
+    tiles = tuple(self._monster_placements(diorama))
+    for _ in range(monster_count):
       diorama.creature(
         monster_type,
-        Position.randomly_in_tile(rng, self.pearl[0].pos))
+        Position.randomly_in_tile(
+            rng,
+            rng.uniform_choice(tiles),
+            facing=center))
 
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))

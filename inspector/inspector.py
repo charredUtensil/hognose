@@ -267,6 +267,11 @@ class Inspector(Logger):
             CREATURE_COLOR,
             (creature.x, creature.y),
             0.25)
+        theta = creature.theta
+        frame.draw_line(
+            CREATURE_COLOR,
+            (creature.x, creature.y),
+            (creature.x + math.cos(theta), creature.y + math.sin(theta)))
 
       # Draw miners
       for miner in self.cavern.diorama.miners:
@@ -274,6 +279,13 @@ class Inspector(Logger):
             MINER_COLOR,
             (miner.x, miner.y),
             0.25)
+        theta = miner.theta
+        frame.draw_line(
+            MINER_COLOR,
+            (miner.x, miner.y),
+            (miner.x + math.cos(theta), miner.y + math.sin(theta)))
+
+
 
     # Draw objectives that have map positions
     for objective in self.cavern.diorama.objectives:

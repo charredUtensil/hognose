@@ -3,7 +3,7 @@
 ONE_TREASURE_CAVE = (
     'the Hognose scanner aboard the L.M.S. Explorer is picking up a nearby '
     'cavern filled with Energy Crystals',
-    'the Hognose scanner indicates a large Energy Crystal signature near here'
+    'the Hognose scanner indicates a large Energy Crystal signature near here',
     'we have located a nearby cavern with an abundance of Energy Crystals',
 )
 

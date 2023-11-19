@@ -175,7 +175,7 @@ class Oyster(object):
 class Nacre(object):
 
   def __init__(self, layers: Iterable[Layer]):
-    self._layers = tuple(layers)
+    self.layers = tuple(layers)
   
   def apply(
       self,
@@ -183,8 +183,8 @@ class Nacre(object):
       pos: Tuple[int, int],
       layer: int,
       sequence: int):
-    if layer < len(self._layers):
+    if layer < len(self.layers):
       replace = tiles.get(pos, Tile.SOLID_ROCK)
-      place = self._layers[layer]._data[replace]
+      place = self.layers[layer]._data[replace]
       if place:
         tiles[pos] = place

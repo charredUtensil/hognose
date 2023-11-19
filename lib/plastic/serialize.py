@@ -77,6 +77,10 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield from _hazard(diorama.erosions.items(), offset)
   yield '}'
 
+  yield 'creatures{'
+  for c in diorama.creatures:
+    yield c.serialize(offset)
+  yield '}'
   yield 'miners{'
   for m in diorama.miners:
     yield m.serialize(offset)
@@ -93,8 +97,6 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield '}'
 
   yield 'vehicles{'
-  yield '}'
-  yield 'creatures{'
   yield '}'
   yield 'blocks{'
   yield '}'
