@@ -1,16 +1,28 @@
 from typing import Optional, Tuple, Union
 
+import enum
 import math
 
 from lib.base import Rng
 
+class Facing(enum.Enum):
+  NORTH =    0
+  EAST  =   90
+  SOUTH = -180
+  WEST  =  -90
+
+FACING_TYPE = Union[float, Facing, Tuple[float, float]]
+
+def _coerce_facing(pos: Tuple[float, float], facing: FACING_TYPE):
+  if isinstance(facing, Facing):
+    return facing.value
+  elif isinstance(facing, float):
+    return facing
+  else:
+    return 180 * math.atan2(facing[1] - pos[1], facing[0] - pos[0]) / math.pi + 90
+
 class Position(object):
   ENTITY_SCALE = 300
-
-  FACING_NORTH =    0
-  FACING_EAST  =   90
-  FACING_SOUTH = -180
-  FACING_WEST  =  -90
 
   def __init__(self, translation, rotation, scale=(1, 1, 1)):
     self.tx, self.ty, self.tz = translation
@@ -18,25 +30,23 @@ class Position(object):
     self.sx, self.sy, self.sz = scale
 
   @classmethod
-  def at_center_of_tile(cls, pos: Tuple[int, int], facing: float = 0):
+  def at_center_of_tile(cls, pos: Tuple[int, int], facing: FACING_TYPE = 0):
     x, y = pos
-    return cls((x + 0.5, y + 0.5, 0), (0, facing, 0))
+    x += 0.5
+    y += 0.5
+    return cls((x, y, 0), (0, _coerce_facing((x, y), facing), 0))
 
   @classmethod
   def randomly_in_tile(
       cls,
       rng: Rng,
       pos: Tuple[int, int],
-      facing: Optional[Union[float, Tuple[float, float]]] = None):
+      facing: Optional[FACING_TYPE] = None):
     x, y = pos
     px = rng.uniform(x, x + 1)
     py = rng.uniform(y, y + 1)
-    if facing is None:
-      f = rng.uniform(-180, 180)
-    elif isinstance(facing, float):
-      f = facing
-    else:
-      f = 180 * math.atan2(facing[1] - py, facing[0] - px) / math.pi + 90
+    f = (rng.uniform(-180, 180) if facing is None
+         else _coerce_facing(pos, facing))
     return cls((px, py, 0), (0, f, 0))
 
   def serialize(self, offset: Tuple[int, int]):

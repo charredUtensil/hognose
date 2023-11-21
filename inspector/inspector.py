@@ -60,7 +60,7 @@ PATH_COLORS = {
     Path.AMBIGUOUS                     : (0x66, 0x66, 0x66),
     Path.EXCLUDED                      : None,
     Path.SPANNING                      : (0xff, 0xff, 0x00),
-    Path.AUXILIARY                     : (0x44, 0xff, 0x00),
+    Path.AUXILIARY                     : (0x00, 0x44, 0xff),
 }
 
 PLANNER_FLUID_COLORS = {

@@ -1,6 +1,7 @@
-from typing import Dict, Iterable, List, Literal, Tuple
+from typing import Dict, Iterable, List, Literal, Set, Tuple
 
 import math
+import operator
 
 from .baseplate import Baseplate
 from lib.base import Context, ProceduralThing
@@ -32,10 +33,6 @@ class Path(ProceduralThing):
 
   def __repr__(self):
     return 'Path {self.kind}: ' + '>'.join(str(b.id) for b in self.baseplates)
-
-  def weave(self):
-    if not self.rng['weave'].chance(self.context.weave_chance):
-      self.kind = Path.EXCLUDED
 
   def bat_distance(self) -> float:
     x1, y1 = self.origin.center
@@ -99,25 +96,60 @@ class Path(ProceduralThing):
             seen.add(bp)
             if bp.kind != Baseplate.SPECIAL:
               last = bp
-              if last.kind == Baseplate.AMBIGUOUS:
-                last.kind = Baseplate.HALL
               yield last
               break
 
     for path in paths:
       if path.kind == Path.EXCLUDED:
         continue
-      path_plates = tuple(gen_path_plates(path))
-      if path.kind == Path.AMBIGUOUS:
-        if len(path_plates) == 2:
-          path.kind = Path.EXCLUDED
-          continue
-        path.kind = Path.AUXILIARY
-      for bp in path_plates:
-        if bp.kind == Baseplate.AMBIGUOUS:
-          bp.kind = Baseplate.HALL
-      path.baseplates = path_plates
+      path.baseplates = tuple(gen_path_plates(path))
+
+  @staticmethod
+  def weave(context, paths):
+    # Compute the absolute angles of spanning paths at each baseplate.
+    angles: Dict[int, Set[float]] = {}
+    for p in paths:
+      if p.kind == Path.SPANNING:
+        _make_halls(p.baseplates)
+        for a, b in (
+            (p.baseplates[0], p.baseplates[1]),
+            (p.baseplates[-1], p.baseplates[-2])):
+          if a.id not in angles:
+            angles[a.id] = set()
+          ax, ay = a.center
+          bx, by = b.center
+          angles[a.id].add(math.atan2(by - ay, bx - ax))
+
+    # Compute the minimum relative angle between each end of a non-spanning
+    # path and a spanning path.
+    def relative_angles(p):
+      for a, b in (
+          (p.baseplates[0], p.baseplates[1]),
+          (p.baseplates[-1], p.baseplates[-2])):
+        ax, ay = a.center
+        bx, by = b.center
+        theta = math.atan2(by - ay, bx - ax)
+        for span_theta in angles[a.id]:
+          delta = abs(theta - span_theta)
+          # Convert reflex angles
+          if delta > math.pi:
+            yield 2 * math.pi - delta
+          else:
+            yield delta
     
-    for bp in baseplates:
-      if bp.kind == Baseplate.AMBIGUOUS:
-         bp.kind = Baseplate.EXCLUDED
+    # Choose the n candidates that make the widest minimum angle.
+    candidates = sorted((
+        (min(relative_angles(p)), p) for p in paths if p.kind == Path.AMBIGUOUS
+    ), key=operator.itemgetter(0), reverse=True)
+    aux_count = context.weave_ratio * len(candidates)
+    for i, (_, p) in enumerate(candidates):
+      if i <= aux_count:
+        p.kind = Path.AUXILIARY
+        _make_halls(p.baseplates)
+      else:
+        p.kind = Path.EXCLUDED
+
+def _make_halls(baseplates):
+  for bp in baseplates:
+    if bp.kind == Baseplate.AMBIGUOUS:
+      bp.kind = Baseplate.HALL

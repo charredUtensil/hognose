@@ -3,7 +3,7 @@ from typing import Iterable, Literal, Tuple
 import enum
 
 from .entities import Entity
-from .position import Position
+from .position import Facing, Position
 
 from lib.utils import geometry
 
@@ -12,10 +12,10 @@ F_CANTEEN_REFINERY = ((0, 0), (0, -1), (0, 1))
 F_POWER_STATION    = ((0, 0), (0, -1), (1, 0))
 
 ROTATION_BY_FACING = {
-    Position.FACING_NORTH : lambda x, y: (x, y),
-    Position.FACING_EAST  : geometry.rotate_right,
-    Position.FACING_SOUTH : geometry.rotate_180,
-    Position.FACING_WEST  : geometry.rotate_left,
+    Facing.NORTH : lambda x, y: (x, y),
+    Facing.EAST  : geometry.rotate_right,
+    Facing.SOUTH : geometry.rotate_180,
+    Facing.WEST  : geometry.rotate_left,
 }
 
 class Building(Entity):
@@ -54,11 +54,7 @@ class Building(Entity):
       cls,
       type: 'Building.Type',
       pos: Tuple[int, int],
-      facing: Literal[
-          Position.FACING_NORTH,
-          Position.FACING_EAST,
-          Position.FACING_SOUTH,
-          Position.FACING_WEST]) -> 'Building':
+      facing: Facing) -> 'Building':
     position = Position.at_center_of_tile(pos, facing)
     rotate = ROTATION_BY_FACING[facing]
     foundation_tiles = (

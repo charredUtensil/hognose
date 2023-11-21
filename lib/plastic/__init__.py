@@ -5,5 +5,5 @@ from .creatures import Creature
 from .diorama import Diorama
 from .hazards import Erosion, Landslide
 from .objectives import Objective, FindMinerObjective, ResourceObjective
-from .position import Position
+from .position import Facing, Position
 from .tile import BasicTile, Tile

@@ -4,7 +4,7 @@ import math
 
 from .base import BaseCavePlanner
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Position, Tile
+from lib.plastic import Building, Facing, Position, Tile
 from lib.utils.geometry import adjacent
 
 class SpawnCavePlanner(BaseCavePlanner):
@@ -39,13 +39,13 @@ class SpawnCavePlanner(BaseCavePlanner):
     xa, ya = a
     xb, yb = b
     if ya > yb:
-      facing = Position.FACING_NORTH
+      facing = Facing.NORTH
     elif ya < yb:
-      facing = Position.FACING_SOUTH
+      facing = Facing.SOUTH
     elif xa > xb:
-      facing = Position.FACING_WEST
+      facing = Facing.WEST
     else:
-      facing = Position.FACING_EAST
+      facing = Facing.EAST
     diorama.buildings.append(Building.at_tile(Building.Type.TOOL_STORE, a, facing))
     diorama.open_cave_flags.add(a)
     diorama.camera_origin = a

@@ -17,7 +17,7 @@ class LostMinersCavePlanner(BaseCavePlanner):
     rng = self.rng['fine.place_entities']
     pos = self.pearl[0].pos
     diorama.tiles[pos] = Tile.FLOOR
-    miners_count = math.floor(rng.beta(a = 1, b = 2, min = 1, max = 6))
+    miners_count = math.floor(rng.beta(a = 1, b = 2, min = 1, max = 5))
     for _ in range(miners_count):
       self._miners.append(diorama.miner(
         Position.randomly_in_tile(rng, pos)))

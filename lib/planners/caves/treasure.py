@@ -50,7 +50,7 @@ class HoardCavePlanner(TreasureCavePlanner):
     super().fine(diorama)
     rng = self.rng['fine.place_entities']
     monster_type = Creature.Type.monster_for_biome(self.context.biome)
-    monster_count = math.floor(rng.beta(a = 1, b = 2, min = 1, max = 6))
+    monster_count = math.floor(rng.beta(a = 1.5, b = 5, min = 0, max = 6))
     center = self.center
     tiles = tuple(self._monster_placements(diorama))
     for _ in range(monster_count):
@@ -59,7 +59,8 @@ class HoardCavePlanner(TreasureCavePlanner):
         Position.randomly_in_tile(
             rng,
             rng.uniform_choice(tiles),
-            facing=center))
+            facing=center),
+        sleep=True)
 
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))

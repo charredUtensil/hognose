@@ -24,7 +24,7 @@ class Context(object):
 
     # Which biome the cave will use.
     # Affects some values used for rng later.
-    self.biome = rng.uniform_choice(Biome)
+    self.biome: Biome = rng.uniform_choice(Biome)
 
     # The total number of bubbles to spawn.
     self.bubble_count            = 80
@@ -36,8 +36,8 @@ class Context(object):
     # The number of bubbles to become "special".
     # The higher this number is, the more things will happen in the final map.
     self.special_baseplate_count = 20
-    # The chance for each non-spanning connection to become a hallway.
-    self.weave_chance            = 0.20
+    # The ratio of non-spanning connections that become hallways.
+    self.weave_ratio             = 0.16
 
     # The min/max percentage of the cavern to fill.
     # Generation will fail if the sum of these two is >= 1

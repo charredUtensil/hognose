@@ -73,14 +73,15 @@ class Cavern(object):
       # This ensures the graph is fully connected, so the cavern will
       # actually be playable.
       ('span',         self._span),
+      # Edges connect two special lots with a straight line. To make this more
+      # interesting, add back any lots the edge intersects, forming a
+      # zigzagging path between the two.
+      ('bore',         self._bore),
       # Add a few edges back in to make the cave more interesting.
       # Discard the remaining edges.
       ('weave',        self._weave),
-      # Edges connect two special lots with a straight line. To make this more
-      # interesting, add back any lots the edge intersects, forming a
-      # zigzagging path between the two. Discard any remaining baseplates that
-      # aren't part of a path.
-      ('bore',         self._bore),
+      # Discard any remaining baseplates that aren't part of a path.
+      ('cull',         self._cull),
 
       # II. Planners
       # Using the outline as a guide, decide what to do with, then build each
@@ -182,15 +183,18 @@ class Cavern(object):
     """Find the minimum spanning tree between baseplates."""
     Path.minimum_spanning_tree(self.paths)
 
-  def _weave(self):
-    """Randomly choose some non-spanning graph edges to keep."""
-    for path in self.paths:
-      if path.kind == Path.AMBIGUOUS:
-        path.weave()
-
   def _bore(self):
     """Add unused baseplates to paths they intersect."""
     Path.bore(self.paths, self.baseplates)
+
+  def _weave(self):
+    """Randomly choose some non-spanning graph edges to keep."""
+    Path.weave(self.context, self.paths)
+
+  def _cull(self):
+    for bp in self.baseplates:
+      if bp.kind == Baseplate.AMBIGUOUS:
+        bp.kind = Baseplate.EXCLUDED
 
   def _negotiate(self):
     """Give baseplates to planners."""
