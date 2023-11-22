@@ -30,7 +30,7 @@ class Miner(Entity):
       id: int,
       position: Position,
       unique: Optional[Unique] = None,
-      loadout: Iterable[Loadout] = [Loadout.DRILL],
+      loadout: Iterable[Loadout] = (Loadout.DRILL,),
       level: Literal[1,2,3,4,5] = 1,
       essential: bool = False): 
     super().__init__(position)
@@ -48,8 +48,8 @@ class Miner(Entity):
       yield ','
       yield self.position.serialize(offset)
       yield ','
-      for n in sorted(self.loadout):
-        yield f'{n.value}/'
+      for v in sorted(l.value for l in self.loadout):
+        yield f'{v}/'
       for _ in range(self.level - 1):
         yield 'Level/'
       if self.essential:
