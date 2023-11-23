@@ -1,6 +1,8 @@
 from typing import Iterable, Literal, Tuple
 
+import copy
 import enum
+import math
 
 from .entities import Entity
 from .position import Facing, Position
@@ -71,9 +73,11 @@ class Building(Entity):
     self.teleport_at_start = teleport_at_start
 
   def serialize(self, offset: Tuple[int, int]):
+    position = copy.copy(self.position)
+    position.ry += math.pi / 2
     return (
         f'{self.type.export_id},'
-        f'{self.position.serialize(offset)}'
+        f'{position.serialize(offset)}'
         f'{f",Level={self.level:d}" if self.level > 1 else ""}'
         f'{",Essential=True" if self.essential else ""}'
         f'{",Teleport=True" if self.teleport_at_start else ""}')

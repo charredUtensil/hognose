@@ -13,6 +13,7 @@ from .creatures import Creature
 from .hazards import Erosion, Landslide
 from .miners import Miner
 from .objectives import Objective
+from .position import Position
 from .serialize import serialize
 from .tile import Tile
 
@@ -35,7 +36,8 @@ class Diorama(object):
     self._miners = []
     self._creature_ids = itertools.count()
     self._creatures = []
-    self.camera_origin: Tuple[int, int] = (0, 0)
+    self.camera_position: Position = (
+        Position((0, 0, 0), (math.pi / 4, 0, 0)))
 
     # Non-positional items
     self._objectives = []

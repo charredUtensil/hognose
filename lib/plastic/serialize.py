@@ -27,7 +27,7 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield 'info{'
   yield f'rowcount:{width:d}'
   yield f'colcount:{height:d}'
-  yield f'camerapos:{_camera_origin(diorama)}'
+  yield f'camerapos:{diorama.camera_position.serialize(offset)}'
   yield f'biome:{diorama.context.biome.value}'
   yield 'creator:hognose'
   if diorama.level_name:
@@ -109,11 +109,6 @@ def _comments(diorama: 'Diorama') -> Iterable[str]:
   yield 'https://github.com/charredUtensil/hognose'
   yield f'version:{VERSION}'
   yield str(diorama.context)
-
-def _camera_origin(diorama: 'Diorama') -> str:
-  left, top, _, _ = diorama.bounds
-  x, y = diorama.camera_origin
-  return Position((x, y, 0), (45, 90, 0)).serialize((-left, -top))
 
 def _hazard(
     hazards: Iterable[Tuple[Tuple[int, int], Hazard]],

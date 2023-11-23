@@ -37,12 +37,10 @@ def mvp() -> Diorama:
   fill(d.tiles,    0,  0, 3, 2, Tile.FLOOR)
   d.tiles[2, 1] = Tile.POWER_PATH
 
-  origin = (0, 1)
   tool_store = Building.at_tile(
       Building.Type.TOOL_STORE, origin, Facing.EAST)
   d.buildings.append(tool_store)
   d.open_cave_flags.add(origin)
-  d.camera_origin = origin
   for pos in tool_store.foundation_tiles:
     d.tiles[pos] = Tile.FOUNDATION
   
@@ -53,9 +51,9 @@ def mvp() -> Diorama:
 def building_zoo() -> Diorama:
   d = Diorama(Context('0', None))
   d.open_cave_flags.add((0, 0))
-  d.camera_origin = (0, 0)
   size = 12
   fill(d.tiles, 0, 0, size, size, Tile.FLOOR)
+  fill(d.tiles, 1, 1, size - 2, size - 2, Tile.POWER_PATH)
   d.discover()
   d.bounds = (-1, -1, size + 2, size + 2)
 
@@ -80,13 +78,14 @@ def building_zoo() -> Diorama:
   b(Building.Type.POWER_STATION, (0, 5), Facing.EAST)
   b(Building.Type.POWER_STATION, (3, 6), Facing.WEST)
 
+  d.tiles[5, 6] = Tile.WATER
   b(Building.Type.DOCKS, (5, 5), Facing.NORTH)
   b(Building.Type.UPGRADE_STATION, (7, 5), Facing.SOUTH)
   b(Building.Type.GEOLOGICAL_CENTER, (9, 5), Facing.SOUTH)
   b(Building.Type.MINING_LASER, (11, 5), Facing.SOUTH)
 
   b(Building.Type.ORE_REFINERY, (1, 8), Facing.EAST)
-  b(Building.Type.SUPER_TELEPORT, (4, 8), Facing.NORTH)
+  b(Building.Type.SUPER_TELEPORT, (5, 8), Facing.NORTH)
 
   b(Building.Type.TOOL_STORE, (8, 8), Facing.NORTH, level=2)
   b(Building.Type.TOOL_STORE, (10, 8), Facing.NORTH, level=3)
@@ -102,7 +101,6 @@ def building_zoo() -> Diorama:
 def entity_zoo() -> Diorama:
   d = Diorama(Context('0', None))
   d.open_cave_flags.add((0, 0))
-  d.camera_origin = (0, 0)
   size = 12
   fill(d.tiles, 0, 0, size, size, Tile.FLOOR)
   d.discover()

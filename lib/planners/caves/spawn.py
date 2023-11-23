@@ -46,9 +46,12 @@ class SpawnCavePlanner(BaseCavePlanner):
       facing = Facing.WEST
     else:
       facing = Facing.EAST
-    diorama.buildings.append(Building.at_tile(Building.Type.TOOL_STORE, a, facing))
+    tool_store = Building.at_tile(Building.Type.TOOL_STORE, a, facing)
+    diorama.buildings.append(tool_store)
     diorama.open_cave_flags.add(a)
-    diorama.camera_origin = a
+    diorama.camera_position = camera_position = copy.copy(tool_store.position)
+    diorama.camera_position.rp = math.pi / 4
+    diorama.camera_position.ry += math.pi * 0.75
 
 def bids(stem, conquest):
   yield (1, lambda: SpawnCavePlanner(stem, conquest, Oysters.OPEN))
