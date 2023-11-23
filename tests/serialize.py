@@ -59,8 +59,8 @@ def building_zoo() -> Diorama:
   d.discover()
   d.bounds = (-1, -1, size + 2, size + 2)
 
-  def b(t, origin, facing):
-    b = Building.at_tile(t, origin, facing)
+  def b(*args, **kwargs):
+    b = Building.at_tile(*args, **kwargs)
     for pos in b.foundation_tiles:
       d.tiles[pos] = Tile.FOUNDATION
     d.buildings.append(b)
@@ -79,6 +79,23 @@ def building_zoo() -> Diorama:
   b(Building.Type.POWER_STATION, (10, 3), Facing.NORTH)
   b(Building.Type.POWER_STATION, (0, 5), Facing.EAST)
   b(Building.Type.POWER_STATION, (3, 6), Facing.WEST)
+
+  b(Building.Type.DOCKS, (5, 5), Facing.NORTH)
+  b(Building.Type.UPGRADE_STATION, (7, 5), Facing.SOUTH)
+  b(Building.Type.GEOLOGICAL_CENTER, (9, 5), Facing.SOUTH)
+  b(Building.Type.MINING_LASER, (11, 5), Facing.SOUTH)
+
+  b(Building.Type.ORE_REFINERY, (1, 8), Facing.EAST)
+  b(Building.Type.SUPER_TELEPORT, (4, 8), Facing.NORTH)
+
+  b(Building.Type.TOOL_STORE, (8, 8), Facing.NORTH, level=2)
+  b(Building.Type.TOOL_STORE, (10, 8), Facing.NORTH, level=3)
+
+  b(Building.Type.TOOL_STORE, (0, 10), Facing.SOUTH, essential=True)
+  b(Building.Type.TOOL_STORE, (2, 10), Facing.SOUTH, teleport_at_start=True)
+  b(Building.Type.TOOL_STORE, (4, 10), Facing.SOUTH, essential=True, teleport_at_start=True)
+  b(Building.Type.TOOL_STORE, (6, 10), Facing.SOUTH,
+    level=3, essential=True, teleport_at_start=True)
 
   return d
 
