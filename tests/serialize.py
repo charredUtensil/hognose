@@ -37,6 +37,7 @@ def mvp() -> Diorama:
   fill(d.tiles,    0,  0, 3, 2, Tile.FLOOR)
   d.tiles[2, 1] = Tile.POWER_PATH
 
+  origin = (0, 1)
   tool_store = Building.at_tile(
       Building.Type.TOOL_STORE, origin, Facing.EAST)
   d.buildings.append(tool_store)
@@ -53,7 +54,6 @@ def building_zoo() -> Diorama:
   d.open_cave_flags.add((0, 0))
   size = 12
   fill(d.tiles, 0, 0, size, size, Tile.FLOOR)
-  fill(d.tiles, 1, 1, size - 2, size - 2, Tile.POWER_PATH)
   d.discover()
   d.bounds = (-1, -1, size + 2, size + 2)
 

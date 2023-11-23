@@ -15,7 +15,7 @@ MINOR    = 2
 #   some crystals are in slightly different places, or landslides happen more
 #   or less frequently, or there are small variations in the shape of rooms
 #   i.e. there are three monsters now instead of four.
-REVISION = 0
+REVISION = 1
 
 VERSION_INFO = (MAJOR, MINOR, REVISION)
 VERSION = f'{MAJOR:d}.{MINOR:02d}.{REVISION:02d}'
