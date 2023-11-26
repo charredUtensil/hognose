@@ -12,8 +12,7 @@ class LostMinersCavePlanner(BaseCavePlanner):
     self.expected_crystals = stem.suggested_crystal_count(conquest)
     self._miners = []
 
-  def fine(self, diorama):
-    super().fine(diorama)
+  def fine_place_entities(self, diorama):
     rng = self.rng['fine.place_entities']
     pos = self.pearl[0].pos
     diorama.tiles[pos] = Tile.FLOOR

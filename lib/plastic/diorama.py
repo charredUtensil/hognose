@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Set
+from typing import Dict, List, Optional, Tuple, Type, Set
 
 from collections.abc import Callable
 
@@ -15,6 +15,7 @@ from .miners import Miner
 from .objectives import Objective
 from .position import Position
 from .serialize import serialize
+from .scripts import Script
 from .tile import Tile
 
 class Diorama(object):
@@ -36,6 +37,7 @@ class Diorama(object):
     self._miners = []
     self._creature_ids = itertools.count()
     self._creatures = []
+    self._script = Script()
     self.camera_position: Position = (
         Position((0, 0, 0), (math.pi / 4, 0, 0)))
 
@@ -99,6 +101,10 @@ class Diorama(object):
   @property
   def creatures(self) -> List[Creature]:
     return self._creatures
+
+  @property
+  def script(self) -> Script:
+    return self._script
 
   # Non-positional items and helpers
 

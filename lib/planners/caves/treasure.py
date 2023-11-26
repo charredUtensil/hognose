@@ -45,9 +45,15 @@ class HoardCavePlanner(TreasureCavePlanner):
           layer = info.layer
         r.append(info.pos)
     return r
+
+  def fine_crystals(self, diorama):
+    self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))
+    places = tuple(pos for pos, layer, _ in self.pearl if layer == 0)
+    for x, y in itertools.islice(
+        itertools.cycle(places), math.ceil(self.expected_crystals * 0.8)):
+      diorama.crystals[x, y] += 1
   
-  def fine(self, diorama):
-    super().fine(diorama)
+  def fine_place_entities(self, diorama):
     rng = self.rng['fine.place_entities']
     monster_type = Creature.Type.monster_for_biome(self.context.biome)
     monster_count = math.floor(rng.beta(a = 1.5, b = 5, min = 0, max = 6))
@@ -61,13 +67,6 @@ class HoardCavePlanner(TreasureCavePlanner):
             rng.uniform_choice(tiles),
             facing=center),
         sleep=True)
-
-  def fine_crystals(self, diorama):
-    self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))
-    places = tuple(pos for pos, layer, _ in self.pearl if layer == 0)
-    for x, y in itertools.islice(
-        itertools.cycle(places), math.ceil(self.expected_crystals * 0.8)):
-      diorama.crystals[x, y] += 1
 
 class NougatCavePlanner(TreasureCavePlanner):
 
