@@ -52,12 +52,21 @@ class BaseCavePlanner(SomaticPlanner):
 
   def fine_place_monster_spawns(self, diorama: Diorama):
     creature_type = Creature.Type.monster_for_biome(self.context.biome)
-    for bp in self.baseplates:
-      x, y = bp.center
-      x = math.floor(x)
-      y = math.floor(y)
-      radius = min(bp.width, bp.height) // 2
-      emerge = events.Emerge((x, y), creature_type=creature_type, distance=radius)
+    def emerges():
+      for bp in self.baseplates:
+        x, y = bp.center
+        x = math.floor(x)
+        y = math.floor(y)
+        radius = min(bp.width, bp.height) // 2
+        yield events.Emerge(
+            (x, y), creature_type=creature_type, distance=radius)
+    spawnEvents = [
+        events.
+    ]
+    spawn = diorama.script.chain(
+        'spawnMonsters',
+        spawnEvents,
+    )
     for info in self.walk_pearl(info.pos for info in self.pearl)
       diorama.script.once(
         triggers.Change(info.pos),

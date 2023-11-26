@@ -1,4 +1,6 @@
-class Trigger(object):
+from .base import ScriptElement
+
+class Trigger(ScriptElement):
   pass
 
 class Change(Trigger):

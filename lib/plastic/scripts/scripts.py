@@ -13,11 +13,11 @@ class Script(object):
     return ec
 
   def once(self, *args, **kwargs):
-    s = Call('if', *args, **kwargs)
+    s = EventTrigger('if', *args, **kwargs)
     self._statements.append(s)
     return s
 
   def when(self, *args, **kwargs):
-    s = Call('when', *args, **kwargs)
+    s = EventTrigger('when', *args, **kwargs)
     self._statements.append(s)
     return s

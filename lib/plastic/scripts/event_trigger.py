@@ -1,6 +1,6 @@
 from .base import ScriptElement
 
-class Call(ScriptElements):
+class EventTrigger(ScriptElements):
 
   def __init__(self, occurrence: str, trigger, effect):
     self._occurrence = occurrence

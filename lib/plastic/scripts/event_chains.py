@@ -1,8 +1,8 @@
 class EventChain(object):
 
-  def __init__(self, name):
+  def __init__(self, name, events):
     self._name = name
-    self._events = []
+    self._events = events
 
   def serialize(self, offset):
     return (
