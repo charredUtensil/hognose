@@ -119,6 +119,8 @@ class Cavern(object):
       ('adjure',       self._adjure),
       # Write the objectives
       ('enscribe',     self._enscribe),
+      # Add scripting logic
+      ('script',       self._script),
       # Serialize the output
       ('serialize',    self._serialize),
     )
@@ -248,6 +250,10 @@ class Cavern(object):
             and objs[0].crystals < crystals)):
       objs = [ResourceObjective(crystals=crystals)]
     self.diorama.objectives.extend(objs)
+
+  def _script(self):
+    for planner in self.conquest.somatic_planners:
+      planner.script(self.diorama)
 
   def _enscribe(self):
     """Generate copy for briefings, etc..."""

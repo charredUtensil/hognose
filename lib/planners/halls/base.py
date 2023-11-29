@@ -20,3 +20,6 @@ class BaseHallPlanner(SomaticPlanner):
     if self.rng['fine.place_landslides'].chance(self.context.hall_landslide_chance):
       freq = self.context.hall_landslide_freq * sum(1 for _ in self.walk_stream())
       self.place_landslides(diorama, freq)
+
+  def script(self, diorama):
+    pass

@@ -8,14 +8,19 @@ MAJOR    = 0
 #   There is some significant gameplay difference between this and a previous
 #   cavern. Perhaps there's a new planner available, or the position of a
 #   lake has changed.
-MINOR    = 2
+MINOR    = 3
 
 # Changing the revision number means:
 #   A generated cavern will have almost identical gameplay as before. Maybe
 #   some crystals are in slightly different places, or landslides happen more
 #   or less frequently, or there are small variations in the shape of rooms
 #   i.e. there are three monsters now instead of four.
-REVISION = 1
+REVISION = 0
+
+# Suffix indicating the type of build.
+#   no suffix: stable
+#   x: experimental
+SUFFIX   = 'x'
 
 VERSION_INFO = (MAJOR, MINOR, REVISION)
-VERSION = f'{MAJOR:d}.{MINOR:02d}.{REVISION:02d}'
+VERSION = f'{MAJOR:d}.{MINOR:02d}.{REVISION:02d}{SUFFIX}'

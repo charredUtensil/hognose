@@ -55,6 +55,10 @@ class SomaticPlanner(Planner):
   def fine(self, diorama: Diorama):
     pass
 
+  @abc.abstractmethod
+  def script(self, diorama: Diorama):
+    pass
+
   @property
   def objectives(self) -> Iterable[Objective]:
     return []
@@ -112,8 +116,9 @@ class SomaticPlanner(Planner):
     if baroqueness and rng is None:
       raise AttributeError('Must supply rng when using baroqueness')
     last_layer = list(nucleus)
-    for i, (x, y) in enumerate(last_layer):
-      yield PearlInfo(pos=(x, y), layer=0, sequence=i)
+    if include_nucleus:
+      for i, (x, y) in enumerate(last_layer):
+        yield PearlInfo(pos=(x, y), layer=0, sequence=i)
     visited = {(x, y): (0, i) for i, (x, y) in enumerate(last_layer)}
     for layer_num in range(1, max_layers):
       this_layer = []

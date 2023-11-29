@@ -2,9 +2,9 @@ import collections
 import itertools
 import math
 
+from . import monster_spawners
 from lib.planners.base import SomaticPlanner
 from lib.plastic import Creature, Diorama, Tile
-from lib.plastic.blocks import EventEmergeCreature
 
 class BaseCavePlanner(SomaticPlanner):
 
@@ -30,7 +30,6 @@ class BaseCavePlanner(SomaticPlanner):
     self.fine_landslides(diorama)
     self.fine_erosion(diorama)
     self.fine_place_entities(diorama)
-    self.fine_place_monster_spawns(diorama)
 
   def fine_recharge_seam(self, diorama: Diorama):
     if self.rng['fine.place_recharge_seam'].chance(self.context.recharge_seam_chance):
@@ -50,28 +49,14 @@ class BaseCavePlanner(SomaticPlanner):
   def fine_place_entities(self, diorama: Diorama):
     pass
 
-  def fine_place_monster_spawns(self, diorama: Diorama):
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
-    def emerges():
-      for bp in self.baseplates:
-        x, y = bp.center
-        x = math.floor(x)
-        y = math.floor(y)
-        radius = min(bp.width, bp.height) // 2
-        yield events.Emerge(
-            (x, y), creature_type=creature_type, distance=radius)
-    spawnEvents = [
-        events.
-    ]
-    spawn = diorama.script.chain(
-        'spawnMonsters',
-        spawnEvents,
-    )
-    for info in self.walk_pearl(info.pos for info in self.pearl)
-      diorama.script.once(
-        triggers.Change(info.pos),
-        spawn)
+  def script(self, diorama: Diorama):
+    self.script_place_monster_spawns(diorama)
 
+  def script_place_monster_spawns(self, diorama: Diorama):
+    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    monster_spawner = monster_spawners.MonsterSpawner(self, creature_type)
+    monster_spawner.place_script(diorama)
+    
   def place_crystals(self, diorama: Diorama, count: int):
     rng = self.rng['fine.place_crystals']
     t = tuple(

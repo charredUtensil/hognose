@@ -101,9 +101,7 @@ def _serialize(diorama: 'Diorama') -> Iterable[str]:
   yield 'blocks{'
   yield '}'
   yield 'script{'
-  yield ''
-  for s in diorama.script:
-    yield from s.serialize(offset)
+  yield diorama.script.serialize(offset)
   yield '}'
 
 def _comments(diorama: 'Diorama') -> Iterable[str]:
