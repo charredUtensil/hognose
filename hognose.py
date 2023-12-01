@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import os.path
 import sys
 import traceback
 import time
@@ -24,7 +25,9 @@ def main():
     help='Draw the cavern generation process to the screen.')
   parser.add_argument(
     '-o', '--out',
-    help='Write file to OUT (- for stdout).')
+    help=(
+      'Write file to OUT (- for stdout). If OUT is a directory, a filename '
+      'will be generated.'))
   parser.add_argument(
     '-s', '--seed',
     help='Use SEED for cavern generation.')
@@ -61,10 +64,13 @@ def main():
   if args.out == '-':
     print(cavern.serialized)
   elif args.out:
-    with open(args.out, 'w') as f:
+    filename = args.out
+    if os.path.isdir(filename):
+      filename = os.path.join(filename, f'{cavern.diorama.level_name}.dat')
+    with open(filename, 'w') as f:
       f.write(cavern.serialized)
   print((
-    f'Generated cave {hex(context.seed)} '
+    f'Generated {cavern.diorama.level_name} with seed {hex(context.seed)} '
     f'in {(time.time_ns() - start_time) // 1_000_000}ms'),
     file=sys.stderr)
   if inx:
