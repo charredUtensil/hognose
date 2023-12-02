@@ -93,6 +93,27 @@ class MonsterSpawner(object):
       yield f'emerge:y@{y:d},x@{x:d},A,{self.creature_type.value},{radius:d};'
     # Wait for cooldown and re-enable
     if self.repeat:
-      yield f'wait:random({self.min_cooldown:d})({self.max_cooldown:d});'
+      yield f'wait:random({self.min_cooldown:.2f})({self.max_cooldown:.2f});'
       yield f'{prefix}canSpawn=true;'
     yield ''
+
+def generate_normal(
+    planner: SomaticPlanner,
+    creature_type: Creature.Type,
+    spawn_rate: float):
+  rng = planner.rng['monster_spawner']
+  wave_size = math.floor(rng.beta(min=1, max=8, a=2.5, b=5))
+  min_delay = 2 / wave_size
+  max_delay = 15 / wave_size
+  mean_cooldown = 60 * wave_size / spawn_rate
+  min_cooldown = rng.beta(min=60, max=mean_cooldown, a=5, b=5)
+  max_cooldown = 2 * mean_cooldown - min_cooldown
+  return MonsterSpawner(
+      planner,
+      creature_type,
+      wave_size,
+      min_delay,
+      max_delay,
+      min_cooldown,
+      max_cooldown,
+  )

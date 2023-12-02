@@ -12,10 +12,6 @@ class Planner(ProceduralThing, abc.ABC):
     super().__init__(id, context)
     self._baseplates = tuple(baseplates)
     self.expected_crystals: int = 0
-    self.fluid_type: Optional[Literal[
-      Tile.WATER,
-      Tile.LAVA]] = None
-    self.has_erosion = False
 
   @property
   def baseplates(self) -> Tuple[Baseplate]:

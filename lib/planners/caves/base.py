@@ -8,6 +8,10 @@ from lib.plastic import Creature, Diorama, Tile
 
 class BaseCavePlanner(SomaticPlanner):
 
+  def __init__(self, stem, oyster):
+    super().__init__(stem, oyster)
+    self.monster_spawner = None
+
   @property
   def baroqueness(self) -> float:
     return self.context.cave_baroqueness
@@ -53,9 +57,8 @@ class BaseCavePlanner(SomaticPlanner):
     self.script_place_monster_spawns(diorama)
 
   def script_place_monster_spawns(self, diorama: Diorama):
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
-    monster_spawner = monster_spawners.MonsterSpawner(self, creature_type)
-    monster_spawner.place_script(diorama)
+    if self.monster_spawner:
+      self.monster_spawner.place_script(diorama)
     
   def place_crystals(self, diorama: Diorama, count: int):
     rng = self.rng['fine.place_crystals']

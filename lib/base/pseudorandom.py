@@ -27,6 +27,7 @@ KINDS = (
   'fine.place_recharge_seam',
   'fine.place_landslides',
   'fine.place_entities',
+  'monster_spawner',
 )
 
 class Rng(object):

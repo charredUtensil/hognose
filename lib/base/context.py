@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import NamedTuple, Optional
 
 import enum
 
@@ -9,6 +9,12 @@ class Biome(enum.Enum):
   ROCK = 'rock'
   ICE = 'ice'
   LAVA = 'lava'
+
+Curve = NamedTuple(
+    'Curve',
+    base=float,
+    distance=float,
+    completion=float)
 
 class Context(object):
 
@@ -67,13 +73,11 @@ class Context(object):
     self.cave_baroqueness        = 0.12
     self.hall_baroqueness        = 0.05
 
-    # In approximately crystals per unit of perimeter caves should have,
-    # How many crystals all caves get.
-    self.base_richness           = 0.50
-    # How many additional crystals caves furthest from spawn get.
-    self.distance_richness       = 2.72
-    # How many additional crystals caves later in generation get.
-    self.completion_richness     = 1.00
+    # Crystals per unit of perimeter caves should have
+    self.crystal_richness = Curve(0.50, 2.72, 1.00)
+
+    # Monsters to spawn per minute per cave
+    self.monster_spawn_rate = Curve(0.10, 0.30, 0.20)
     
     # The chance any arbitrary cave will have a recharge seam.
     # The spawn cave will always get one additional recharge seam.

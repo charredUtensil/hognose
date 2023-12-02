@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 import itertools
 import math
 
+from lib.base import Curve
 from lib.outlines import Baseplate, Path
 from lib.planners.base import Planner, SomaticPlanner
 from lib.planners.caves import CAVE_BIDDERS, SPAWN_BIDDERS
@@ -22,18 +23,23 @@ class StemPlanner(Planner):
       StemPlanner.HALL,
       StemPlanner.CAVE] = kind
     self.hops_to_spawn: Optional[int] = None
+    self.fluid_type: Optional[Literal[
+      Tile.WATER,
+      Tile.LAVA]] = None
+    self.has_erosion = False
 
   @property
   def kind(self):
     return self._kind
 
+  def get_curved(self, curve: Curve, conquest: 'Conquest') -> float:
+      return curve.base
+      + curve.distance * self.hops_to_spawn / conquest.total
+      + curve.completion * conquest.completed / conquest.total
+
   def suggested_crystal_count(self, conquest):
     area = sum(bp.area() for bp in self.baseplates)
-    mean = math.sqrt(area) * (
-      self.context.base_richness
-      + self.context.distance_richness * self.hops_to_spawn / conquest.total
-      + self.context.completion_richness * conquest.completed / conquest.total
-    )
+    mean = math.sqrt(area) * self.get_curved(self.context.crystal_richness, conquest)
     return math.floor(self.rng['conquest.expected_crystals'].beta(
         a = 5, b = 2, min = 0, max = mean * 1.25))
 

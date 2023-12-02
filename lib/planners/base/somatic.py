@@ -21,13 +21,20 @@ class SomaticPlanner(Planner):
     self._oyster = oyster
     self._pearl = None
     self._nacre = None
-    self.has_erosion = stem.has_erosion
-    self.fluid_type = stem.fluid_type
+    self._stem = stem
 
   @property
   @abc.abstractmethod
   def baroqueness(self) -> float:
     pass
+
+  @property
+  def fluid_type(self):
+    return self._stem.fluid_type
+
+  @property
+  def has_erosion(self):
+    return self._stem.has_erosion
 
   @property
   def oyster(self) -> Oyster:
