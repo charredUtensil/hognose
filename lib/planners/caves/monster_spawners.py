@@ -75,7 +75,7 @@ class MonsterSpawner(object):
         include_nucleus=False):
       x, y = info.pos
       if diorama.tiles.get((x, y), Tile.SOLID_ROCK) != Tile.SOLID_ROCK:
-        yield f'when(enter:x@{x:d},y@{y:d})[{prefix}spawn]'
+        yield f'when(enter:y@{y:d},x@{x:d})[{prefix}spawn]'
     
     # The actual spawn function
     yield f'{prefix}spawn::;'
@@ -90,7 +90,7 @@ class MonsterSpawner(object):
       y = math.floor(y)
       radius = min(bp.width, bp.height) // 2
       yield f'wait:random({self.min_delay:.2f})({self.max_delay:.2f});'
-      yield f'emerge:x@{x:d},y@{y:d},A,{self.creature_type.value},{radius:d};'
+      yield f'emerge:y@{y:d},x@{x:d},A,{self.creature_type.value},{radius:d};'
     # Wait for cooldown and re-enable
     if self.repeat:
       yield f'wait:random({self.min_cooldown:d})({self.max_cooldown:d});'
