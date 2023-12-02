@@ -15,10 +15,10 @@ class MonsterSpawner(object):
       wave_size: int = 3,
       min_delay: float = 1.9,
       max_delay: float = 5,
-      min_cooldown: int = 60,
-      max_cooldown: int = 300,
-      min_initial_cooldown: int = 0,
-      max_initial_cooldown: int = 0,
+      min_cooldown: float = 60,
+      max_cooldown: float = 300,
+      min_initial_cooldown: float = 0,
+      max_initial_cooldown: float = 0,
       spawn_immediately_when_ready = False,
       repeat: bool = True):
     self.planner = planner
@@ -56,7 +56,7 @@ class MonsterSpawner(object):
       yield f'if(time:0)[{prefix}onOpen]'
     yield f'{prefix}onOpen::;'
     # Wait for initial cooldown if there is one.
-    if self.max_initial_cooldown:
+    if self.max_initial_cooldown > 0:
       yield (
           f'wait:random({self.min_initial_cooldown})'
           f'({self.max_initial_cooldown});')
