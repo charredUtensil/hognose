@@ -77,7 +77,7 @@ class Context(object):
     self.crystal_richness = Curve(0.50, 2.72, 1.00)
 
     # Monsters to spawn per minute per cave
-    self.monster_spawn_rate = Curve(0.10, 0.30, 0.20)
+    self.monster_spawn_rate = Curve(0.20, 1.25, 0.40)
     
     # The chance any arbitrary cave will have a recharge seam.
     # The spawn cave will always get one additional recharge seam.

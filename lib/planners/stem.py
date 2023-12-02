@@ -33,9 +33,9 @@ class StemPlanner(Planner):
     return self._kind
 
   def get_curved(self, curve: Curve, conquest: 'Conquest') -> float:
-      return curve.base
-      + curve.distance * self.hops_to_spawn / conquest.total
-      + curve.completion * conquest.completed / conquest.total
+      return (curve.base
+          + curve.distance * self.hops_to_spawn / conquest.total
+          + curve.completion * conquest.completed / conquest.total)
 
   def suggested_crystal_count(self, conquest):
     area = sum(bp.area() for bp in self.baseplates)
