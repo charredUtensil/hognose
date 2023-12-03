@@ -54,19 +54,20 @@ class HoardCavePlanner(TreasureCavePlanner):
       diorama.crystals[x, y] += 1
   
   def fine_place_entities(self, diorama):
-    rng = self.rng['fine.place_entities']
-    monster_type = Creature.Type.monster_for_biome(self.context.biome)
-    monster_count = math.floor(rng.beta(a = 1.5, b = 5, min = 0, max = 6))
-    center = self.center
-    tiles = tuple(self._monster_placements(diorama))
-    for _ in range(monster_count):
-      diorama.creature(
-        monster_type,
-        Position.randomly_in_tile(
-            rng,
-            rng.uniform_choice(tiles),
-            facing=center),
-        sleep=True)
+    if self.context.has_monsters:
+      rng = self.rng['fine.place_entities']
+      monster_type = Creature.Type.monster_for_biome(self.context.biome)
+      monster_count = math.floor(rng.beta(a = 1.5, b = 5, min = 0, max = 6))
+      center = self.center
+      tiles = tuple(self._monster_placements(diorama))
+      for _ in range(monster_count):
+        diorama.creature(
+          monster_type,
+          Position.randomly_in_tile(
+              rng,
+              rng.uniform_choice(tiles),
+              facing=center),
+          sleep=True)
 
 class NougatCavePlanner(TreasureCavePlanner):
 

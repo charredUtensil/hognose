@@ -10,6 +10,7 @@ class Biome(enum.Enum):
   ICE = 'ice'
   LAVA = 'lava'
 
+# Some values scale based on 
 Curve = NamedTuple(
     'Curve',
     base=float,
@@ -30,7 +31,10 @@ class Context(object):
 
     # Which biome the cave will use.
     # Affects some values used for rng later.
-    self.biome: Biome = rng.uniform_choice(Biome)
+    self.biome = rng.uniform_choice(Biome)
+
+    # Does this cave have monsters?
+    self.has_monsters = rng.chance(0.75)
 
     # The total number of bubbles to spawn.
     self.bubble_count            = 80
@@ -60,10 +64,12 @@ class Context(object):
 
     # The chance for fluid to spread. Larger numbers here result in fewer,
     # longer rivers. Smaller numbers result in more individual lakes.
+    # Does not affect the total water or lava in the cavern.
     self.water_spread            = 0.75
     self.lava_spread             = 0.30
 
-    # The chance for a cave/hall with lava to spread erosion events.
+    # The chance for a cave/hall with lava or erosion to spread erosion to
+    # its neighbors.
     self.cave_erode_chance       = 0.37
     self.hall_erode_chance       = 0.60
 
@@ -99,7 +105,11 @@ class Context(object):
     self.crystal_goal_ratio      = 0.20
 
   def __str__(self):
-    return f'seed: 0x{self.seed:08x}'
+    def h():
+      yield f'seed:         0x{self.seed:08x}'
+      yield f'biome:        {self.biome}'
+      yield f'has_monsters: {self.has_monsters}'
+    return '\n'.join(h())
 
   @property
   def rng(self) -> DiceBox:

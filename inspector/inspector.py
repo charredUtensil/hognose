@@ -97,6 +97,9 @@ BUILDING_LABEL_RADIUS = 10
 MINER_COLOR                             = (0xff, 0xff, 0x00)
 CREATURE_COLOR                          = (0xff, 0x00, 0x00)
 
+SCRIPT_TRIGGER_COLOR                    = (0xff, 0xff, 0x00)
+SCRIPT_WIRE_COLOR                       = (0xff, 0xff, 0xff)
+
 class Inspector(Logger):
 
   def __init__(self):
@@ -111,6 +114,7 @@ class Inspector(Logger):
     self.font = pygame.font.SysFont('monospace', 10, bold=True)
     self.font_med = pygame.font.SysFont('trebuchetms', 16, bold=True)
     self.font_title = pygame.font.SysFont('trebuchetms', 24, bold=True)
+    self.font_monospace = pygame.font.SysFont('monospace', 16)
     self.warnings = []
 
   def log_stage(self, stage, index, total_stages, details):
@@ -204,12 +208,56 @@ class Inspector(Logger):
     # Draw tiles
     for (x, y), tile in self.cavern.diorama.tiles.items():
       color = tile.inspect_color
-      if stage == 'discover' and (x, y) not in self.cavern.diorama.discovered:
+      if (stage == 'script'
+          or (stage == 'discover'
+              and (x, y) not in self.cavern.diorama.discovered)):
         c = sum(color) / 6
         color = (c, c, c)
       frame.draw_rect(color, (x, y, 1, 1))
 
-    if stage != 'discover':
+    if stage == 'script':
+      infos = ((
+            hasattr(p, 'monster_spawner')
+            and p.monster_spawner
+            and p.monster_spawner.script_info)
+          for p in self.cavern.conquest.somatic_planners)
+      infos = [info for info in infos if info]
+      for info in infos:
+        for x, y in info.enter_triggers:
+          frame.draw_rect(
+              SCRIPT_TRIGGER_COLOR,
+              (x, y, 1, 1),
+              1)
+      for info in infos:
+        for x, y in info.enter_triggers:
+          frame.draw_line(
+              SCRIPT_WIRE_COLOR,
+              (x + 0.5, y + 0.5),
+              (info.emerges[0][0] + 0.5, info.emerges[0][1] + 0.5))
+        if info.discovery_tile:
+          frame.draw_line(
+              SCRIPT_WIRE_COLOR,
+              (info.discovery_tile[0] + 0.5, info.discovery_tile[1] + 0.5),
+              (info.emerges[0][0] + 0.5, info.emerges[0][1] + 0.5))
+      for info in infos:
+        if info.discovery_tile:
+          frame.draw_circle(
+              SCRIPT_TRIGGER_COLOR,
+              (info.discovery_tile[0] + 0.5, info.discovery_tile[1] + 0.5),
+              0.4)
+      for info in infos:
+        for x, y, r in info.emerges:
+          frame.draw_rect(
+              CREATURE_COLOR,
+              (x - r, y - r, 2 * r + 1, 2 * r + 1),
+              2)
+        for (x1, y1, _), (x2, y2, _) in itertools.pairwise(info.emerges):
+          frame.draw_line(
+              CREATURE_COLOR,
+              (x1 + 0.5, y1 + 0.5),
+              (x2 + 0.5, y2 + 0.5),
+              2)
+    elif stage != 'discover':
       # Draw erosions
       for (x, y), event in self.cavern.diorama.erosions.items():
         frame.draw_line(
@@ -285,8 +333,6 @@ class Inspector(Logger):
             (miner.x, miner.y),
             (miner.x + math.cos(theta), miner.y + math.sin(theta)))
 
-
-
     # Draw objectives that have map positions
     for objective in self.cavern.diorama.objectives:
       if isinstance(objective, FindMinerObjective):
@@ -336,7 +382,15 @@ class Inspector(Logger):
       self.cavern.diorama.total_crystals or
       sum(p.expected_crystals for p in self.cavern.planners)
     )
-    if total_crystals > 0:
+    if stage == 'init':
+      message = str(self.cavern.context)
+      frame.draw_text(
+          self.font_monospace,
+          message,
+          TITLE_COLOR,
+          (Relative(0), Relative(1)),
+          (1, -1))
+    elif total_crystals > 0:
       goal_crystals = sum((
           o.crystals for o in self.cavern.diorama.objectives
           if isinstance(o, ResourceObjective)), 0)

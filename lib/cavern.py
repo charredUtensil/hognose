@@ -125,6 +125,8 @@ class Cavern(object):
       ('serialize',    self._serialize),
     )
     try:
+      self.context.logger.log_stage(
+          'init', 0, len(stages), None)
       for i, (stage, fn) in enumerate(stages):
         r = fn()
         if r:

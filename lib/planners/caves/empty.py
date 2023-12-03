@@ -11,10 +11,11 @@ class EmptyCavePlanner(BaseCavePlanner):
     super().__init__(stem, oyster)
     self.expected_crystals = stem.suggested_crystal_count(conquest)
     creature_type = Creature.Type.monster_for_biome(self.context.biome)
-    self.monster_spawner = generate_normal(
-        self,
-        creature_type,
-        stem.get_curved(self.context.monster_spawn_rate, conquest))
+    if stem.context.has_monsters:
+      self.monster_spawner = generate_normal(
+          self,
+          creature_type,
+          stem.get_curved(self.context.monster_spawn_rate, conquest))
 
 def bids(stem, conquest):
   pr = stem.pearl_radius

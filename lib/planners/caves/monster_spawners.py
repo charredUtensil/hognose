@@ -1,10 +1,21 @@
-from typing import Iterable
+from typing import Iterable, Optional, Tuple
 
 import itertools
 import math
 
 from lib.planners.base import SomaticPlanner
 from lib.plastic import Creature, Diorama, Tile
+
+class ScriptInfo(object):
+
+  def __init__(
+      self,
+      discovery_tile: Optional[Tuple[int, int]],
+      enter_triggers: Iterable[Tuple[int, int]],
+      emerges: Iterable[Tuple[int, int, int]]):
+    self.discovery_tile = discovery_tile
+    self.enter_triggers = tuple(enter_triggers)
+    self.emerges = tuple(emerges)
 
 class MonsterSpawner(object):
 
@@ -32,9 +43,38 @@ class MonsterSpawner(object):
     self.max_initial_cooldown = max_initial_cooldown
     self.spawn_immediately_when_ready = spawn_immediately_when_ready
     self.repeat = repeat
+    self.script_info: Optional[ScriptInfo] = None
 
   def place_script(self, diorama: Diorama):
+    self.script_info = ScriptInfo(
+        self._discovery_tile(diorama),
+        self._enter_triggers(diorama),
+        self._emerges(),
+    )
     diorama.script.extend(self._gen_script(diorama))
+
+  def _discovery_tile(self, diorama: Diorama) -> Optional[Tuple[int, int]]:
+    for info in self.planner.pearl:
+      if (not diorama.tiles[info.pos].is_wall
+          and not info.pos in diorama.discovered):
+        return info.pos
+    return None
+
+  def _enter_triggers(self, diorama: Diorama) -> Iterable[Tuple[int, int]]:
+    for info in self.planner.walk_pearl(
+        (info.pos for info in self.planner.pearl),
+        max_layers=2,
+        baroqueness=0,
+        include_nucleus=False):
+      x, y = info.pos
+      if diorama.tiles.get((x, y), Tile.SOLID_ROCK) != Tile.SOLID_ROCK:
+        yield x, y
+
+  def _emerges(self) -> Iterable[Tuple[int, int, int]]:
+    for bp in self.planner.baseplates[:self.wave_size]:
+      x, y = bp.center
+      radius = min(bp.width, bp.height) // 2
+      yield (math.floor(x), math.floor(y), radius)
 
   def _gen_script(self, diorama: Diorama) -> Iterable[str]:
     yield f'# {type(self).__name__} for planner #{self.planner.id}'
@@ -45,12 +85,9 @@ class MonsterSpawner(object):
     # If there is a non-wall tile that starts undiscovered, generate an onOpen
     # event chain that triggers when that tile changes (i.e. it becomes
     # discovered).
-    for info in self.planner.pearl:
-      if (not diorama.tiles[info.pos].is_wall
-          and not info.pos in diorama.discovered):
-        x, y = info.pos
-        yield f'if(change:x@{x:d},y@{y:d})[{prefix}onOpen]'
-        break
+    if self.script_info.discovery_tile:
+      x, y = self.script_info.discovery_tile
+      yield f'if(change:x@{x:d},y@{y:d})[{prefix}onOpen]'
     # Otherwise, just enable on init.
     else:
       yield f'if(time:0)[{prefix}onOpen]'
@@ -68,14 +105,8 @@ class MonsterSpawner(object):
     yield ''
 
     # Surround the cave with enter triggers.
-    for info in self.planner.walk_pearl(
-        (info.pos for info in self.planner.pearl),
-        max_layers=2,
-        baroqueness=0,
-        include_nucleus=False):
-      x, y = info.pos
-      if diorama.tiles.get((x, y), Tile.SOLID_ROCK) != Tile.SOLID_ROCK:
-        yield f'when(enter:y@{y:d},x@{x:d})[{prefix}spawn]'
+    for x, y in self.script_info.enter_triggers:
+      yield f'when(enter:y@{y:d},x@{x:d})[{prefix}spawn]'
     
     # The actual spawn function
     yield f'{prefix}spawn::;'
@@ -83,14 +114,10 @@ class MonsterSpawner(object):
     yield f'(({prefix}canSpawn==0))return;'
     yield f'{prefix}canSpawn=false;'
     # Emerge events
-    for bp in itertools.islice(
-        itertools.cycle(self.planner.baseplates), self.wave_size):
-      x, y = bp.center
-      x = math.floor(x)
-      y = math.floor(y)
-      radius = min(bp.width, bp.height) // 2
+    for x, y, r in itertools.islice(itertools.cycle(
+        self.script_info.emerges), self.wave_size):
       yield f'wait:random({self.min_delay:.2f})({self.max_delay:.2f});'
-      yield f'emerge:y@{y:d},x@{x:d},A,{self.creature_type.value},{radius:d};'
+      yield f'emerge:y@{y:d},x@{x:d},A,{self.creature_type.value},{r:d};'
     # Wait for cooldown and re-enable
     if self.repeat:
       yield f'wait:random({self.min_cooldown:.2f})({self.max_cooldown:.2f});'
