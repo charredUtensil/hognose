@@ -14,9 +14,10 @@ class Conquest(ProceduralThing):
 
   def __init__(self, context, planners: Iterable[StemPlanner]):
     super().__init__(-1, context)
-    self._planners = list(planners)
+    self._planners: List[Planner] = list(planners)
 
-    self.spawn_planner: Optional[SomaticPlanner] = None
+    self.spawn: Optional[SomaticPlanner] = None
+    self.completed = 0
     self.expected_crystals = 0
 
     self._bp_index: Dict[int, Set[int]] = {}
@@ -36,16 +37,12 @@ class Conquest(ProceduralThing):
     return (p for p in self._planners if isinstance(p, SomaticPlanner))
 
   @property
-  def completed(self) -> int:
-    return sum(1 for p in self._planners if isinstance(p, SomaticPlanner))
-
-  @property
   def remaining(self) -> int:
-    return sum(1 for p in self._planners if isinstance(p, StemPlanner))
+    return self.total - self.completed
 
   @property
   def total(self) -> int:
-    return sum(1 for p in self._planners)
+    return len(self._planners)
 
   def intersecting(self, planner: Planner) -> Iterable[Planner]:
     indexes = set()
@@ -57,7 +54,7 @@ class Conquest(ProceduralThing):
         yield p
 
   def flood(self):
-    planners = typing.cast(StemPlanner, self._planners)
+    planners = typing.cast(List[StemPlanner], self._planners)
 
     rng = self.rng['flood']
     def coverage(min, max):
@@ -122,19 +119,21 @@ class Conquest(ProceduralThing):
   def conquest(self):
     # Choose a cave to be the origin.
     # The one with the lowest ID might as well be random.
-    self.spawn_planner = next(
-        p for p in typing.cast(Iterable[StemPlanner], self.planners)
+    spawn = next(
+        p for p in typing.cast(Iterable[StemPlanner], self._planners)
         if p.kind == StemPlanner.CAVE)
-    queue: List[StemPlanner] = [self.spawn_planner]
+    queue: List[StemPlanner] = [spawn]
 
     queue[0].hops_to_spawn = 0
 
     # Perform a breadth-first search on remaining planners
-    while queue:
+    for i in range(self.total):
       stem = queue.pop(0)
       stem.crystal_richness = self._curved(self.context.crystal_richness, stem)
       stem.monster_spawn_rate = self._curved(self.context.monster_spawn_rate, stem)
       planner = self._differentiate(stem)
+      if i == 0:
+        self.spawn = planner
       self._planners[planner.id] = planner
       self.expected_crystals += planner.expected_crystals
       for p in self.intersecting(planner):
@@ -144,6 +143,9 @@ class Conquest(ProceduralThing):
           p.hops_to_spawn = stem.hops_to_spawn + 1
           queue.append(p)
       yield planner
+      self.completed = i + 1
+    # Queue should be empty now
+    assert not queue
 
   def _differentiate(self, planner: StemPlanner) -> SomaticPlanner:
     bidders = None

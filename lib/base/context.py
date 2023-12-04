@@ -31,7 +31,7 @@ class Context(object):
 
     # Which biome the cave will use.
     # Affects some values used for rng later.
-    self.biome = rng.uniform_choice(Biome)
+    self.biome: Biome = rng.uniform_choice(Biome)
 
     # Does this cave have monsters?
     self.has_monsters = rng.chance(0.75)

@@ -214,12 +214,13 @@ class Inspector(Logger):
       frame.draw_rect(color, (x, y, 1, 1))
 
     if stage == 'script':
-      infos = ((
+      infos = [
+          p.monster_spawner.script_info
+          for p in self.cavern.conquest.somatic_planners
+          if (
             hasattr(p, 'monster_spawner')
             and p.monster_spawner
-            and p.monster_spawner.script_info)
-          for p in self.cavern.conquest.somatic_planners)
-      infos = [info for info in infos if info]
+            and p.monster_spawner.script_info)]
       for info in infos:
         for x, y in info.enter_triggers:
           frame.draw_rect(

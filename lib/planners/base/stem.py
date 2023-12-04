@@ -1,8 +1,5 @@
 from typing import Iterable, List, Literal, Optional, Tuple, TYPE_CHECKING
 
-if TYPE_CHECKING:
-  from .conquest import Conquest
-
 import itertools
 import math
 

@@ -236,8 +236,8 @@ def _spell_number(n: int) -> str:
 
 # Helper methods
 def _spawn_has_erosion(cavern: 'Cavern'):
-  spawn_planner = cavern.conquest.spawn_planner
+  spawn = cavern.conquest.spawn
   return (
-      spawn_planner.has_erosion
+      spawn.has_erosion
       or any(p.has_erosion
-             for p in cavern.conquest.intersecting(spawn_planner)))
+             for p in cavern.conquest.intersecting(spawn)))
