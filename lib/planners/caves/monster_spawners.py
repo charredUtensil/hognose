@@ -129,7 +129,7 @@ def generate_normal(
     creature_type: Creature.Type,
     spawn_rate: float):
   rng = planner.rng['monster_spawner']
-  wave_size = math.floor(rng.beta(min=1, max=8, a=2.5, b=5))
+  wave_size = rng.beta_int(min=1, max=8, a=2.5, b=5)
   min_delay = 2 / wave_size
   max_delay = 15 / wave_size
   mean_cooldown = 60 * wave_size / spawn_rate

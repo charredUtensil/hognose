@@ -47,6 +47,9 @@ class Rng(object):
       max: float = 1) -> float:
     return self._rng.random() * (max - min) + min
 
+  def uniform_int(self, *args, **kwargs) -> int:
+    return math.floor(self.uniform(*args, **kwargs))
+
   def beta(
       self,
       a: float = 5,
@@ -59,6 +62,9 @@ class Rng(object):
     See https://eurekastatistics.com/beta-distribution-pdf-grapher/
     """
     return self._rng.beta(a, b) * (max - min) + min
+
+  def beta_int(self, *args, **kwargs) -> int:
+    return math.floor(self.beta(*args, **kwargs))
 
   def uniform_point_in_circle(
       self,

@@ -13,7 +13,7 @@ class SpawnCavePlanner(BaseCavePlanner):
   def _get_expected_crystals(self):
     return max(
         super()._get_expected_crystals(),
-        math.floor(self.rng['conquest.expected_crystals'].beta(min = 2, max = 7)))
+        self.rng['conquest.expected_crystals'].beta_int(min = 2, max = 7))
 
   def fine_recharge_seam(self, diorama):
     self.place_recharge_seam(diorama)

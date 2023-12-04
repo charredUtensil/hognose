@@ -19,8 +19,8 @@ class BaseCavePlanner(SomaticPlanner):
   def _get_expected_crystals(self):
     area = sum(bp.area() for bp in self.baseplates)
     mean = math.sqrt(area) * self._stem.crystal_richness
-    return math.floor(self.rng['conquest.expected_crystals'].beta(
-        a = 5, b = 2, min = 0, max = mean * 1.25))
+    return self.rng['conquest.expected_crystals'].beta_int(
+        a = 5, b = 2, min = 0, max = mean * 1.25)
 
   def pearl_nucleus(self):
     r = self.pearl_radius

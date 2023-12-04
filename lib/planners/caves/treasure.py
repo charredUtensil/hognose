@@ -55,7 +55,7 @@ class HoardCavePlanner(TreasureCavePlanner):
     if self.context.has_monsters:
       rng = self.rng['fine.place_entities']
       monster_type = Creature.Type.monster_for_biome(self.context.biome)
-      monster_count = math.floor(rng.beta(a = 1.5, b = 5, min = 0, max = 6))
+      monster_count = rng.beta_int(a = 1.5, b = 5, min = 0, max = 6)
       center = self.center
       tiles = tuple(self._monster_placements(diorama))
       for _ in range(monster_count):
