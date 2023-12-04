@@ -10,11 +10,9 @@ from lib.plastic import Creature, Position, ResourceObjective, Tile
 
 class TreasureCavePlanner(BaseCavePlanner):
 
-  def __init__(self, stem, conquest, oyster):
-    super().__init__(stem, oyster)
-    self.expected_crystals = math.floor(
-      stem.suggested_crystal_count(conquest)
-      * self.rng['conquest.expected_crystals'].beta(min = 1, max = 4))
+  def _get_expected_crystals(self):
+    return math.floor(super()._get_expected_crystals()
+       * self.rng['conquest.expected_crystals'].beta(min = 1, max = 4))
   
   @property
   def objectives(self):
@@ -99,21 +97,21 @@ def bids(stem, conquest):
   pr = stem.pearl_radius
   if stem.fluid_type == Tile.WATER and pr > 3:
     yield (0.5, lambda: NougatCavePlanner(
-        stem, conquest, Oysters.ISLAND_NOUGAT))
+        stem, Oysters.ISLAND_NOUGAT))
     if not any(p.fluid_type for p in conquest.intersecting(stem)):
       yield (0.5, lambda: HoardCavePlanner(
-          stem, conquest, Oysters.PENINSULA_HOARD))
+          stem, Oysters.PENINSULA_HOARD))
   elif stem.fluid_type == Tile.LAVA and pr > 3:
     yield (0.5, lambda: NougatCavePlanner(
-        stem, conquest, Oysters.LAVA_ISLAND_NOUGAT))
+        stem, Oysters.LAVA_ISLAND_NOUGAT))
     if not any(p.fluid_type for p in conquest.intersecting(stem)):
       yield (0.5, lambda: HoardCavePlanner(
-          stem, conquest, Oysters.LAVA_PENINSULA_HOARD))
+          stem, Oysters.LAVA_PENINSULA_HOARD))
   elif len(stem.baseplates) > 1:
-    yield (1, lambda: NougatCavePlanner(stem, conquest, Oysters.OPEN_NOUGAT))
+    yield (1, lambda: NougatCavePlanner(stem, Oysters.OPEN_NOUGAT))
   else:
-    yield (0.5, lambda: HoardCavePlanner(stem, conquest, Oysters.OPEN_HOARD))
-    yield (0.5, lambda: HoardCavePlanner(stem, conquest, Oysters.SEALED_HOARD))
+    yield (0.5, lambda: HoardCavePlanner(stem, Oysters.OPEN_HOARD))
+    yield (0.5, lambda: HoardCavePlanner(stem, Oysters.SEALED_HOARD))
 
 class Oysters:
   OPEN_HOARD = (

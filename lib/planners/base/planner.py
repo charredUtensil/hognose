@@ -8,14 +8,13 @@ from lib.plastic import Tile
 
 class Planner(ProceduralThing, abc.ABC):
 
-  def __init__(self, id, context, baseplates: Iterable[Baseplate]):
+  def __init__(self, id, context):
     super().__init__(id, context)
-    self._baseplates = tuple(baseplates)
-    self.expected_crystals: int = 0
 
   @property
+  @abc.abstractmethod
   def baseplates(self) -> Tuple[Baseplate]:
-    return self._baseplates
+    pass
 
   @property
   def center(self) -> Tuple[float, float]:
@@ -37,6 +36,5 @@ class Planner(ProceduralThing, abc.ABC):
         s for s in (
             f'#{self.id}',
             type(self).__name__,
-            str(self.oyster) if hasattr(self, 'oyster') else None,
-            f'{self.expected_crystals} EC' if self.expected_crystals else None)
+            str(self.oyster) if hasattr(self, 'oyster') else None)
         if s is not None)

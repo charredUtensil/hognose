@@ -10,7 +10,7 @@ from .frame import Frame, Absolute, Relative
 from lib import Cavern
 from lib.base import Logger
 from lib.outlines import Bubble, Baseplate, Path
-from lib.planners import StemPlanner
+from lib.planners import StemPlanner, SomaticPlanner
 from lib.planners.caves import (
     EmptyCavePlanner,
     HoardCavePlanner,
@@ -188,17 +188,15 @@ class Inspector(Logger):
               label_radius,
               line_thickness)
     if stage in ('conquest', 'rough'):
-      for stem, somatic in zip(
-          self.cavern.conquest.stem_planners,
-          self.cavern.conquest.somatic_planners):
-        if somatic:
-          bg_color = PLANNER_FLUID_COLORS[stem.fluid_type]
-          border_color = PLANNER_TYPE_BORDER_COLORS[type(somatic)]
+      for planner in self.cavern.conquest.planners:
+        if isinstance(planner, SomaticPlanner):
+          bg_color = PLANNER_FLUID_COLORS[planner.fluid_type]
+          border_color = PLANNER_TYPE_BORDER_COLORS[type(planner)]
           label_radius = 9
           line_thickness = 5
           _draw_planner(
               frame,
-              somatic,
+              planner,
               self.font,
               border_color,
               bg_color,
@@ -378,10 +376,6 @@ class Inspector(Logger):
         (Relative(1), Relative(0)),
         (-1, 1))
     # Bottom left: Crystal count
-    total_crystals = (
-      self.cavern.diorama.total_crystals or
-      sum(p.expected_crystals for p in self.cavern.planners)
-    )
     if stage == 'init':
       message = str(self.cavern.context)
       frame.draw_text(
@@ -390,20 +384,25 @@ class Inspector(Logger):
           TITLE_COLOR,
           (Relative(0), Relative(1)),
           (1, -1))
-    elif total_crystals > 0:
-      goal_crystals = sum((
-          o.crystals for o in self.cavern.diorama.objectives
-          if isinstance(o, ResourceObjective)), 0)
-      if goal_crystals:
-        message = f'Collect {goal_crystals:d}/{total_crystals:d} EC'
-      else:
-        message = f'{total_crystals:d} EC'
-      frame.draw_text(
-          self.font_title,
-          message,
-          TITLE_COLOR,
-          (Relative(0), Relative(1)),
-          (1, -1))
+    elif self.cavern.conquest:
+      total_crystals = (
+        self.cavern.diorama.total_crystals or
+        sum(p.expected_crystals for p in self.cavern.conquest.somatic_planners)
+      )
+      if total_crystals > 0:
+        goal_crystals = sum((
+            o.crystals for o in self.cavern.diorama.objectives
+            if isinstance(o, ResourceObjective)), 0)
+        if goal_crystals:
+          message = f'Collect {goal_crystals:d}/{total_crystals:d} EC'
+        else:
+          message = f'{total_crystals:d} EC'
+        frame.draw_text(
+            self.font_title,
+            message,
+            TITLE_COLOR,
+            (Relative(0), Relative(1)),
+            (1, -1))
 
     # Draw the log details
     if details:

@@ -50,7 +50,7 @@ class Lore(object):
     lava = 0
     water = 0
     total = 0
-    for p in self.cavern.conquest.stem_planners:
+    for p in self.cavern.conquest.planners:
       if p.fluid_type == Tile.LAVA:
         lava += 1
       elif p.fluid_type == Tile.WATER:

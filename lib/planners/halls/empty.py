@@ -3,20 +3,18 @@ from lib.planners.base import Oyster, Layer
 from lib.plastic import Tile
 
 class EmptyHallPlanner(BaseHallPlanner):
-
-  def __init__(self, stem, conquest, oyster):
-    super().__init__(stem, oyster)
+  pass
 
 def bids(stem, conquest):
   pr = stem.pearl_radius
   if stem.fluid_type == Tile.WATER:
-    yield (1, lambda: EmptyHallPlanner(stem, conquest, Oysters.RIVER))
+    yield (1, lambda: EmptyHallPlanner(stem, Oysters.RIVER))
   elif stem.fluid_type == Tile.LAVA:
-    yield (1, lambda: EmptyHallPlanner(stem, conquest, Oysters.LAVA_RIVER))
+    yield (1, lambda: EmptyHallPlanner(stem, Oysters.LAVA_RIVER))
   else:
     if pr < 7:
-      yield (1, lambda: EmptyHallPlanner(stem, conquest, Oysters.FILLED))
-    yield (1, lambda: EmptyHallPlanner(stem, conquest, Oysters.OPEN))
+      yield (1, lambda: EmptyHallPlanner(stem, Oysters.FILLED))
+    yield (1, lambda: EmptyHallPlanner(stem, Oysters.OPEN))
 
 class Oysters:
   OPEN = (

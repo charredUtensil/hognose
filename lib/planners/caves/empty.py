@@ -7,46 +7,45 @@ from lib.plastic import Creature, Tile
 
 class EmptyCavePlanner(BaseCavePlanner):
 
-  def __init__(self, stem, conquest, oyster):
+  def __init__(self, stem, oyster):
     super().__init__(stem, oyster)
-    self.expected_crystals = stem.suggested_crystal_count(conquest)
     creature_type = Creature.Type.monster_for_biome(self.context.biome)
     if stem.context.has_monsters:
       self.monster_spawner = generate_normal(
           self,
           creature_type,
-          stem.get_curved(self.context.monster_spawn_rate, conquest))
+          stem.monster_spawn_rate)
 
 def bids(stem, conquest):
   pr = stem.pearl_radius
   if stem.fluid_type == Tile.WATER:
     if pr < 10:
       yield (1, lambda: EmptyCavePlanner(
-          stem, conquest, Oysters.LAKE))
+          stem, Oysters.LAKE))
     if pr > 7:
       yield (2, lambda: EmptyCavePlanner(
-          stem, conquest, Oysters.ISLAND))
+          stem, Oysters.ISLAND))
       if not any(p.fluid_type for p in conquest.intersecting(stem)):
         yield (1, lambda: EmptyCavePlanner(
-            stem, conquest, Oysters.PENINSULA))
+            stem, Oysters.PENINSULA))
   elif stem.fluid_type == Tile.LAVA:
     if pr < 10:
       yield (0.5, lambda: EmptyCavePlanner(
-          stem, conquest, Oysters.LAVA_LAKE))
+          stem, Oysters.LAVA_LAKE))
     if pr > 7:
       yield (1, lambda: EmptyCavePlanner(
-          stem, conquest, Oysters.LAVA_ISLAND))
+          stem, Oysters.LAVA_ISLAND))
       if not any(p.fluid_type for p in conquest.intersecting(stem)):
         yield (1, lambda: EmptyCavePlanner(
-            stem, conquest, Oysters.LAVA_PENINSULA))
+            stem, Oysters.LAVA_PENINSULA))
   else:
     if pr < 5:
-      yield (0.04, lambda: EmptyCavePlanner(stem, conquest, Oysters.FILLED))
+      yield (0.04, lambda: EmptyCavePlanner(stem, Oysters.FILLED))
     if pr < 10:
-      yield (1, lambda: EmptyCavePlanner(stem, conquest, Oysters.OPEN))
-      yield (1, lambda: EmptyCavePlanner(stem, conquest, Oysters.EMPTY))
+      yield (1, lambda: EmptyCavePlanner(stem, Oysters.OPEN))
+      yield (1, lambda: EmptyCavePlanner(stem, Oysters.EMPTY))
     if pr > 5:
-      yield (1, lambda: EmptyCavePlanner(stem, conquest, Oysters.DOUGHNUT))
+      yield (1, lambda: EmptyCavePlanner(stem, Oysters.DOUGHNUT))
 
 class Oysters:
   OPEN = (

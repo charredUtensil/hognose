@@ -10,10 +10,9 @@ from lib.utils.geometry import adjacent
 
 class SpawnCavePlanner(BaseCavePlanner):
   
-  def __init__(self, stem, conquest, oyster):
-    super().__init__(stem, oyster)
-    self.expected_crystals = max(
-        stem.suggested_crystal_count(conquest),
+  def _get_expected_crystals(self):
+    return max(
+        super()._get_expected_crystals(),
         math.floor(self.rng['conquest.expected_crystals'].beta(min = 2, max = 7)))
 
   def fine_recharge_seam(self, diorama):
@@ -55,8 +54,8 @@ class SpawnCavePlanner(BaseCavePlanner):
     diorama.camera_position.ry += math.pi * 0.75
 
 def bids(stem, conquest):
-  yield (1, lambda: SpawnCavePlanner(stem, conquest, Oysters.OPEN))
-  yield (1, lambda: SpawnCavePlanner(stem, conquest, Oysters.EMPTY))
+  yield (1, lambda: SpawnCavePlanner(stem, Oysters.OPEN))
+  yield (1, lambda: SpawnCavePlanner(stem, Oysters.EMPTY))
 
 class Oysters:
   OPEN = (

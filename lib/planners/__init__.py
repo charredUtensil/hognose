@@ -1,5 +1,4 @@
 """Planners go down second. These decide how to generate the actual level."""
 
-from .base import Planner, SomaticPlanner
+from .base import Planner, SomaticPlanner, StemPlanner
 from .conquest import Conquest
-from .stem import StemPlanner

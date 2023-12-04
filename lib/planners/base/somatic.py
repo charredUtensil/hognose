@@ -3,6 +3,7 @@ from typing import Dict, Iterable, NamedTuple, Optional, Tuple
 
 import abc
 import collections
+import functools
 import itertools
 import math
 
@@ -17,7 +18,7 @@ PearlInfo = NamedTuple('PearlRow', pos=Tuple[int, int], layer=int, sequence=int)
 class SomaticPlanner(Planner):
 
   def __init__(self, stem, oyster: Oyster):
-    super().__init__(stem.id, stem.context, stem.baseplates)
+    super().__init__(stem.id, stem.context)
     self._oyster = oyster
     self._pearl = None
     self._nacre = None
@@ -27,6 +28,10 @@ class SomaticPlanner(Planner):
   @abc.abstractmethod
   def baroqueness(self) -> float:
     pass
+
+  @property
+  def baseplates(self):
+    return self._stem.baseplates
 
   @property
   def fluid_type(self):
@@ -43,6 +48,14 @@ class SomaticPlanner(Planner):
   @property
   def pearl(self) -> Optional[Tuple[PearlInfo]]:
     return self._pearl
+
+  @functools.cached_property
+  def expected_crystals(self) -> int:
+    return self._get_expected_crystals()
+
+  @abc.abstractmethod
+  def _get_expected_crystals(self) -> int:
+    pass
 
   @abc.abstractmethod
   def pearl_nucleus(self) -> Iterable[Tuple[int, int]]:

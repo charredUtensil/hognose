@@ -7,9 +7,8 @@ from lib.plastic import FindMinerObjective, Position, Tile
 
 class LostMinersCavePlanner(BaseCavePlanner):
 
-  def __init__(self, stem, conquest, oyster):
+  def __init__(self, stem, oyster):
     super().__init__(stem, oyster)
-    self.expected_crystals = stem.suggested_crystal_count(conquest)
     self._miners = []
 
   def fine_place_entities(self, diorama):
@@ -34,7 +33,7 @@ def bids(stem, conquest):
       Biome.ICE : 1.4,
       Biome.LAVA: 0.7,
     }[stem.context.biome]
-    yield (multiplier, lambda: LostMinersCavePlanner(stem, conquest, Oysters.DEFAULT))
+    yield (multiplier, lambda: LostMinersCavePlanner(stem, Oysters.DEFAULT))
 
 class Oysters:
   DEFAULT = (

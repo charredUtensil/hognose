@@ -9,6 +9,9 @@ class BaseHallPlanner(SomaticPlanner):
   def baroqueness(self) -> float:
     return self.context.hall_baroqueness
 
+  def _get_expected_crystals(self):
+    return 0
+
   def pearl_nucleus(self):
     return self.walk_stream()
 
