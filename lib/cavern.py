@@ -155,17 +155,22 @@ class Cavern(object):
 
   def _separate(self):
     """Push bubbles apart until they don't overlap."""
-    for i in range(300):
+    for i in range(self.context.max_separate_steps):
       moving = Bubble.nudge_overlapping(self.bubbles)
       yield
       if not moving:
         break
     else:
-      raise NotHaltingError(f'Separation failed to halt after 300 iterations')
+      self.context.logger.log_warning(
+          'Separation failed to halt after '
+          f'{self.context.max_separate_steps} iterations')
   
   def _rasterize(self):
     """Round bubbles to the nearest grid coordinate to make baseplates."""
-    self.baseplates = [Baseplate(bubble, self.context) for bubble in self.bubbles]
+    self.baseplates = [
+        Baseplate(bubble, self.context)
+        for bubble in self.bubbles
+        if not bubble.moving]
  
   def _discriminate(self):
     """Choose the largest lots to become special."""

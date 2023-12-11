@@ -43,6 +43,12 @@ class Context(object):
     # The largest possible bubble to generate.
     self.bubble_max_area         = 200
 
+    # The maximum number of times to run the separate step.
+    # Separate is a physics simulation that is not guaranteed to halt, so
+    # after this many steps, delete any bubble that's still moving and print a
+    # warning.
+    self.max_separate_steps      = 200
+
     # The number of bubbles to become "special".
     # The higher this number is, the more things will happen in the final map.
     self.special_baseplate_count = 20

@@ -452,7 +452,6 @@ class Inspector(Logger):
         WARNING_COLOR,
         (Relative(1), Relative(1)),
         (-1, -1))
-      self.warnings.clear()
 
     # Save the frame
     self.frames.append((frame, stage))
