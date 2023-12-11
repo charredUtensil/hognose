@@ -4,8 +4,9 @@ import itertools
 import math
 
 from .base import BaseCavePlanner
+from .monster_spawners import MonsterSpawner
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Facing, Position, Tile
+from lib.plastic import Building, Creature, Facing, Position, Tile
 from lib.utils.geometry import adjacent
 
 class SpawnCavePlanner(BaseCavePlanner):
@@ -14,6 +15,16 @@ class SpawnCavePlanner(BaseCavePlanner):
     return max(
         super()._get_expected_crystals(),
         self.rng['conquest.expected_crystals'].beta_int(min = 2, max = 7))
+
+  def _get_monster_spawner(self):
+    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    spawner = MonsterSpawner.normal(
+        self,
+        creature_type,
+        self._stem.monster_spawn_rate)
+    spawner.min_initial_cooldown = 60
+    spawner.max_initial_cooldown = 180
+    return spawner
 
   def fine_recharge_seam(self, diorama):
     self.place_recharge_seam(diorama)

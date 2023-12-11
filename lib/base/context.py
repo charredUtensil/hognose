@@ -34,7 +34,7 @@ class Context(object):
     self.biome: Biome = rng.uniform_choice(Biome)
 
     # Does this cave have monsters?
-    self.has_monsters = rng.chance(0.75)
+    self.has_monsters = True#rng.chance(0.75)
 
     # The total number of bubbles to spawn.
     self.bubble_count            = 80

@@ -111,8 +111,6 @@ class Cavern(object):
       # Look at the entire level to make sure it all fits together, then do
       # some final steps to put everything in the right place.
 
-      # Compute the final bounds of the level.
-      ('fence',        self._fence),
       # Figure out which tiles are discovered at the beginning of the level.
       ('discover',     self._discover),
       # Determine the objectives for the level.
@@ -121,6 +119,8 @@ class Cavern(object):
       ('enscribe',     self._enscribe),
       # Add scripting logic
       ('script',       self._script),
+      # Compute the final bounds of the level.
+      ('fence',        self._fence),
       # Serialize the output
       ('serialize',    self._serialize),
     )
@@ -253,10 +253,6 @@ class Cavern(object):
       objs = [ResourceObjective(crystals=crystals)]
     self.diorama.objectives.extend(objs)
 
-  def _script(self):
-    for planner in self.conquest.somatic_planners:
-      planner.script(self.diorama)
-
   def _enscribe(self):
     """Generate copy for briefings, etc..."""
     lore = Lore(self)
@@ -264,6 +260,11 @@ class Cavern(object):
     self.diorama.briefing_success = lore.success()
     self.diorama.briefing_failure = lore.failure()
     self.diorama.level_name = lore.level_name()
+
+  def _script(self):
+    """Write scripts."""
+    for planner in self.conquest.somatic_planners:
+      planner.script(self.diorama)
 
   def _fence(self):
     """Compute the final bounds of the level."""
@@ -282,4 +283,5 @@ class Cavern(object):
     self.diorama.bounds = (left, top, width, height)
 
   def _serialize(self):
+    """Dump everything to a string."""
     self._serialized = self.diorama.serialize()

@@ -4,6 +4,7 @@ import itertools
 import math
 
 from .base import BaseCavePlanner
+from .monster_spawners import MonsterSpawner, RetriggerMode
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
 from lib.plastic import Creature, Position, ResourceObjective, Tile
@@ -24,6 +25,15 @@ class TreasureCavePlanner(BaseCavePlanner):
       return []
 
 class HoardCavePlanner(TreasureCavePlanner):
+
+  def _get_monster_spawner(self):
+    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    spawner = MonsterSpawner.normal(
+        self,
+        creature_type,
+        self._stem.monster_spawn_rate * 2)
+    spawner.retrigger_mode = RetriggerMode.HOARD
+    return spawner
 
   def _monster_placements(self, diorama):
     accepted_tiles = set((Tile.FLOOR,))
@@ -68,6 +78,15 @@ class HoardCavePlanner(TreasureCavePlanner):
           sleep=True)
 
 class NougatCavePlanner(TreasureCavePlanner):
+
+  def _get_monster_spawner(self):
+    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    spawner = MonsterSpawner.normal(
+        self,
+        creature_type,
+        self._stem.monster_spawn_rate * 2)
+    spawner.spawn_immediately_when_ready = True
+    return spawner
 
   def fine_crystals(self, diorama):
     t = tuple(

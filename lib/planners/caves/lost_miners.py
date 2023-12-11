@@ -11,6 +11,9 @@ class LostMinersCavePlanner(BaseCavePlanner):
     super().__init__(stem, oyster)
     self._miners = []
 
+  def _get_monster_spawner(self):
+    return None
+
   def fine_place_entities(self, diorama):
     rng = self.rng['fine.place_entities']
     pos = self.pearl[0].pos

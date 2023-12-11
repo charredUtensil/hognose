@@ -98,6 +98,7 @@ MINER_COLOR                             = (0xff, 0xff, 0x00)
 CREATURE_COLOR                          = (0xff, 0x00, 0x00)
 
 SCRIPT_TRIGGER_COLOR                    = (0xff, 0xff, 0x00)
+SCRIPT_SECONDARY_TRIGGER_COLOR          = (0xff, 0x7f, 0x00)
 SCRIPT_WIRE_COLOR                       = (0xff, 0xff, 0xff)
 
 class Inspector(Logger):
@@ -206,11 +207,16 @@ class Inspector(Logger):
     # Draw tiles
     for (x, y), tile in self.cavern.diorama.tiles.items():
       color = tile.inspect_color
-      if (stage == 'script'
-          or (stage == 'discover'
-              and (x, y) not in self.cavern.diorama.discovered)):
-        c = sum(color) / 6
-        color = (c, c, c)
+      if stage in ('script'):
+        c = sum(color)
+        color = (c / 6, c / 6, c / 6)
+      elif stage == 'discover':
+        if (x, y) in self.cavern.diorama.discovered:
+          r, g, b = color
+          color = ((r + 255) / 2, g, (b + 255) / 2)
+        else:
+          c = sum(color)
+          color = (c / 8, c / 6, c / 8)
       frame.draw_rect(color, (x, y, 1, 1))
 
     if stage == 'script':
@@ -222,13 +228,23 @@ class Inspector(Logger):
             and p.monster_spawner
             and p.monster_spawner.script_info)]
       for info in infos:
-        for x, y in info.enter_triggers:
+        for x, y in info.trigger_tiles:
           frame.draw_rect(
               SCRIPT_TRIGGER_COLOR,
               (x, y, 1, 1),
               1)
+        for x, y in info.secondary_trigger_tiles:
+          frame.draw_rect(
+              SCRIPT_SECONDARY_TRIGGER_COLOR,
+              (x, y, 1, 1),
+              1)
       for info in infos:
-        for x, y in info.enter_triggers:
+        for x, y in info.trigger_tiles:
+          frame.draw_line(
+              SCRIPT_WIRE_COLOR,
+              (x + 0.5, y + 0.5),
+              (info.emerges[0][0] + 0.5, info.emerges[0][1] + 0.5))
+        for x, y in info.secondary_trigger_tiles:
           frame.draw_line(
               SCRIPT_WIRE_COLOR,
               (x + 0.5, y + 0.5),

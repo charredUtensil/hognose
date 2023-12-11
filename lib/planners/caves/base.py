@@ -1,16 +1,16 @@
+from typing import Optional
+
+import abc
 import collections
+import functools
 import itertools
 import math
 
-from . import monster_spawners
+from .monster_spawners import MonsterSpawner
 from lib.planners.base import SomaticPlanner
 from lib.plastic import Creature, Diorama, Tile
 
 class BaseCavePlanner(SomaticPlanner):
-
-  def __init__(self, stem, oyster):
-    super().__init__(stem, oyster)
-    self.monster_spawner = None
 
   @property
   def baroqueness(self) -> float:
@@ -21,6 +21,14 @@ class BaseCavePlanner(SomaticPlanner):
     mean = math.sqrt(area) * self._stem.crystal_richness
     return self.rng['conquest.expected_crystals'].beta_int(
         a = 5, b = 2, min = 0, max = mean * 1.25)
+
+  @functools.cached_property
+  def monster_spawner(self) -> Optional[MonsterSpawner]:
+    return self._get_monster_spawner() if self.context.has_monsters else None
+
+  @abc.abstractmethod
+  def _get_monster_spawner(self) -> Optional[MonsterSpawner]:
+    pass
 
   def pearl_nucleus(self):
     r = self.pearl_radius

@@ -1,20 +1,19 @@
 import math
 
 from .base import BaseCavePlanner
-from .monster_spawners import generate_normal
+from .monster_spawners import MonsterSpawner
 from lib.planners.base import Oyster, Layer
 from lib.plastic import Creature, Tile
 
 class EmptyCavePlanner(BaseCavePlanner):
 
-  def __init__(self, stem, oyster):
-    super().__init__(stem, oyster)
+  def _get_monster_spawner(self):
     creature_type = Creature.Type.monster_for_biome(self.context.biome)
-    if stem.context.has_monsters:
-      self.monster_spawner = generate_normal(
-          self,
-          creature_type,
-          stem.monster_spawn_rate)
+    spawner = MonsterSpawner.normal(
+        self,
+        creature_type,
+        self._stem.monster_spawn_rate)
+    return spawner
 
 def bids(stem, conquest):
   pr = stem.pearl_radius
