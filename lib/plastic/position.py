@@ -51,7 +51,7 @@ class Position(object):
     x, y = pos
     px = rng.uniform(x, x + 1)
     py = rng.uniform(y, y + 1)
-    f = (rng.uniform(-180, 180) if facing is None
+    f = (rng.uniform(-math.pi, math.pi) if facing is None
          else _coerce_facing(pos, facing))
     return cls((px, py, 0), (0, f, 0))
 

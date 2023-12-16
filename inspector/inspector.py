@@ -82,10 +82,10 @@ PLANNER_ERODES_BORDER_COLOR = Tile.LAVA.inspect_color
 PLANNER_TEXT_COLOR                     = (0xff, 0xff, 0xff)
 
 PEARL_LAYER_COLORS = [
-                                         (0xff, 0x00, 0xff),
-                                         (0xff, 0xff, 0xff),
-                                         (0xff, 0xff, 0x00),
-                                         (0x00, 0xff, 0xff),
+                                         (0x40, 0xff, 0xff),
+                                         (0x40, 0xdd, 0xdd),
+                                         (0x40, 0xbb, 0xbb),
+                                         (0x40, 0x99, 0x99),
 ]
 
 EROSION_COLOR = Tile.LAVA.inspect_color
@@ -104,6 +104,7 @@ SCRIPT_WIRE_COLOR                       = (0xff, 0xff, 0xff)
 class Inspector(Logger):
 
   def __init__(self):
+    super().__init__()
     self.cavern = None
     pygame.init()
     pygame.font.init()
@@ -218,6 +219,25 @@ class Inspector(Logger):
           c = sum(color)
           color = (c / 8, c / 6, c / 8)
       frame.draw_rect(color, (x, y, 1, 1))
+
+    # Draw walks since last stage
+    for walk in self._walks:
+      pairs = itertools.pairwise(walk + [((None, None), None)])
+      for ((x1, y1), l1), ((x2, y2), l2) in pairs:
+        if (l1 == l2
+            and (x1 in range(x2 - 1, x2 + 2))
+            and (y1 in range(y2 - 1, y2 + 2))):
+          frame.draw_line(
+            PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
+            (x1 + 0.5, y1 + 0.5),
+            (x2 + 0.5, y2 + 0.5),
+            2)
+        else:
+          frame.draw_circle(
+            PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
+            (x1 + 0.5, y1 + 0.5),
+            0.3)
+    self._walks.clear()
 
     if stage == 'script':
       infos = [
@@ -430,19 +450,6 @@ class Inspector(Logger):
           LOG_DETAILS_COLOR,
           (Relative(0.5), Relative(1)),
           (0, -1))
-      if stage == 'rough':
-        for ((x1, y1), l1, _), ((x2, y2), l2, _) in itertools.pairwise(details._pearl):
-          if l1 > 0 and l1 == l2 and (x1 in range(x2-1,x2+2)) and (y1 in range(y2-1,y2+2)):
-            frame.draw_line(
-              PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
-              (x1 + 0.5, y1 + 0.5),
-              (x2 + 0.5, y2 + 0.5),
-              2)
-          else:
-            frame.draw_circle(
-              PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
-              (x1 + 0.5, y1 + 0.5),
-              0.3)
 
     # Draw warnings since the last frame
     if self.warnings:

@@ -116,15 +116,21 @@ class SomaticPlanner(Planner):
 
   def walk_stream(self, baseplates=None):
     """Walks a contiguous 1-tile wide stream between contiguous baseplates."""
+    log = self.context.logger.log_walk()
     if baseplates is None:
       baseplates = self.baseplates
     for a, b in itertools.pairwise(baseplates):
-      ac = a.center
-      yield (math.floor(ac[0]), math.floor(ac[1]))
-      for (x1, y1), (x2, y2) in itertools.pairwise(plot_line(ac, b.center)):
-        yield x2, y2
+      x, y = a.center
+      x = math.floor(x)
+      y = math.floor(y)
+      yield (x, y)
+      log((x, y), 0)
+      for (x1, y1), (x2, y2) in itertools.pairwise(plot_line((x, y), b.center)):
         if x1 != x2 and y1 != y2:
           yield x1, y2
+          log((x1, y2), 0)
+        yield x2, y2
+        log((x2, y2), 0)
 
   def walk_pearl(
       self,
@@ -133,6 +139,7 @@ class SomaticPlanner(Planner):
       baroqueness: float,
       rng: Optional[Rng] = None,
       include_nucleus: bool = True) -> Iterable[PearlInfo]:
+    log = self.context.logger.log_walk()
     if baroqueness and rng is None:
       raise AttributeError('Must supply rng when using baroqueness')
     last_layer = list(nucleus)
@@ -159,6 +166,7 @@ class SomaticPlanner(Planner):
           # Yield the cursor point.
           yield PearlInfo(
               pos=(cx, cy), layer=layer_num, sequence=len(this_layer))
+          log((cx, cy), layer_num)
           visited[cx, cy] = (layer_num, len(this_layer))
           this_layer.append((cx, cy))
           # As it turns right, (vx, vy) as it turns right cycles between:

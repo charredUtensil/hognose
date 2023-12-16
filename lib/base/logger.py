@@ -1,4 +1,4 @@
-from typing import Any, TYPE_CHECKING
+from typing import Any, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
   from lib import Cavern
@@ -9,8 +9,18 @@ import traceback
 
 class Logger(abc.ABC):
 
+  def __init__(self):
+    self._walks = []
+
   def log_stage(self, stage: str, index: int, total_stages: int, details: Any):
     pass
+
+  def log_walk(self):
+    points = []
+    self._walks.append(points)
+    def log(coord: Tuple[int, int], layer: int):
+      points.append((coord, layer))
+    return log
 
   def log_warning(self, message: str):
     print(f'warning: {message}', file=sys.stderr)

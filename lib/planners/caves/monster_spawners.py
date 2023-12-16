@@ -157,7 +157,7 @@ class MonsterSpawner(object):
       for x, y in self.script_info.secondary_trigger_tiles:
         yield f'when(enter:y@{y},x@{x},{self.creature_type.value})[{prefix}retrigger]'
       yield f'{prefix}retrigger::;'
-      yield f'(({prefix}state=={STATE_RETRIGGERABLE}))[{prefix}state={STATE_COOLDOWN}];'
+      yield f'(({prefix}state=={STATE_RETRIGGERABLE})){prefix}state={STATE_COOLDOWN};'
       yield ''
 
   @classmethod
