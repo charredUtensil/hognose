@@ -16,4 +16,4 @@ class Entity(object):
 
   @property
   def theta(self):
-    return math.pi * (self.position.ry - 90) / 180
+    return self.position.ry

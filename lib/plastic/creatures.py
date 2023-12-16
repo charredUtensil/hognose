@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from typing import Tuple
 
+import math
 import enum
 
 from .entities import Entity
@@ -31,7 +32,7 @@ class Creature(Entity):
   def serialize(self, offset: Tuple[int, int]):
     return (
         f'{self.type.value}\n'
-        f'{self.position.serialize(offset)}\n'
+        f'{self.position.serialize(offset, math.pi / 2)}\n'
         f'ID={self.id}{",Sleep=true" if self.sleep else ""}')
 
 MONSTER_FOR_BIOME = {

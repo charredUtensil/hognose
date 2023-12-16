@@ -1,5 +1,6 @@
 from typing import Iterable, Literal, Optional, Tuple
 
+import math
 import enum
 
 from .entities import Entity
@@ -46,7 +47,7 @@ class Miner(Entity):
       if self.unique:
         yield f'/{self.unique.value}'
       yield ','
-      yield self.position.serialize(offset)
+      yield self.position.serialize(offset, math.pi / 2)
       yield ','
       for v in sorted(l.value for l in self.loadout):
         yield f'{v}/'
