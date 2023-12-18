@@ -103,6 +103,8 @@ class Cavern(object):
       ('rough',        self._rough),
       # Reinforce any wall that would immediately collapse.
       ('patch',        self._patch),
+      # Wander the map to find every tile that is (un)reachable.
+      ('wander',       self._wander),
       # Do a second pass with planners placing everything else they want to
       # have in the level.
       ('fine',         self._fine),
@@ -228,6 +230,9 @@ class Cavern(object):
   def _patch(self):
     """Fix walls that would immediately collapse on load."""
     patch(self.diorama.tiles)
+
+  def _wander(self):
+    self.diorama.wander()
 
   def _fine(self):
     """Put anything else in the level the planners want to have."""

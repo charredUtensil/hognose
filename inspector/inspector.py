@@ -97,6 +97,9 @@ BUILDING_LABEL_RADIUS = 10
 MINER_COLOR                             = (0xff, 0xff, 0x00)
 CREATURE_COLOR                          = (0xff, 0x00, 0x00)
 
+WANDER_SOLID_ROCK_IN_PLAY_COLOR         = (0xff, 0xff, 0xff)
+WANDER_NORMAL_ROCK_NOT_IN_PLAY_COLOR    = (0xff, 0x55, 0x55)
+
 SCRIPT_TRIGGER_COLOR                    = (0xff, 0xff, 0x00)
 SCRIPT_SECONDARY_TRIGGER_COLOR          = (0xff, 0x7f, 0x00)
 SCRIPT_WIRE_COLOR                       = (0xff, 0xff, 0xff)
@@ -239,7 +242,19 @@ class Inspector(Logger):
             0.3)
     self._walks.clear()
 
-    if stage == 'script':
+    # Draw tile overlays
+    if stage == 'wander':
+      for (x, y) in (self.cavern.diorama.in_play.union(self.cavern.diorama.tiles)):
+        is_in_play = (x, y) in self.cavern.diorama.in_play
+        is_solid_rock = (self.cavern.diorama.tiles.get((x, y), Tile.SOLID_ROCK)
+            == Tile.SOLID_ROCK)
+        if is_in_play != is_solid_rock:
+          pass
+        elif is_in_play:
+          frame.draw_rect(WANDER_SOLID_ROCK_IN_PLAY_COLOR, (x, y, 1, 1), 1)
+        else:
+          frame.draw_circle(WANDER_NORMAL_ROCK_NOT_IN_PLAY_COLOR, (x + 0.5, y + 0.5), 1, 2)
+    elif stage == 'script':
       infos = [
           p.monster_spawner.script_info
           for p in self.cavern.conquest.somatic_planners

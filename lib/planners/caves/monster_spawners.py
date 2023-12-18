@@ -85,7 +85,7 @@ class MonsterSpawner(object):
         baroqueness=0,
         include_nucleus=False):
       x, y = info.pos
-      if diorama.tiles.get((x, y), Tile.SOLID_ROCK) != Tile.SOLID_ROCK:
+      if (x, y) in diorama.in_play:
         yield x, y
 
   def _secondary_trigger_tiles(self, diorama: Diorama) -> Iterable[Tuple[int, int]]:

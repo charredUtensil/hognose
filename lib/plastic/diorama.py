@@ -28,7 +28,9 @@ class Diorama(object):
     self._ore = collections.Counter()
     self._landslides = {}
     self._erosions = {}
+
     self._discovered = set()
+    self._in_play = set()
     self._open_cave_flags = set()
 
     # Entities with positions
@@ -74,6 +76,10 @@ class Diorama(object):
   @property
   def discovered(self) -> Set[Tuple[int, int]]:
     return self._discovered
+
+  @property
+  def in_play(self) -> Set[Tuple[int, int]]:
+    return self._in_play
 
   @property
   def open_cave_flags(self) -> Set[Tuple[int, int]]:
@@ -129,7 +135,38 @@ class Diorama(object):
           for oy in (-1, 0, 1):
             if (x + ox, y + oy) not in self._discovered:
               queue.add((x + ox, y + oy))
-            
+
+  def wander(self):
+    queue = [next(pos for pos, tile in self._tiles.items() if tile == Tile.FLOOR)]
+    queue.append(None)
+    stale = True
+    while True:
+      if queue[0] is None:
+        if stale:
+          return
+        else:
+          stale = True
+          queue.pop(0)
+          queue.append(None)
+          continue
+      x, y = queue.pop(0)
+      if (self._tiles.get((x, y), Tile.SOLID_ROCK)
+          not in (Tile.SOLID_ROCK, Tile.RECHARGE_SEAM)):
+        pass
+      elif (x - 1, y) in self._in_play and (x + 1, y) in self._in_play:
+        pass
+      elif (x, y - 1) in self._in_play and (x, y + 1) in self._in_play:
+        pass
+      else:
+        queue.append((x, y))
+        continue
+      stale = False
+      self._in_play.add((x, y))
+      for ox, oy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+        neighbor = (x + ox, y + oy)
+        if (neighbor not in self._in_play
+            and neighbor not in queue):
+          queue.append(neighbor)
 
   def serialize(self):
     return serialize(self)
