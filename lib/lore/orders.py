@@ -14,3 +14,9 @@ FIND_LOST_MINERS = (
     'locate the %s',
     'rescue the %s',
 )
+
+DEFEND_HQ = (
+    'defend the Rock Radier HQ',
+    'build up your defenses',
+    'arm your Rock Raiders',
+)

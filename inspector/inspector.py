@@ -101,6 +101,9 @@ SCRIPT_TRIGGER_COLOR                    = (0xff, 0xff, 0x00)
 SCRIPT_SECONDARY_TRIGGER_COLOR          = (0xff, 0x7f, 0x00)
 SCRIPT_WIRE_COLOR                       = (0xff, 0xff, 0xff)
 
+# These stages have tiles, but draw them faded to emphasize overlays.
+FADED_TILE_STAGES = frozenset(('script', 'enscribe', 'discover', 'adjure'))
+
 class Inspector(Logger):
 
   def __init__(self):
@@ -208,16 +211,16 @@ class Inspector(Logger):
     # Draw tiles
     for (x, y), tile in self.cavern.diorama.tiles.items():
       color = tile.inspect_color
-      if stage in ('script'):
-        c = sum(color)
-        color = (c / 6, c / 6, c / 6)
-      elif stage == 'discover':
+      if stage == 'discover':
         if (x, y) in self.cavern.diorama.discovered:
           r, g, b = color
           color = ((r + 255) / 2, g, (b + 255) / 2)
         else:
           c = sum(color)
           color = (c / 8, c / 6, c / 8)
+      elif stage in FADED_TILE_STAGES:
+        c = sum(color)
+        color = (c / 6, c / 6, c / 6)
       frame.draw_rect(color, (x, y, 1, 1))
 
     # Draw walks since last stage
@@ -292,7 +295,19 @@ class Inspector(Logger):
               (x1 + 0.5, y1 + 0.5),
               (x2 + 0.5, y2 + 0.5),
               2)
-    elif stage != 'discover':
+    elif stage == 'enscribe':
+      text = _word_wrap('\n---\n'.join((
+          self.cavern.diorama.level_name,
+          self.cavern.diorama.briefing,
+          self.cavern.diorama.briefing_success,
+          self.cavern.diorama.briefing_failure)), 60)
+      frame.draw_text(
+        self.font_med,
+        text,
+        TITLE_COLOR,
+        (Relative(0.5), Relative(0.5)),
+        (0, 0))
+    elif stage not in FADED_TILE_STAGES:
       # Draw erosions
       for (x, y), event in self.cavern.diorama.erosions.items():
         frame.draw_line(
@@ -368,14 +383,15 @@ class Inspector(Logger):
             (miner.x, miner.y),
             (miner.x + math.cos(theta), miner.y + math.sin(theta)))
 
-    # Draw objectives that have map positions
-    for objective in self.cavern.diorama.objectives:
-      if isinstance(objective, FindMinerObjective):
-        frame.draw_circle(
-            MINER_COLOR,
-            (objective.miner.x, objective.miner.y),
-            2,
-            2)
+    if stage == 'adjure' or stage not in FADED_TILE_STAGES:
+      # Draw objectives that have map positions
+      for objective in self.cavern.diorama.objectives:
+        if isinstance(objective, FindMinerObjective):
+          frame.draw_circle(
+              MINER_COLOR,
+              (objective.miner.x, objective.miner.y),
+              2,
+              2)
 
     # Label height and width
     if stage == 'fence':
@@ -645,3 +661,22 @@ def _draw_planner(frame, planner, font, border_color, bg_color, label_radius, li
     PLANNER_TEXT_COLOR,
     origin,
     (0, 0))
+
+def _word_wrap(text: str, chars: int):
+  def h():
+    for line in text.splitlines():
+      while line:
+        if len(line) <= chars:
+          yield line
+          break
+        ptr = chars
+        while ptr > 0:
+          if line[ptr].isspace():
+            yield line[:ptr]
+            line = line[ptr+1:]
+            break
+          ptr -= 1
+        else:
+          yield line[:chars]
+          line = line[chars:]
+  return '\n'.join(h())

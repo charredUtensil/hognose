@@ -8,6 +8,7 @@ import math
 
 from . import conclusions, openings, orders, premises
 
+from lib.base import Biome
 from lib.planners.caves import LostMinersCavePlanner, TreasureCavePlanner
 from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
@@ -75,6 +76,14 @@ class Lore(object):
     if _spawn_has_erosion(self.cavern):
       negative.append(rng.uniform_choice(premises.SPAWN_HAS_EROSION))
 
+    if self.cavern.context.has_monsters:
+      monster_kind = {
+        Biome.ROCK: 'Rock Monsters',
+        Biome.ICE: 'Ice Monsters',
+        Biome.LAVA: 'Lava Monsters',
+      }[self.cavern.context.biome]
+      negative.append(rng.uniform_choice(premises.MONSTERS_PRESENT) % monster_kind)
+
     if positive and negative:
       bridge = rng.uniform_choice(premises.POSITIVE_NEGATIVE_BRIDGE)
       negative = _join_human(negative)
@@ -121,10 +130,13 @@ class Lore(object):
     return None
   
   def _non_resource_orders(self, rng) -> Iterable[str]:
+    result = []
     if _spawn_has_erosion(self.cavern):
-      yield rng.uniform_choice(orders.SPAWN_HAS_EROSION)
-    else:
-      yield rng.uniform_choice(orders.GENERIC)
+      result.append(rng.uniform_choice(orders.SPAWN_HAS_EROSION))
+    if self.cavern.context.has_monsters:
+      result.append(rng.uniform_choice(orders.DEFEND_HQ))
+    if not result:
+      result.append(rng.uniform_choice(orders.GENERIC))
     lost_miners = sum(
         1 for o in self.cavern.diorama.objectives
         if isinstance(o, FindMinerObjective))
@@ -133,7 +145,8 @@ class Lore(object):
         miners = f'{_spell_number(lost_miners)} lost Rock Raiders'
       else:
         miners = 'lost Rock Raider'
-      yield rng.uniform_choice(orders.FIND_LOST_MINERS) % miners
+      result.append(rng.uniform_choice(orders.FIND_LOST_MINERS) % miners)
+    return result
 
   def _resource_orders(self) -> Iterable[str]:
     o = self._resource_objective()

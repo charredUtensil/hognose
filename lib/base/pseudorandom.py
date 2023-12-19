@@ -128,6 +128,14 @@ def coerce_seed(seed: Optional[str]) -> int:
   if m:
     return int(m.group('seed'), 16)
 
+  # Seed that looks like a level name: extract seed
+  m = re.match(
+      r'\A\s*((HN-?)?[KEA])?'
+      r'(?P<a>[0-9a-fA-F]{3})-?'
+      r'(?P<b>[0-9a-fA-F]{5})\s*\Z', seed)
+  if m:
+    return int(f'{m.group("a")}{m.group("b")}', 16)
+
   # Anything else: Take bits from the MD5 hash of the given phrase
   md5 = hashlib.md5()
   md5.update(seed.encode('utf-8'))
