@@ -63,9 +63,8 @@ easier to add would be caves with specific things in them - like
 
 ## Can you give me some cool seeds to play?
 
-Sure.
-
-- 0x65828373: A challenging cave with erosion and many crystals just out of reach
+Unfortunately, things have been changing so quickly that seeds still aren't
+generating consistent caverns between versions.
 
 ## Were any of these Qs actually FA'ed?
 

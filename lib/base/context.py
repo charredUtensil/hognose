@@ -37,12 +37,13 @@ class Context(object):
     # Does this cave have monsters?
     self.has_monsters = rng.chance(0.75)
 
-    # The total number of bubbles to spawn.
-    self.bubble_count                    = 80
     # The radius to spawn bubbles in.
     self.bubble_spawn_radius             = 17
-    # The largest possible bubble to generate.
-    self.bubble_max_area                 = 200
+    # The total area of bubbles to generate.
+    self.bubble_total_area               = 2000
+    # Each time a bubble is generated, it may be at most this percent of the
+    # remaining area allowed.
+    self.bubble_max_area_ratio           = 0.30
 
     # The maximum number of times to run the separate step.
     # Separation is a physics simulation that is not guaranteed to halt, so

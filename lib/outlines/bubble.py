@@ -1,5 +1,6 @@
-from typing import List
+from typing import Iterable, List
 
+import itertools
 import math
 
 from .space import Space
@@ -72,16 +73,30 @@ class Bubble(Space):
       return (x_overlap, y_overlap)
 
   @classmethod
-  def from_rng(cls, id: int, context: Context) -> 'Bubble':
-    rng    = context.rng['bubble', id]
-    x, y   = rng.uniform_point_in_circle(context.bubble_spawn_radius)
-    area   = rng.beta(a = 0.2, b = 1.4, min = 4, max = context.bubble_max_area)
-    aspect = rng.beta(a = 5, b = 5, min = -0.3, max = 0.3)
-    width  = math.sqrt(area) * (abs(aspect) + 1)
-    height = area / width
-    if aspect < 0:
-      width, height = height, width
-    return cls(id, x, y, width, height)
+  def from_rng(cls, context: Context) -> Iterable['Bubble']:
+    remaining_area = context.bubble_total_area
+    for i in itertools.count():
+      rng    = context.rng['bubble', i]
+
+      x, y   = rng.uniform_point_in_circle(context.bubble_spawn_radius)
+
+      area   = rng.beta(
+          a = 0.2,
+          b = 1.4,
+          min = 4,
+          max = remaining_area * context.bubble_max_area_ratio)
+      remaining_area -= area
+
+      aspect = rng.beta(a = 5, b = 5, min = -0.3, max = 0.3)
+      width  = math.sqrt(area) * (abs(aspect) + 1)
+      height = area / width
+      if aspect < 0:
+        width, height = height, width
+      
+      yield cls(i, x, y, width, height)
+
+      if remaining_area < 10:
+        return
 
   @staticmethod
   def nudge_overlapping(bubbles: List['Bubble']) -> bool:

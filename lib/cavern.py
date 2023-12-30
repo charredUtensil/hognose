@@ -149,9 +149,7 @@ class Cavern(object):
 
   def _bubble(self):
     """Randomly place randomly sized rectangular bubbles near the center."""
-    self.bubbles = [
-      Bubble.from_rng(i, self.context)
-      for i in range(self.context.bubble_count)]
+    self.bubbles = list(Bubble.from_rng(self.context))
 
   def _separate(self):
     """Push bubbles apart until they don't overlap."""
