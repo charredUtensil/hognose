@@ -12,7 +12,8 @@ class EmptyCavePlanner(BaseCavePlanner):
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
-        self._stem.monster_spawn_rate)
+        self._stem.monster_spawn_rate,
+        self._stem.monster_wave_size)
     return spawner
 
 def bids(stem, conquest):

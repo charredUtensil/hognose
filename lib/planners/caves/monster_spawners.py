@@ -62,6 +62,11 @@ class MonsterSpawner(object):
     self.retrigger_mode = retrigger_mode
     self.script_info: Optional[ScriptInfo] = None
 
+  def __str__(self):
+    return (
+        f'{self.wave_size:d}x{str(self.creature_type).split(".")[-1]}'
+        f'/{(self.min_cooldown + self.max_cooldown)/2:.0f}s')
+
   def place_script(self, diorama: Diorama):
     self.script_info = ScriptInfo(
         self._discovery_tile(diorama),
@@ -165,14 +170,21 @@ class MonsterSpawner(object):
       cls,
       planner: SomaticPlanner,
       creature_type: Creature.Type,
-      spawn_rate: float):
+      spawn_rate: float,
+      mean_wave_size: float):
     rng = planner.rng['monster_spawner']
-    wave_size = rng.beta_int(min=1, max=8, a=2.5, b=5)
+    wave_size = rng.beta_int(a = 5, b = 2, min = 1, max = mean_wave_size * 1.25)
+
+    # Spawn the wave over 2-15 seconds
     min_delay = 2 / wave_size
     max_delay = 15 / wave_size
+
     mean_cooldown = 60 * wave_size / spawn_rate
-    min_cooldown = rng.beta(min=60, max=mean_cooldown, a=5, b=5)
+    # Choose random min cooldown below the mean
+    min_cooldown = rng.beta(a = 5, b = 5, min = 60, max = mean_cooldown)
+    # Choose max cooldown so their average is the mean
     max_cooldown = 2 * mean_cooldown - min_cooldown
+
     return cls(
         planner,
         creature_type,

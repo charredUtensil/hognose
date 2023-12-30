@@ -25,6 +25,7 @@ class StemPlanner(Planner):
     self.has_erosion = False
     self.crystal_richness = 0
     self.monster_spawn_rate = 0
+    self.monster_wave_size = 0
 
   @property
   def baseplates(self) -> Tuple[Baseplate]:

@@ -31,7 +31,8 @@ class HoardCavePlanner(TreasureCavePlanner):
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
-        self._stem.monster_spawn_rate * 2)
+        self._stem.monster_spawn_rate * 3.5,
+        self._stem.monster_wave_size * 1.5)
     spawner.retrigger_mode = RetriggerMode.HOARD
     return spawner
 
@@ -84,7 +85,8 @@ class NougatCavePlanner(TreasureCavePlanner):
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
-        self._stem.monster_spawn_rate * 2)
+        self._stem.monster_spawn_rate * 2,
+        self._stem.monster_wave_size * 1.5)
     spawner.spawn_immediately_when_ready = True
     return spawner
 

@@ -32,9 +32,13 @@ class Planner(ProceduralThing, abc.ABC):
     return min(min(bp.width, bp.height) for bp in self.baseplates) // 2
 
   def __str__(self):
+    oyster = str(self.oyster) if hasattr(self, 'oyster') else None
+    type_name = type(self).__name__
+    ec = (
+        f'{self.expected_crystals}EC'
+        if hasattr(self, 'expected_crystals') and self.expected_crystals
+        else None)
+    ms = f'{self.monster_spawner}' if hasattr(self, 'monster_spawner') else None
     return ' '.join(
-        s for s in (
-            f'#{self.id}',
-            type(self).__name__,
-            str(self.oyster) if hasattr(self, 'oyster') else None)
+        s for s in (f'#{self.id}', oyster, type_name, ec, ms)
         if s is not None)

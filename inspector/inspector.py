@@ -183,7 +183,7 @@ class Inspector(Logger):
               PLANNER_ERODES_BORDER_COLOR if planner.has_erosion
               else PLANNER_BORDER_COLOR)
           label_radius = 13 if planner.kind == StemPlanner.CAVE else 9
-          line_thickness = 3
+          line_thickness = 7 if planner.kind == StemPlanner.CAVE else 3
           _draw_planner(
               frame,
               planner,
@@ -628,6 +628,12 @@ def _draw_space_label(frame, space, font, color):
         (-1, -1))
 
 def _draw_planner(frame, planner, font, border_color, bg_color, label_radius, line_thickness):
+  if len(planner.baseplates) > 1:
+    for bp in planner.baseplates:
+      frame.draw_circle(
+        border_color,
+        bp.center,
+        Absolute(line_thickness / 2 + 2))
   origin = planner.center
   frame.draw_circle(
     border_color,
@@ -639,6 +645,12 @@ def _draw_planner(frame, planner, font, border_color, bg_color, label_radius, li
       a.center,
       b.center,
       line_thickness + 4)
+  if len(planner.baseplates) > 1:
+    for bp in planner.baseplates:
+      frame.draw_circle(
+        bg_color,
+        bp.center,
+        Absolute(line_thickness / 2))
   frame.draw_circle(
     bg_color,
     origin,
@@ -649,12 +661,6 @@ def _draw_planner(frame, planner, font, border_color, bg_color, label_radius, li
       a.center,
       b.center,
       line_thickness)
-  if len(planner.baseplates) > 1:
-    for i in 0, -1:
-      frame.draw_circle(
-        border_color,
-        planner.baseplates[i].center,
-        Absolute(4))
   frame.draw_text(
     font,
     f'{planner.id:d}',

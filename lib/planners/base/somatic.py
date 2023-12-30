@@ -101,9 +101,11 @@ class SomaticPlanner(Planner):
           yield info.pos
     positions = tuple(h())
     if positions:
-      # Total activity is in total landslides per minute, but the file takes
+      # Total frequency is in total landslides per minute, but the file takes
       # delay seconds per landslide per tile.
-      period = len(positions) * 60 / total_frequency
+      period = max(
+          len(positions) * 60 / total_frequency,
+          self.context.min_landslide_period)
       event = Landslide(period)
       for pos in positions:
         diorama.landslides[pos] = event

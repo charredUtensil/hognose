@@ -131,6 +131,7 @@ class Conquest(ProceduralThing):
       stem = queue.pop(0)
       stem.crystal_richness = self._curved(self.context.crystal_richness, stem)
       stem.monster_spawn_rate = self._curved(self.context.monster_spawn_rate, stem)
+      stem.monster_wave_size = self._curved(self.context.monster_wave_size, stem)
       planner = self._differentiate(stem)
       if i == 0:
         self.spawn = planner

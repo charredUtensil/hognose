@@ -21,7 +21,8 @@ class SpawnCavePlanner(BaseCavePlanner):
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
-        self._stem.monster_spawn_rate)
+        self._stem.monster_spawn_rate,
+        self._stem.monster_wave_size)
     spawner.min_initial_cooldown = 60
     spawner.max_initial_cooldown = 180
     return spawner

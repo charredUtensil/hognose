@@ -16,8 +16,8 @@ Future updates will introduce a better CLI
 
 # Contributing
 
-I'm hanging out on the Manic Miners discord. Ping me if you're interested in
-contributing to avoid duplicate work.
+I am on the Manic Miners discord. Ping me if you're interested in contributing
+and I can offer advice and/or suggestions.
 
 This project uses type signatures from PyType. Please run `pytype .` on this
 project before submitting a pull request. I'll figure out pip and precommit
@@ -40,18 +40,32 @@ to [Portal](https://www.moddb.com/mods/gamma-energy).
 
 After playing with the level editor in Manic Miners a few times, I realized I
 had a few interesting ideas for set pieces but not what to do with the rest of
-the cavern.
+the cavern - and now here we are.
 
-I've had a lot of fun with this mainly because it's using an approach that
-would be feasible back in 1999, and I feel like that's appropriate.
+## Which AI does this use?
+
+None. All of the caverns are procedurally generated using an approach that
+would have been feasible back in 1999. Procedural generation means there are a
+series of specific rules that determine where everything in the level gets
+placed, and while there is some randomness within those rules, the rules
+themselves are hand-crafted.
+
+A modern "AI" would be somewhat unhelpful in this situation - they don't
 
 ## Can I use this as a template to build my custom Manic Miners level on?
 
-Sure! I'd just appreciate a callout if you do.
+Sure! I'd appreciate it if you included a link to this GitHub page.
 
 ## Can Hognose make a level that...
 
-Add an issue and maybe!
+Add an issue and maybe! Generally speaking, the kind of things that would be
+easier to add would be caves with specific things in them - like
+
+## Can you give me some cool seeds to play?
+
+Sure.
+
+- 0x65828373: A challenging cave with erosion and many crystals just out of reach
 
 ## Were any of these Qs actually FA'ed?
 
