@@ -62,7 +62,7 @@ class Conquest(ProceduralThing):
           rng.beta(a = 1.4, b = 1.4, min = min, max = max) * len(self._planners))
     water_count = coverage(*self.context.water_coverage)
     lava_count = coverage(*self.context.lava_coverage)
-    queue: List[StemPlanner] = list(planners)
+    dry: List[StemPlanner] = list(planners)
     
     # Flood fill with fluid via depth-first search
     def fill(count, fluid_type, spread):
@@ -71,11 +71,11 @@ class Conquest(ProceduralThing):
       for _ in range(count):
         # Pop 1 planner from the stack or choose a random one
         planner = stack.pop() if stack else rng.uniform_choice(
-            p for p in queue if p.kind == StemPlanner.CAVE)
+            p for p in dry if p.kind == StemPlanner.CAVE)
         # Fill the planner
         planner.fluid_type = fluid_type
-        # Remove it from the queue of floodable planners
-        queue.remove(planner)
+        # Remove it from the list of dry
+        dry.remove(planner)
         for p in self.intersecting(planner):
           p = typing.cast(StemPlanner, p)
           # Push intersecting planners onto the stack if:
@@ -94,9 +94,9 @@ class Conquest(ProceduralThing):
     fill(lava_count, Tile.LAVA, self.context.lava_spread)
 
     # Flood fill with erosion (slightly different algorithm)
-    queue = list(p for p in planners if p.fluid_type == Tile.LAVA)
-    while queue:
-      planner = queue.pop(rng.uniform_choice(range(len(queue))))
+    erodable = list(p for p in planners if p.fluid_type == Tile.LAVA)
+    while erodable:
+      planner = erodable.pop(rng.uniform_choice(range(len(erodable))))
       erode_chance = (
           self.context.cave_erode_chance if planner.kind == StemPlanner.CAVE
           else self.context.hall_erode_chance)
@@ -104,17 +104,11 @@ class Conquest(ProceduralThing):
         planner.has_erosion = True
         for p in self.intersecting(planner):
           p = typing.cast(StemPlanner, p)
-          if (p not in queue
+          if (p not in erodable
               and not p.has_erosion
               and p.fluid_type != Tile.WATER
               and p.kind != planner.kind):
-            queue.append(p)
-
-  def _curved(self, curve: Curve, planner: StemPlanner) -> float:
-    total = self.total
-    return (curve.base
-        + curve.distance * planner.hops_to_spawn / total
-        + curve.completion * self.completed / total)
+            erodable.append(p)
   
   def conquest(self):
     # Choose a cave to be the origin.
@@ -123,30 +117,33 @@ class Conquest(ProceduralThing):
         p for p in typing.cast(Iterable[StemPlanner], self._planners)
         if p.kind == StemPlanner.CAVE)
     queue: List[StemPlanner] = [spawn]
-
     queue[0].hops_to_spawn = 0
 
-    # Perform a breadth-first search on remaining planners
+    # Perform a breadth-first search on remaining planners to put them in the queue
     for i in range(self.total):
-      stem = queue.pop(0)
-      stem.crystal_richness = self._curved(self.context.crystal_richness, stem)
-      stem.monster_spawn_rate = self._curved(self.context.monster_spawn_rate, stem)
-      stem.monster_wave_size = self._curved(self.context.monster_wave_size, stem)
+      stem = queue[i]
+      for p in self.intersecting(stem):
+        if (p.kind != stem.kind  # Alternate between caves and halls
+            and p not in queue):
+          p.hops_to_spawn = stem.hops_to_spawn + 1
+          queue.append(p)
+
+    # Differentiate all items in queue
+    for i, stem in enumerate(queue):
+      def curved(curve: Curve) -> float:
+        return (curve.base
+            + curve.hops * stem.hops_to_spawn / queue[-1].hops_to_spawn
+            + curve.completion * i / self.total)
+      stem.crystal_richness   = curved(self.context.crystal_richness)
+      stem.monster_spawn_rate = curved(self.context.monster_spawn_rate)
+      stem.monster_wave_size  = curved(self.context.monster_wave_size)
       planner = self._differentiate(stem)
       if i == 0:
         self.spawn = planner
       self._planners[planner.id] = planner
       self.expected_crystals += planner.expected_crystals
-      for p in self.intersecting(planner):
-        if (isinstance(p, StemPlanner)
-            and p.kind != stem.kind  # Alternate between caves and halls
-            and p not in queue):
-          p.hops_to_spawn = stem.hops_to_spawn + 1
-          queue.append(p)
       yield planner
       self.completed = i + 1
-    # Queue should be empty now
-    assert not queue
 
   def _differentiate(self, planner: StemPlanner) -> SomaticPlanner:
     bidders = None

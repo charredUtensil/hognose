@@ -68,6 +68,7 @@ class BaseCavePlanner(SomaticPlanner):
     pass
 
   def script(self, diorama: Diorama):
+    diorama.script.append(f'# {self}')
     self.script_place_monster_spawns(diorama)
 
   def script_place_monster_spawns(self, diorama: Diorama):

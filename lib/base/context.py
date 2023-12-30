@@ -13,9 +13,10 @@ class Biome(enum.Enum):
 # Scale values so caves have higher risk and reward away from spawn
 Curve = NamedTuple(
     'Curve',
-    base=float,
-    distance=float,
-    completion=float)
+    base=float,       # The value for the spawn cave
+    hops=float,       # Scales a % of maximum hops from spawn
+    completion=float  # Scales as a % of total caves conquered
+    )
 
 class Context(object):
 
@@ -44,7 +45,7 @@ class Context(object):
     self.bubble_max_area                 = 200
 
     # The maximum number of times to run the separate step.
-    # Separate is a physics simulation that is not guaranteed to halt, so
+    # Separation is a physics simulation that is not guaranteed to halt, so
     # after this many steps, delete any bubble that's still moving and print a
     # warning.
     self.max_separate_steps              = 200
@@ -88,20 +89,21 @@ class Context(object):
     # Crystals per unit of perimeter caves should have
     self.crystal_richness = Curve(
                                            0.50,
-                                           2.72,
+                                           1.00,
                                            1.00,
     )
 
     # Monsters to spawn per minute per cave
     self.monster_spawn_rate = Curve(
                                            0.30,
-                                           1.75,
+                                           0.56,
                                            0.60,
     )
+
     # How many monsters to spawn at a time
     self.monster_wave_size = Curve(
-                                           1.00,
-                                           5.00,
+                                           1.75,
+                                           2.00,
                                            3.00,
     )
     
