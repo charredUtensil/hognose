@@ -9,7 +9,7 @@ from lib.planners.base import Oyster, Layer
 from lib.plastic import Building, Creature, Facing, Position, Tile
 from lib.utils.geometry import adjacent
 
-class SpawnCavePlanner(BaseCavePlanner):
+class SimpleSpawnCavePlanner(BaseCavePlanner):
   
   def _get_expected_crystals(self):
     return max(
@@ -66,8 +66,9 @@ class SpawnCavePlanner(BaseCavePlanner):
     diorama.camera_position.ry += math.pi * 0.75
 
 def bids(stem, conquest):
-  yield (1, lambda: SpawnCavePlanner(stem, Oysters.OPEN))
-  yield (1, lambda: SpawnCavePlanner(stem, Oysters.EMPTY))
+  if stem.fluid_type == None:
+    yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.OPEN))
+    yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.EMPTY))
 
 class Oysters:
   OPEN = (

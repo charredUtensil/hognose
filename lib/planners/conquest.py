@@ -1,5 +1,6 @@
+from collections.abc import Callable
 import typing
-from typing import Dict, Iterable, List, Optional, Set, TYPE_CHECKING
+from typing import Dict, Iterable, List, Optional, Set, Tuple, TYPE_CHECKING
 
 import collections
 import math
@@ -112,10 +113,7 @@ class Conquest(ProceduralThing):
   
   def conquest(self):
     # Choose a cave to be the origin.
-    # The one with the lowest ID might as well be random.
-    spawn = next(
-        p for p in typing.cast(Iterable[StemPlanner], self._planners)
-        if p.kind == StemPlanner.CAVE)
+    spawn, spawn_fn = self._pick_spawn(typing.cast(Iterable[StemPlanner], self._planners))
     queue: List[StemPlanner] = [spawn]
     queue[0].hops_to_spawn = 0
 
@@ -137,23 +135,32 @@ class Conquest(ProceduralThing):
       stem.crystal_richness   = curved(self.context.crystal_richness)
       stem.monster_spawn_rate = curved(self.context.monster_spawn_rate)
       stem.monster_wave_size  = curved(self.context.monster_wave_size)
-      planner = self._differentiate(stem)
       if i == 0:
-        self.spawn = planner
+        planner = self.spawn = spawn_fn()
+      else:
+        planner = self._differentiate(stem)
       self._planners[planner.id] = planner
       self.expected_crystals += planner.expected_crystals
       yield planner
       self.completed = i + 1
 
+  def _pick_spawn(self, planners: List[StemPlanner]
+      ) -> Tuple[StemPlanner, Callable[[], SomaticPlanner]]:
+    def bids():
+      for planner in planners:
+        if planner._kind == StemPlanner.CAVE:
+          for bidder in SPAWN_BIDDERS:
+            for weight, fn in bidder(planner, self):
+              yield weight, (planner, fn)
+    return self.rng['differentiate'].weighted_choice(bids())
+
   def _differentiate(self, planner: StemPlanner) -> SomaticPlanner:
     bidders = None
-    if all(isinstance(p, StemPlanner) for p in self.intersecting(planner)):
-      bidders = SPAWN_BIDDERS
-    elif planner._kind == StemPlanner.CAVE:
+    if planner._kind == StemPlanner.CAVE:
       bidders = CAVE_BIDDERS
     else:
       bidders = HALL_BIDDERS
     def bids():
       for bidder in bidders:
         yield from bidder(planner, self)
-    return self.rng['conquest.differentiate'].weighted_choice(bids())()
+    return self.rng['differentiate'].weighted_choice(bids())()

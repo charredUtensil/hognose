@@ -16,7 +16,7 @@ from lib.planners.caves import (
     HoardCavePlanner,
     NougatCavePlanner,
     LostMinersCavePlanner,
-    SpawnCavePlanner,
+    SimpleSpawnCavePlanner,
     TreasureCavePlanner)
 from lib.planners.halls import (
     EmptyHallPlanner,
@@ -71,7 +71,7 @@ PLANNER_FLUID_COLORS = {
 PLANNER_TYPE_BORDER_COLORS = {
     EmptyCavePlanner                   : (0xff, 0xff, 0xff),
     LostMinersCavePlanner              : (0xff, 0xff, 0x00),
-    SpawnCavePlanner                   : (0x00, 0xff, 0xff),
+    SimpleSpawnCavePlanner             : (0x00, 0xff, 0xff),
     HoardCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
     NougatCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
     EmptyHallPlanner                   : (0x77, 0x00, 0x10),

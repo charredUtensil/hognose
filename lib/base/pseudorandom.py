@@ -17,7 +17,7 @@ KINDS = (
   # to minimize disruption to existing caverns.
   'bubble',
   'weave',
-  'conquest.differentiate',
+  'differentiate',
   'rough.pearl',
   'fine.place_crystals',
   'flood',
@@ -28,6 +28,7 @@ KINDS = (
   'fine.place_landslides',
   'fine.place_entities',
   'monster_spawner',
+  'pick_spawn_cave',
 )
 
 class Rng(object):
