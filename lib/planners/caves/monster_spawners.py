@@ -84,7 +84,10 @@ class MonsterSpawner(object):
     return None
 
   def _trigger_tiles(self, diorama: Diorama) -> Iterable[Tuple[int, int]]:
+    pr = self.planner.pearl_radius
     for info in self.planner.pearl.outer:
+      if info.layer > pr + 1:
+        break
       x, y = info.pos
       if diorama.tiles.get((x, y), Tile.SOLID_ROCK) != Tile.SOLID_ROCK:
         yield x, y
