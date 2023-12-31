@@ -124,22 +124,31 @@ class Path(ProceduralThing):
     # path and a spanning path.
     def relative_angles(p):
       for a, b in (
-          (p.baseplates[0], p.baseplates[1]),
+          (p.baseplates[ 0], p.baseplates[ 1]),
           (p.baseplates[-1], p.baseplates[-2])):
         ax, ay = a.center
         bx, by = b.center
         theta = math.atan2(by - ay, bx - ax)
-        for span_theta in angles[a.id]:
-          delta = abs(theta - span_theta)
-          # Convert reflex angles
-          if delta > math.pi:
-            yield 2 * math.pi - delta
-          else:
-            yield delta
+        def h():
+          for span_theta in angles[a.id]:
+            delta = abs(theta - span_theta)
+            # Invert reflex angles
+            if delta > math.pi:
+              yield 2 * math.pi - delta
+            else:
+              yield delta
+        yield min(h())
     
+    # Exclude any path with a relative angle less than 45 degrees.
+    for p in paths:
+      if p.kind == Path.AMBIGUOUS:
+        if min(relative_angles(p)) < math.pi / 4:
+          p.kind = Path.EXCLUDED
+    yield
+
     # Choose the n candidates that make the widest minimum angle.
     candidates = sorted((
-        (min(relative_angles(p)), p) for p in paths if p.kind == Path.AMBIGUOUS
+        (sum(relative_angles(p)), p) for p in paths if p.kind == Path.AMBIGUOUS
     ), key=operator.itemgetter(0), reverse=True)
     aux_count = context.weave_ratio * len(candidates)
     for i, (_, p) in enumerate(candidates):
@@ -148,6 +157,7 @@ class Path(ProceduralThing):
         _make_halls(p.baseplates)
       else:
         p.kind = Path.EXCLUDED
+    yield
 
 def _make_halls(baseplates):
   for bp in baseplates:

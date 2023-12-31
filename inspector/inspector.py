@@ -232,9 +232,9 @@ class Inspector(Logger):
     # Draw pearl if it exists
     if details and hasattr(details, 'pearl') and details.pearl:
       pearl = details.pearl
-      for walk, colors in (
-          (pearl.inner, PEARL_INNER_LAYER_COLORS),
-          (pearl.outer, PEARL_OUTER_LAYER_COLORS)):
+      for walk, colors, line_thickness in (
+          (pearl.inner, PEARL_INNER_LAYER_COLORS, 3),
+          (pearl.outer, PEARL_OUTER_LAYER_COLORS, 1)):
         circles = []
         for a, b in itertools.pairwise(itertools.chain([None], walk)):
           bx, by = b.pos
@@ -246,7 +246,7 @@ class Inspector(Logger):
                 colors[a.layer % len(colors)],
                 (ax + 0.5, ay + 0.5),
                 (bx + 0.5, by + 0.5),
-                3)
+                line_thickness)
             else:
               circles.append(b)
           else:
@@ -491,7 +491,7 @@ class Inspector(Logger):
           (Relative(0.5), Relative(1)),
           (0, -1))
 
-    # Draw warnings since the last frame
+    # Draw warnings
     if self.warnings:
       frame.draw_text(
         self.font_med,

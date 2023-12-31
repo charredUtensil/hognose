@@ -13,10 +13,6 @@ class BaseHallPlanner(SomaticPlanner):
   def _get_expected_crystals(self):
     return 0
 
-  @property
-  def pearl_radius(self):
-    return min(min(bp.width, bp.height) for bp in self.baseplates) // 2
-
   def make_nucleus(self):
     def w():
       for a, b in itertools.pairwise(self.baseplates):

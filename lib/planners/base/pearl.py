@@ -96,6 +96,11 @@ Layer.LAVA = Layer(
     solid_rock = Tile.LAVA)
 
 # Special cases
+# Replaces up to dirt or down to loose rock
+Layer.DIRT_OR_LOOSE_ROCK = Layer(
+    floor      = Tile.DIRT,
+    hard_rock  = Tile.LOOSE_ROCK,
+    solid_rock = Tile.LOOSE_ROCK)
 # Replaces up to loose or down to hard rock
 Layer.LOOSE_OR_HARD_ROCK = Layer(
     floor      = Tile.LOOSE_ROCK,

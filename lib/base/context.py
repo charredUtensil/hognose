@@ -38,18 +38,18 @@ class Context(object):
     self.has_monsters = rng.chance(0.75)
 
     # The radius to spawn bubbles in.
-    self.bubble_spawn_radius             = 17
+    self.bubble_spawn_radius             = 21
     # The total area of bubbles to generate.
-    self.bubble_total_area               = 2000
+    self.bubble_total_area               = 3000
     # Each time a bubble is generated, it may be at most this percent of the
     # remaining area allowed.
-    self.bubble_max_area_ratio           = 0.30
+    self.bubble_max_area_ratio           = 0.15
 
     # The maximum number of times to run the separate step.
     # Separation is a physics simulation that is not guaranteed to halt, so
     # after this many steps, delete any bubble that's still moving and print a
     # warning.
-    self.max_separate_steps              = 200
+    self.max_separate_steps              = 75
 
     # The number of bubbles to become "special".
     # The higher this number is, the more things will happen in the final map.

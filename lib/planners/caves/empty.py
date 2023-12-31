@@ -22,7 +22,7 @@ def bids(stem, conquest):
     if pr < 10:
       yield (1, lambda: EmptyCavePlanner(
           stem, Oysters.LAKE))
-    if pr > 7:
+    if pr > 5:
       yield (2, lambda: EmptyCavePlanner(
           stem, Oysters.ISLAND))
       if not any(p.fluid_type for p in conquest.intersecting(stem)):
@@ -32,20 +32,20 @@ def bids(stem, conquest):
     if pr < 10:
       yield (0.5, lambda: EmptyCavePlanner(
           stem, Oysters.LAVA_LAKE))
-    if pr > 7:
+    if pr > 5:
       yield (1, lambda: EmptyCavePlanner(
           stem, Oysters.LAVA_ISLAND))
       if not any(p.fluid_type for p in conquest.intersecting(stem)):
         yield (1, lambda: EmptyCavePlanner(
             stem, Oysters.LAVA_PENINSULA))
   else:
-    if pr < 5:
+    if pr < 4:
       yield (0.04, lambda: EmptyCavePlanner(stem, Oysters.FILLED))
     if pr < 10:
-      yield (1, lambda: EmptyCavePlanner(stem, Oysters.OPEN))
+      yield (2, lambda: EmptyCavePlanner(stem, Oysters.OPEN))
       yield (1, lambda: EmptyCavePlanner(stem, Oysters.EMPTY))
     if pr > 5:
-      yield (1, lambda: EmptyCavePlanner(stem, Oysters.DOUGHNUT))
+      yield (0.5, lambda: EmptyCavePlanner(stem, Oysters.DOUGHNUT))
 
 class Oysters:
   OPEN = (
@@ -54,18 +54,20 @@ class Oysters:
       .layer(Layer.AT_MOST_DIRT, width=0, grow=0.5)
       .layer(Layer.AT_MOST_LOOSE_ROCK, grow=1)
       .layer(Layer.AT_MOST_HARD_ROCK, grow=0.25)
+      .layer(Layer.VOID, width=0, grow=0.5)
   )
   EMPTY = (
     Oyster('Empty')
       .layer(Layer.FLOOR, grow=2)
       .layer(Layer.DIRT, width=0, grow=0.1)
-      .layer(Layer.LOOSE_ROCK, grow=1)
+      .layer(Layer.DIRT_OR_LOOSE_ROCK, grow=1)
       .layer(Layer.LOOSE_OR_HARD_ROCK, grow=0.5)
+      .layer(Layer.VOID, width=0, grow=0.5)
   )
   FILLED = (
     Oyster('Filled')
       .layer(Layer.DIRT, width=0, grow=0.25)
-      .layer(Layer.LOOSE_ROCK, grow=1)
+      .layer(Layer.DIRT_OR_LOOSE_ROCK, grow=1)
       .layer(Layer.LOOSE_OR_HARD_ROCK)
   )
   DOUGHNUT = (

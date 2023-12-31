@@ -76,15 +76,15 @@ class Bubble(Space):
   def from_rng(cls, context: Context) -> Iterable['Bubble']:
     remaining_area = context.bubble_total_area
     for i in itertools.count():
-      rng    = context.rng['bubble', i]
+      rng = context.rng['bubble', i]
 
-      x, y   = rng.uniform_point_in_circle(context.bubble_spawn_radius)
+      x, y = rng.uniform_point_in_circle(context.bubble_spawn_radius)
 
-      area   = rng.beta(
+      area = rng.beta(
           a = 0.2,
           b = 1.4,
           min = 4,
-          max = remaining_area * context.bubble_max_area_ratio)
+          max = max(50, remaining_area * context.bubble_max_area_ratio))
       remaining_area -= area
 
       aspect = rng.beta(a = 5, b = 5, min = -0.3, max = 0.3)

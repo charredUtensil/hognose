@@ -196,7 +196,7 @@ class Cavern(object):
 
   def _weave(self):
     """Randomly choose some non-spanning graph edges to keep."""
-    Path.weave(self.context, self.paths)
+    yield from Path.weave(self.context, self.paths)
 
   def _cull(self):
     for bp in self.baseplates:

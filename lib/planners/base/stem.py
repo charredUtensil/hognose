@@ -41,7 +41,7 @@ class StemPlanner(Planner):
   @property
   def pearl_radius(self):
     fn = max if self.kind == StemPlanner.CAVE else min
-    return fn(min(bp.width, bp.height) for bp in self.baseplates) // 2
+    return fn(bp.pearl_radius for bp in self.baseplates)
 
   @classmethod
   def from_outlines(
@@ -71,3 +71,11 @@ class StemPlanner(Planner):
     for path in big_cave_paths:
       yield StemPlanner(
           next(id_counter), context, path.baseplates, StemPlanner.CAVE)
+
+def average(a):
+  t = 0
+  c = 0
+  for n in a:
+    t += n
+    c += 1
+  return t // c

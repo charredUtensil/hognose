@@ -108,6 +108,10 @@ class SomaticPlanner(Planner):
         if diorama.tiles.get(info.pos, Tile.SOLID_ROCK).passable_by_miner:
           diorama.erosions[info.pos] = Erosion.DEFAULT
 
+  @property
+  def pearl_radius(self):
+    return self._stem.pearl_radius
+    
   @abc.abstractmethod
   def make_nucleus(self) -> Dict[int, Iterable[Tuple[int, int]]]:
     pass

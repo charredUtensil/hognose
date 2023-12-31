@@ -31,10 +31,6 @@ class BaseCavePlanner(SomaticPlanner):
   def _get_monster_spawner(self) -> Optional[MonsterSpawner]:
     pass
 
-  @property
-  def pearl_radius(self):
-    return max(bp.pearl_radius for bp in self.baseplates)
-
   def make_nucleus(self):
     def h():
       mpr = self.pearl_radius
