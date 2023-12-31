@@ -135,7 +135,8 @@ class Frame(object):
       fg_color: Color,
       bg_color: Optional[Color],
       rect: Union[pygame.Rect, Tuple[Coord, Coord, ScaleCoord, ScaleCoord]],
-      gravity: Tuple[int, int]):
+      gravity: Tuple[int, int],
+      fallback_as_radial: bool = True):
 
     dims = tuple(font.size(line) for line in text.splitlines())
     text_sw = max(w for w, h in dims)
@@ -176,7 +177,7 @@ class Frame(object):
           fg_color,
           (Absolute(ax), Absolute(ay)),
           inplace_infos)
-      else:
+      elif fallback_as_radial:
         # draw a radial label pointing to the position
         _draw_radial_label(
           dc,

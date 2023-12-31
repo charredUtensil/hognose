@@ -15,13 +15,6 @@ class Logger(abc.ABC):
   def log_stage(self, stage: str, index: int, total_stages: int, details: Any):
     pass
 
-  def log_walk(self):
-    points = []
-    self._walks.append(points)
-    def log(coord: Tuple[int, int], layer: int):
-      points.append((coord, layer))
-    return log
-
   def log_warning(self, message: str):
     print(f'warning: {message}', file=sys.stderr)
 

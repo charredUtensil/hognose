@@ -81,11 +81,17 @@ PLANNER_BORDER_COLOR = Tile.DIRT.inspect_color
 PLANNER_ERODES_BORDER_COLOR = Tile.LAVA.inspect_color
 PLANNER_TEXT_COLOR                     = (0xff, 0xff, 0xff)
 
-PEARL_LAYER_COLORS = [
+PEARL_INNER_LAYER_COLORS = [
                                          (0x40, 0xff, 0xff),
                                          (0x40, 0xdd, 0xdd),
                                          (0x40, 0xbb, 0xbb),
                                          (0x40, 0x99, 0x99),
+]
+PEARL_OUTER_LAYER_COLORS = [
+                                         (0xff, 0xff, 0x20),
+                                         (0xdd, 0xdd, 0x20),
+                                         (0xbb, 0xbb, 0x20),
+                                         (0x99, 0x99, 0x20),
 ]
 
 EROSION_COLOR = Tile.LAVA.inspect_color
@@ -223,24 +229,42 @@ class Inspector(Logger):
         color = (c / 6, c / 6, c / 6)
       frame.draw_rect(color, (x, y, 1, 1))
 
-    # Draw walks since last stage
-    for walk in self._walks:
-      pairs = itertools.pairwise(walk + [((None, None), None)])
-      for ((x1, y1), l1), ((x2, y2), l2) in pairs:
-        if (l1 == l2
-            and (x1 in range(x2 - 1, x2 + 2))
-            and (y1 in range(y2 - 1, y2 + 2))):
-          frame.draw_line(
-            PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
-            (x1 + 0.5, y1 + 0.5),
-            (x2 + 0.5, y2 + 0.5),
-            2)
-        else:
+    # Draw pearl if it exists
+    if details and hasattr(details, 'pearl') and details.pearl:
+      pearl = details.pearl
+      for walk, colors in (
+          (pearl.inner, PEARL_INNER_LAYER_COLORS),
+          (pearl.outer, PEARL_OUTER_LAYER_COLORS)):
+        circles = []
+        for a, b in itertools.pairwise(itertools.chain([None], walk)):
+          bx, by = b.pos
+          if a and a.layer == b.layer:
+            ax, ay = a.pos
+            adj = (ax in range(bx - 1, bx + 2)) and (ay in range(by - 1, by + 2))
+            if adj:
+              frame.draw_line(
+                colors[a.layer % len(colors)],
+                (ax + 0.5, ay + 0.5),
+                (bx + 0.5, by + 0.5),
+                3)
+            else:
+              circles.append(b)
+          else:
+            circles.append(b)
+        for c in circles:
+          x, y = c.pos
           frame.draw_circle(
-            PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
-            (x1 + 0.5, y1 + 0.5),
+            colors[c.layer % len(colors)],
+            (x + 0.5, y + 0.5),
             0.3)
-    self._walks.clear()
+          frame.draw_label_for_rect(
+            self.font,
+            str(c.layer),
+            (0, 0, 0),
+            None,
+            (x, y, 1, 1),
+            (0, 0),
+            False)
 
     if stage == 'script':
       infos = [

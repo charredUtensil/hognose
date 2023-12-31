@@ -77,25 +77,21 @@ class MonsterSpawner(object):
     diorama.script.extend(self._gen_script(diorama))
 
   def _discovery_tile(self, diorama: Diorama) -> Optional[Tuple[int, int]]:
-    for info in self.planner.pearl:
-      if (not diorama.tiles[info.pos].is_wall
+    for info in self.planner.pearl.inner:
+      if (not diorama.tiles.get(info.pos, Tile.SOLID_ROCK).is_wall
           and not info.pos in diorama.discovered):
         return info.pos
     return None
 
   def _trigger_tiles(self, diorama: Diorama) -> Iterable[Tuple[int, int]]:
-    for info in self.planner.walk_pearl(
-        (info.pos for info in self.planner.pearl),
-        max_layers=2,
-        baroqueness=0,
-        include_nucleus=False):
+    for info in self.planner.pearl.outer:
       x, y = info.pos
       if diorama.tiles.get((x, y), Tile.SOLID_ROCK) != Tile.SOLID_ROCK:
         yield x, y
 
   def _secondary_trigger_tiles(self, diorama: Diorama) -> Iterable[Tuple[int, int]]:
     if self.retrigger_mode == RetriggerMode.HOARD:
-      for info in self.planner.pearl:
+      for info in self.planner.pearl.inner:
         if (diorama.crystals.get(info.pos, 0) > 0
             and not diorama.tiles[info.pos].is_wall):
           yield info.pos

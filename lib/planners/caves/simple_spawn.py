@@ -35,7 +35,7 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
       super().fine_landslides(diorama)
 
   def fine_buildings(self, diorama):
-    for (a, b) in itertools.pairwise(self.pearl):
+    for (a, b) in itertools.pairwise(self.pearl.inner):
       x1, y1 = a.pos
       x2, y2 = b.pos
       if diorama.tiles.get((x2, y2)) == Tile.FLOOR and adjacent((x1, y1), (x2, y2)):

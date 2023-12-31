@@ -38,6 +38,11 @@ class StemPlanner(Planner):
   def rough(self, tiles):
     pass
 
+  @property
+  def pearl_radius(self):
+    fn = max if self.kind == StemPlanner.CAVE else min
+    return fn(min(bp.width, bp.height) for bp in self.baseplates) // 2
+
   @classmethod
   def from_outlines(
       cls, context, paths: List[Path], baseplates: List[Baseplate]) -> Iterable['StemPlanner']:

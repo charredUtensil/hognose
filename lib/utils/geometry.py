@@ -9,31 +9,35 @@ def adjacent(a: Tuple[int, int], b: Tuple[int, int]) -> bool:
     (xa == xb and ya in range(yb - 1, yb + 2)) or
     (ya == yb and xa in range(xb - 1, xb + 2)))
 
-def plot_line(a, b) -> Iterable[Tuple[int, int]]:
-  x0, y0 = math.floor(a[0]), math.floor(a[1])
-  x1, y1 = math.floor(b[0]), math.floor(b[1])
-  dx = abs(x1 - x0)
-  sx = 1 if x0 < x1 else -1
-  dy = -abs(y1 - y0)
-  sy = 1 if y0 < y1 else -1
+def plot_line(a, b, contiguous = False) -> Iterable[Tuple[int, int]]:
+  x, y = math.floor(a[0]), math.floor(a[1])
+  dest_x, dest_y = math.floor(b[0]), math.floor(b[1])
+  dx = abs(dest_x - x)
+  sx = 1 if x < dest_x else -1
+  dy = -abs(dest_y - y)
+  sy = 1 if y < dest_y else -1
   error = dx + dy
   
   while True:
-    yield (x0, y0)
-    if x0 == x1 and y0 == y1:
+    yield (x, y)
+    if x == dest_x and y == dest_y:
       break
     e2 = 2 * error
-    if e2 >= dy:
-        if x0 == x1:
-          break
-        error = error + dy
-        x0 = x0 + sx
-    if e2 <= dx:
-        if y0 == y1:
-          break
-        error = error + dx
-        y0 = y0 + sy
-  yield (x1, y1)
+    move_x = e2 >= dy
+    move_y = e2 <= dx
+    if move_x:
+      if x == dest_x:
+        break
+      error = error + dy
+      x = x + sx
+    if move_y:
+      if move_x and contiguous:
+        yield (x, y)
+      if y == dest_y:
+        break
+      error = error + dx
+      y = y + sy
+  yield (dest_x, dest_y)
 
 def offset(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple[int, int]:
   return (p1[0] + p2[0], p1[1] + p2[1])

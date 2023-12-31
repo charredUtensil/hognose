@@ -37,7 +37,7 @@ class ThinHallPlanner(BaseHallPlanner):
     t = tuple(
       pearl_info.pos
       for pearl_info
-      in self.pearl
+      in self.pearl.inner
       if diorama.tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       for _ in range(self.expected_crystals):

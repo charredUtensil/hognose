@@ -16,7 +16,7 @@ class LostMinersCavePlanner(BaseCavePlanner):
 
   def fine_place_entities(self, diorama):
     rng = self.rng['fine.place_entities']
-    pos = self.pearl[0].pos
+    pos = next(self.pearl.nucleus).pos
     diorama.tiles[pos] = Tile.FLOOR
     miners_count = math.floor(rng.beta(a = 1, b = 2, min = 1, max = 5))
     for _ in range(miners_count):

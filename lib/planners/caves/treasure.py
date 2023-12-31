@@ -45,7 +45,7 @@ class HoardCavePlanner(TreasureCavePlanner):
     
     layer = 0
     r = []
-    for info in self._pearl:
+    for info in self.pearl.inner:
       if info.layer > layer + 1:
         break
       if diorama.tiles[info.pos] in accepted_tiles:
@@ -57,7 +57,7 @@ class HoardCavePlanner(TreasureCavePlanner):
 
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))
-    places = tuple(pos for pos, layer, _ in self.pearl if layer == 0)
+    places = tuple(pt.pos for pt in self.pearl.nucleus)
     for x, y in itertools.islice(
         itertools.cycle(places), math.ceil(self.expected_crystals * 0.8)):
       diorama.crystals[x, y] += 1
@@ -92,10 +92,10 @@ class NougatCavePlanner(TreasureCavePlanner):
 
   def fine_crystals(self, diorama):
     t = tuple(
-      pearl_info.pos
-      for pearl_info
-      in self.pearl
-      if diorama.tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
+      pt.pos
+      for pt
+      in self.pearl.inner
+      if diorama.tiles.get(pt.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       rng = self.rng['fine.place_crystals']
       count = math.ceil(self.expected_crystals * 0.8)
