@@ -16,68 +16,70 @@ class Partition(object):
         next(self._ids), self.context, -size, -size, size, size)]
     self.baseplates: List[Baseplate] = []
 
+    self.baseplate_max_size = round(
+        context.size * context.baseplate_max_side_ratio)
+
   def step(self):
-    for space in self._split(self.bubbles.pop(0)):
-      if isinstance(space, Bubble):
-        if space.width > 2 and space.height > 2:
-          self.bubbles.append(space)
-      else:
-        self.baseplates.append(space)
+    queue = list(self.bubbles)
+    self.bubbles.clear()
+    for bubble in queue:
+      for space in self._split(bubble):
+        if isinstance(space, Bubble):
+          if space.width > 2 and space.height > 2:
+            self.bubbles.append(space)
+        else:
+          self.baseplates.append(space)
 
-  def _cut_vertical(self, bubble: Bubble, x: int) -> Iterable['Bubble']:
-    if bubble.left < x and x < bubble.right:
-      yield Bubble(
-          next(self._ids),
-          self.context,
-          x, bubble.top, bubble.right, bubble.bottom)
-      bubble.right = x
-    yield bubble
-
-  def _cut_horizontal(self, bubble: Bubble, y: int) -> Iterable['Bubble']:
-    if bubble.top < y and y < bubble.bottom:
-      yield Bubble(
-          next(self._ids),
-          self.context,
-          bubble.left, y, bubble.right, bubble.bottom)
-      bubble.bottom = y
-    yield bubble
+  def _clone(self, bubble: Bubble, left=None, top=None, right=None, bottom=None) -> Bubble:
+    return Bubble(
+        next(self._ids),
+        self.context,
+        bubble.left if left is None else left,
+        bubble.top if top is None else top,
+        bubble.right if right is None else right,
+        bubble.bottom if bottom is None else bottom)
 
   def _split(self, bubble) -> Iterable[Union[Bubble, Baseplate]]:
     rng = bubble.rng['bubble']
 
-    margin = (abs(bubble.width - bubble.height)
-        - self.context.baseplate_max_oblongness)
-    wide = bubble.width > bubble.height
-    def h():
-      if margin > 0:
-        cut = rng.uniform_int(min = 0, max = margin + 1)
-        if wide:
-          cut1 = bubble.left + cut
-          cut2 = bubble.right + cut - margin
-          for b in self._cut_vertical(bubble, cut1):
-            yield from self._cut_vertical(b, cut2)
-        else:
-          cut1 = bubble.top + cut
-          cut2 = bubble.bottom + cut - margin
-          for b in self._cut_horizontal(bubble, cut1):
-            yield from self._cut_horizontal(b, cut2)
+    if bubble.width > bubble.height * 2:
+      # Cut vertically
+      x = rng.beta_int(min=bubble.left + 1, max=bubble.right)
+      yield self._clone(bubble, left = x)
+      bubble.right = x
+      yield bubble
+    elif bubble.height > bubble.width * 2:
+      # Cut horizontally
+      y = rng.beta_int(min=bubble.top + 1, max=bubble.bottom)
+      yield self._clone(bubble, top = y)
+      bubble.bottom = y
+      yield bubble
+    else:
+      # Cut out from center
+      w = rng.beta_int(a = 5, b = 2.5, min = 3, max = bubble.width)
+      h = rng.beta_int(a = 5, b = 2.5, min = 3, max = bubble.height)
+      w = min(w, h + self.context.baseplate_max_oblongness)
+      h = min(h, w + self.context.baseplate_max_oblongness)
+      x1 = rng.uniform_int(min = bubble.left, max = bubble.right - w)
+      y1 = rng.uniform_int(min = bubble.top,  max = bubble.bottom - h)
+      x2 = x1 + w
+      y2 = y1 + h
+      if rng.chance(0.5):
+        yield self._clone(bubble, right = x1, bottom = y2)
+        yield self._clone(bubble, left  = x1, bottom = y1)
+        yield self._clone(bubble, left  = x2, top    = y1)
+        yield self._clone(bubble, right = x2, top    = y2)
       else:
-        if (bubble.area() <= self.context.baseplate_max_area
-            and rng.chance(0.85)):
-          yield Baseplate(bubble, self.context)
-        elif wide:
-          x = rng.beta_int(min=bubble.left + 1, max=bubble.right)
-          yield from self._cut_vertical(bubble, x)
-        else:
-          y = rng.beta_int(min=bubble.top + 1, max=bubble.bottom)
-          yield from self._cut_horizontal(bubble, y)
-    r = tuple(h())
-    if len(r) > 2:
-      if wide:
-        r[0].top += 1
-        r[-1].bottom -= 1
+        yield self._clone(bubble, right = x2, bottom = y1)
+        yield self._clone(bubble, left  = x2, bottom = y2)
+        yield self._clone(bubble, left  = x1, top    = y2)
+        yield self._clone(bubble, right = x1, top    = y1)
+      bubble.left   = x1
+      bubble.top    = y1
+      bubble.right  = x2
+      bubble.bottom = y2
+      if max(w, h) <= self.baseplate_max_size:
+        yield Baseplate(bubble, self.context)
       else:
-        r[0].left += 1
-        r[-1].right -= 1
-    return r
+        yield bubble
     

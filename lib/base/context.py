@@ -41,8 +41,8 @@ class Context(object):
 
     # Each time a bubble is generated, it may be at most this percent of the
     # remaining area allowed.
-    self.baseplate_max_area              = 300
-    self.baseplate_max_oblongness        = 2
+    self.baseplate_max_side_ratio        = 0.33
+    self.baseplate_max_oblongness        = 3
 
     # The maximum number of times to run the separate step.
     # Separation is a physics simulation that is not guaranteed to halt, so
@@ -52,7 +52,7 @@ class Context(object):
 
     # The number of bubbles to become "special".
     # The higher this number is, the more things will happen in the final map.
-    self.special_baseplate_ratio         = 0.28
+    self.special_baseplate_count         = 20
     # The ratio of non-spanning connections that become hallways.
     self.weave_ratio                     = 0.16
 

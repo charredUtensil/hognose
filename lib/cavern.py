@@ -153,12 +153,10 @@ class Cavern(object):
  
   def _discriminate(self):
     """Choose the largest lots to become special."""
-    count = round(
-        self.context.special_baseplate_ratio * len(self.baseplates))
     for baseplate in sorted(
         self.baseplates,
         key=Baseplate.area,
-        reverse=True)[:count]:
+        reverse=True)[:self.context.special_baseplate_count]:
       baseplate.kind = Baseplate.SPECIAL
 
   def _triangulate(self):
