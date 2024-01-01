@@ -37,13 +37,12 @@ class Context(object):
     # Does this cave have monsters?
     self.has_monsters = rng.chance(0.75)
 
-    # The radius to spawn bubbles in.
-    self.bubble_spawn_radius             = 21
-    # The total area of bubbles to generate.
-    self.bubble_total_area               = 3000
+    self.size = rng.uniform_int(min=50, max=80)
+
     # Each time a bubble is generated, it may be at most this percent of the
     # remaining area allowed.
-    self.bubble_max_area_ratio           = 0.15
+    self.baseplate_max_area              = 300
+    self.baseplate_max_oblongness        = 2
 
     # The maximum number of times to run the separate step.
     # Separation is a physics simulation that is not guaranteed to halt, so
@@ -53,7 +52,7 @@ class Context(object):
 
     # The number of bubbles to become "special".
     # The higher this number is, the more things will happen in the final map.
-    self.special_baseplate_count         = 20
+    self.special_baseplate_ratio         = 0.28
     # The ratio of non-spanning connections that become hallways.
     self.weave_ratio                     = 0.16
 
@@ -133,7 +132,8 @@ class Context(object):
     def h():
       yield f'seed:         0x{self.seed:08x}'
       yield f'biome:        {self.biome}'
-      yield f'has_monsters: {self.has_monsters}'
+      yield f'has monsters: {"yes" if self.has_monsters else "no"}'
+      yield f'target size:  {self.size}x{self.size}'
     return '\n'.join(h())
 
   @property

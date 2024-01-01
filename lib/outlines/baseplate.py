@@ -8,7 +8,7 @@ from .space import Space
 
 from lib.base import ProceduralThing
 
-class Baseplate(ProceduralThing, Space):
+class Baseplate(Space):
   AMBIGUOUS = 'ambiguous'
   EXCLUDED  = 'excluded'
   SPECIAL   = 'special'

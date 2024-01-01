@@ -33,9 +33,11 @@ FRAME_BG_COLOR                         = (0x00, 0x00, 0x00)
 BSOD_FG_COLOR                          = (0xff, 0xff, 0xff)
 BSOD_BG_COLOR                          = (0x22, 0x22, 0xDD)
 
+BUBBLE_COLOR                           = (0x00, 0x00, 0x00)
+BUBBLE_COLOR_NEXT                      = (0x0D, 0x00, 0x60)
 BUBBLE_OUTLINE_COLOR                   = (0x10, 0x00, 0x77)
-BUBBLE_LABEL_COLOR_MOVING              = (0xff, 0xff, 0xff)
-BUBBLE_LABEL_COLOR_STATIONARY          = (0x77, 0x77, 0xff)
+BUBBLE_LABEL_COLOR                     = (0x77, 0x77, 0xff)
+BUBBLE_FG_COLOR_NEXT                   = (0xee, 0xee, 0x10)
 
 BASEPLATE_COLORS = {
     Baseplate.AMBIGUOUS                : (0x20, 0x20, 0x20),
@@ -149,19 +151,22 @@ class Inspector(Logger):
             b,
             BASEPLATE_COLORS[b.kind],
             BASEPLATE_OUTLINE_COLORS[b.kind])
-      if stage in ('bubble', 'separate', 'rasterize'):
-        for b in self.cavern.bubbles:
-          _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
-      if stage in ('bubble', 'separate'):
-        for b in self.cavern.bubbles:
-          color = (
-            BUBBLE_LABEL_COLOR_MOVING if b.moving
-            else BUBBLE_LABEL_COLOR_STATIONARY)
-          _draw_space_label(frame, b, self.font, color)
+      for i, b in enumerate(self.cavern.bubbles):
+        bias = min((i / 5, 1))
+        color = tuple(
+            a * (1 - bias) + b * bias
+            for a, b in zip(BUBBLE_COLOR_NEXT, BUBBLE_COLOR))
+        outline_color = (
+            BUBBLE_OUTLINE_COLOR if i > 0 else BUBBLE_FG_COLOR_NEXT)
+        _draw_space(frame, b, color, outline_color)
+      for i, b in enumerate(self.cavern.bubbles):
+        label_color = (
+            BUBBLE_LABEL_COLOR if i > 0 else BUBBLE_FG_COLOR_NEXT)
+        _draw_space_label(frame, b, self.font, label_color)
       if not self.cavern.conquest:
         for b in self.cavern.baseplates:
           if (b.kind == Baseplate.SPECIAL
-              or stage in ('rasterize', 'discriminate')):
+              or stage == 'partition'):
             _draw_space_label(
                 frame,
                 b,

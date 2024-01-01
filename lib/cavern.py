@@ -10,7 +10,7 @@ import typing
 
 from lib.base import NotHaltingError
 from lib.lore import Lore
-from lib.outlines import Path, Space, Bubble, Baseplate
+from lib.outlines import Path, Space, Bubble, Baseplate, Partition
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
 from lib.plastic import Diorama, Objective, ResourceObjective, serialize, Tile
 from lib.utils.cleanup import patch
@@ -56,13 +56,7 @@ class Cavern(object):
 
       # Generate "bubbles", which are rectangles of arbitrary sizes, and
       # place them roughly in a random pile in the center of the map.
-      ('bubble',       self._bubble),
-      # Perform a basic physics simulation to push overlapping bubbles apart
-      # until those bubbles no longer overlap.
-      ('separate',     self._separate),
-      # Replace the bubbles with "baseplates", rounding all edges to the
-      # nearest tile. These will become the foundation caves are built on.
-      ('rasterize',    self._rasterize),
+      ('partition',    self._partition),
       # Choose the largest lots to become "special".
       ('discriminate', self._discriminate),
       # Create a triangular mesh between the centers of all special lots.
@@ -147,35 +141,24 @@ class Cavern(object):
   def is_done(self) -> bool:
     return self._serialized is not None
 
-  def _bubble(self):
+  def _partition(self):
     """Randomly place randomly sized rectangular bubbles near the center."""
-    self.bubbles = list(Bubble.from_rng(self.context))
-
-  def _separate(self):
-    """Push bubbles apart until they don't overlap."""
-    for i in range(self.context.max_separate_steps):
-      moving = Bubble.nudge_overlapping(self.bubbles)
+    partition = Partition(self.context)
+    self.bubbles = partition.bubbles
+    self.baseplates = partition.baseplates
+    yield
+    while partition.bubbles:
+      partition.step()
       yield
-      if not moving:
-        break
-    else:
-      self.context.logger.log_warning(
-          'Separation failed to halt after '
-          f'{self.context.max_separate_steps} iterations')
-  
-  def _rasterize(self):
-    """Round bubbles to the nearest grid coordinate to make baseplates."""
-    self.baseplates = [
-        Baseplate(bubble, self.context)
-        for bubble in self.bubbles
-        if not bubble.moving]
  
   def _discriminate(self):
     """Choose the largest lots to become special."""
+    count = round(
+        self.context.special_baseplate_ratio * len(self.baseplates))
     for baseplate in sorted(
         self.baseplates,
         key=Baseplate.area,
-        reverse=True)[:self.context.special_baseplate_count]:
+        reverse=True)[:count]:
       baseplate.kind = Baseplate.SPECIAL
 
   def _triangulate(self):
