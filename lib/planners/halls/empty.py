@@ -3,9 +3,7 @@ from lib.planners.base import Oyster, Layer
 from lib.plastic import Tile
 
 class EmptyHallPlanner(BaseHallPlanner):
-  @property
-  def pearl_radius(self):
-    return min(super().pearl_radius, 3)
+  pass
 
 def bids(stem, conquest):
   pr = stem.pearl_radius
@@ -20,23 +18,25 @@ def bids(stem, conquest):
 class Oysters:
   OPEN = (
     Oyster('Open')
-      .layer(Layer.FLOOR)
-      .layer(Layer.AT_MOST_LOOSE_ROCK)
+      .layer(Layer.FLOOR, grow=2)
+      .layer(Layer.AT_MOST_LOOSE_ROCK, grow=1)
       .layer(Layer.AT_MOST_HARD_ROCK)
   )
   FILLED = (
     Oyster('Filled')
       .layer(Layer.DIRT, grow=1)
       .layer(Layer.LOOSE_OR_HARD_ROCK)
-      .layer(Layer.VOID)
+      .layer(Layer.VOID, grow=1)
   )
   RIVER = (
     Oyster('River')
-      .layer(Layer.WATER, width=2)
+      .layer(Layer.WATER, width=2, grow=1)
       .layer(Layer.AT_MOST_HARD_ROCK)
+      .layer(Layer.VOID, grow=1)
   )
   LAVA_RIVER = (
     Oyster('Lava River')
-      .layer(Layer.LAVA, width=2)
-      .layer(Layer.AT_MOST_HARD_ROCK)
+      .layer(Layer.LAVA, width=2, grow=1)
+      .layer(Layer.AT_MOST_HARD_ROCK, width=0, grow=1)
+      .layer(Layer.VOID, grow=1)
   )
