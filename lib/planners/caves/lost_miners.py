@@ -11,6 +11,10 @@ class LostMinersCavePlanner(BaseCavePlanner):
     super().__init__(stem, oyster)
     self._miners = []
 
+  @property
+  def inspect_color(self):
+    return (0xff, 0xff, 0x00)
+
   def _get_monster_spawner(self):
     return None
 

@@ -38,6 +38,11 @@ class SomaticPlanner(Planner):
     return self._stem.has_erosion
 
   @property
+  @abc.abstractmethod
+  def inspect_color(self) -> Tuple[int, int, int]:
+    pass
+
+  @property
   def oyster(self) -> Oyster:
     return self._oyster
 

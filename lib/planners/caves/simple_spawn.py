@@ -10,6 +10,10 @@ from lib.plastic import Building, Creature, Facing, Position, Tile
 from lib.utils.geometry import adjacent
 
 class SimpleSpawnCavePlanner(BaseCavePlanner):
+
+  @property
+  def inspect_color(self):
+    return (0x00, 0xff, 0xff)
   
   def _get_expected_crystals(self):
     return max(
@@ -17,12 +21,7 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
         self.rng['conquest.expected_crystals'].beta_int(min = 2, max = 7))
 
   def _get_monster_spawner(self):
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
-    spawner = MonsterSpawner.normal(
-        self,
-        creature_type,
-        self._stem.monster_spawn_rate,
-        self._stem.monster_wave_size)
+    spawner = super()._get_monster_spawner()
     spawner.min_initial_cooldown = 60
     spawner.max_initial_cooldown = 180
     return spawner

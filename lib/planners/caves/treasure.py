@@ -11,6 +11,10 @@ from lib.plastic import Creature, Position, ResourceObjective, Tile
 
 class TreasureCavePlanner(BaseCavePlanner):
 
+  @property
+  def inspect_color(self):
+    return Tile.CRYSTAL_SEAM.inspect_color
+
   def _get_expected_crystals(self):
     return math.floor(super()._get_expected_crystals()
        * self.rng['conquest.expected_crystals'].beta(min = 1, max = 4))

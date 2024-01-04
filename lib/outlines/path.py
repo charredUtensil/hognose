@@ -119,6 +119,7 @@ class Path(ProceduralThing):
           ax, ay = a.center
           bx, by = b.center
           angles[a.id].add(math.atan2(by - ay, bx - ax))
+    yield
 
     # Compute the minimum relative angle between each end of a non-spanning
     # path and a spanning path.
@@ -139,11 +140,24 @@ class Path(ProceduralThing):
               yield delta
         yield min(h())
     
-    # Exclude any path with a relative angle less than 45 degrees.
+    # Exclude any path we explicitly don't want.
+    r_squared = context.size * context.size / 4
     for p in paths:
       if p.kind == Path.AMBIGUOUS:
+        # Paths with a low minimum relative angle tend to be redundant or
+        # at least crowd the other paths out.
         if min(relative_angles(p)) < math.pi / 4:
           p.kind = Path.EXCLUDED
+        # Draw a circle tangent to the square bounds of the map.
+        # Exclude any paths that have either end outside this circle.
+        # This specifically avoids a case where long, thin, boring halls are
+        # drawn from one corner of the map to another.
+        else:
+          for bp in (p.origin, p.destination):
+            x, y = bp.center
+            if x * x + y * y > r_squared:
+              p.kind = Path.EXCLUDED
+              break
     yield
 
     # Choose the n candidates that make the widest minimum angle.

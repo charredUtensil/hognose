@@ -10,6 +10,10 @@ class ThinHallPlanner(BaseHallPlanner):
   def __init__(self, has_crystals, *args):
     self.has_crystals = has_crystals
     super().__init__(*args)
+
+  @property
+  def inspect_color(self):
+    return (0x44, 0x00, 0x08)
   
   @property
   def pearl_radius(self):
@@ -24,11 +28,13 @@ class ThinHallPlanner(BaseHallPlanner):
           dx = x1 - x2
           dy = y1 - y2
           yield math.sqrt(dx*dx + dy*dy)
+        yield -1 * self.baseplates[0].pearl_radius
+        yield -1 * self.baseplates[1].pearl_radius
       mean = sum(d()) * self._stem.crystal_richness / 2
-      return self.rng['conquest.expected_crystals'].beta_int(
-          a = 5, b = 2, min = 0, max = mean * 1.25)
-    else:
-      return 0
+      if mean > 0:
+        return self.rng['conquest.expected_crystals'].beta_int(
+            a = 5, b = 2, min = 0, max = mean * 1.25)
+    return 0
 
   def fine_crystals(self, diorama):
     if not self.has_crystals:
@@ -41,7 +47,7 @@ class ThinHallPlanner(BaseHallPlanner):
       if diorama.tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       for _ in range(self.expected_crystals):
-        x, y = rng.beta_choice(t)
+        x, y = rng.beta_choice(t, a = 2, b = 2)
         existing = diorama.crystals.get((x, y), 0)
         if existing >= 3 and diorama.tiles.get((x, y)) != Tile.CRYSTAL_SEAM:
           diorama.tiles[x, y] = Tile.CRYSTAL_SEAM

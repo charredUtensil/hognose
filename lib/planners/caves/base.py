@@ -27,9 +27,14 @@ class BaseCavePlanner(SomaticPlanner):
   def monster_spawner(self) -> Optional[MonsterSpawner]:
     return self._get_monster_spawner() if self.context.has_monsters else None
 
-  @abc.abstractmethod
   def _get_monster_spawner(self) -> Optional[MonsterSpawner]:
-    pass
+    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    spawner = MonsterSpawner.normal(
+        self,
+        creature_type,
+        self._stem.monster_spawn_rate,
+        self._stem.monster_wave_size)
+    return spawner
 
   def make_nucleus(self):
     def h():

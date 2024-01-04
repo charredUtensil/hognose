@@ -67,15 +67,6 @@ PLANNER_FLUID_COLORS = {
     Tile.WATER: Tile.WATER.inspect_color,
     Tile.LAVA: Tile.LAVA.inspect_color,
 }
-PLANNER_TYPE_BORDER_COLORS = {
-    EmptyCavePlanner                   : (0xff, 0xff, 0xff),
-    LostMinersCavePlanner              : (0xff, 0xff, 0x00),
-    SimpleSpawnCavePlanner             : (0x00, 0xff, 0xff),
-    HoardCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
-    NougatCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
-    EmptyHallPlanner                   : (0x77, 0x00, 0x10),
-    ThinHallPlanner                    : (0x77, 0x00, 0x10),
-}
 PLANNER_BORDER_COLOR = Tile.DIRT.inspect_color
 PLANNER_ERODES_BORDER_COLOR = Tile.LAVA.inspect_color
 PLANNER_TEXT_COLOR                     = (0xff, 0xff, 0xff)
@@ -196,7 +187,7 @@ class Inspector(Logger):
       for planner in self.cavern.conquest.planners:
         if isinstance(planner, SomaticPlanner):
           bg_color = PLANNER_FLUID_COLORS[planner.fluid_type]
-          border_color = PLANNER_TYPE_BORDER_COLORS[type(planner)]
+          border_color = planner.inspect_color
           label_radius = 9
           line_thickness = 5
           _draw_planner(

@@ -3,7 +3,9 @@ from lib.planners.base import Oyster, Layer
 from lib.plastic import Tile
 
 class EmptyHallPlanner(BaseHallPlanner):
-  pass
+  @property
+  def inspect_color(self):
+    return (0x77, 0x00, 0x10)
 
 def bids(stem, conquest):
   pr = stem.pearl_radius
