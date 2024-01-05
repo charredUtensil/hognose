@@ -121,6 +121,7 @@ class Conquest(ProceduralThing):
     for i in range(self.total):
       stem = queue[i]
       for p in self.intersecting(stem):
+        p = typing.cast(StemPlanner, p)
         if (p.kind != stem.kind  # Alternate between caves and halls
             and p not in queue):
           p.hops_to_spawn = stem.hops_to_spawn + 1
@@ -144,7 +145,7 @@ class Conquest(ProceduralThing):
       yield planner
       self.completed = i + 1
 
-  def _pick_spawn(self, planners: List[StemPlanner]
+  def _pick_spawn(self, planners: Iterable[StemPlanner]
       ) -> Tuple[StemPlanner, Callable[[], SomaticPlanner]]:
     def bids():
       for planner in planners:

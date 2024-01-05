@@ -1,4 +1,5 @@
 from collections.abc import Callable
+import typing
 from typing import List, Optional, Tuple
 
 import itertools
@@ -11,16 +12,6 @@ from lib import Cavern
 from lib.base import Logger
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner, SomaticPlanner
-from lib.planners.caves import (
-    EmptyCavePlanner,
-    HoardCavePlanner,
-    NougatCavePlanner,
-    LostMinersCavePlanner,
-    SimpleSpawnCavePlanner,
-    TreasureCavePlanner)
-from lib.planners.halls import (
-    EmptyHallPlanner,
-    ThinHallPlanner)
 from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
@@ -222,8 +213,9 @@ class Inspector(Logger):
           (pearl.outer, PEARL_OUTER_LAYER_COLORS, 1)):
         circles = []
         for a, b in itertools.pairwise(itertools.chain([None], walk)):
+          assert b is not None
           bx, by = b.pos
-          if a and a.layer == b.layer:
+          if a is not None and a.layer == b.layer:
             ax, ay = a.pos
             adj = (ax in range(bx - 1, bx + 2)) and (ay in range(by - 1, by + 2))
             if adj:

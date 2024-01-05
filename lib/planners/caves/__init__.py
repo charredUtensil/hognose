@@ -1,4 +1,4 @@
-from . import empty, lost_miners, simple_spawn, treasure
+from . import empty, flooded, lost_miners, simple_spawn, treasure
 from .empty import EmptyCavePlanner
 from .flooded import FloodedCavePlanner
 from .lost_miners import LostMinersCavePlanner

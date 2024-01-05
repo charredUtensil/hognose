@@ -90,8 +90,9 @@ class BaseCavePlanner(SomaticPlanner):
     self.script_place_monster_spawns(diorama)
 
   def script_place_monster_spawns(self, diorama: Diorama):
-    if self.monster_spawner:
-      self.monster_spawner.place_script(diorama)
+    monster_spawner = self.monster_spawner
+    if monster_spawner:
+      monster_spawner.place_script(diorama)
     
   def place_crystals(self, diorama: Diorama, count: int):
     rng = self.rng['fine.place_crystals']

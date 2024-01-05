@@ -84,13 +84,13 @@ class SomaticPlanner(Planner):
       self,
       diorama: Diorama,
       total_frequency: float,
-      pearl = None):
+      pearl: Optional[Pearl] = None):
     rng = self.rng['fine.place_landslides']
     coverage = rng.uniform(min = 0.2, max = 0.8)
     if not pearl:
       pearl = self.pearl
     def h():
-      for info in pearl.inner:
+      for info in typing.cast(Pearl, pearl).inner:
         if (diorama.tiles.get(info.pos) in (
             Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)
             and info.pos not in diorama.landslides
@@ -109,7 +109,7 @@ class SomaticPlanner(Planner):
 
   def fine_erosion(self, diorama: Diorama):
     if self.has_erosion:
-      for info in self.pearl.inner:
+      for info in typing.cast(Pearl, self.pearl).inner:
         if diorama.tiles.get(info.pos, Tile.SOLID_ROCK).passable_by_miner:
           diorama.erosions[info.pos] = Erosion.DEFAULT
 
@@ -121,7 +121,7 @@ class SomaticPlanner(Planner):
   def make_nucleus(self) -> Dict[int, Iterable[Tuple[int, int]]]:
     pass
 
-  def build_pearl(self) -> Pearl:
+  def build_pearl(self):
     rng = self.rng['rough.pearl']
     nucleus = self.make_nucleus()
     last_layer = []

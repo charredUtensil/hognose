@@ -203,21 +203,21 @@ class Pearl(object):
     self._by_pos[pos] = pt
 
   @property
-  def nucleus(self):
+  def nucleus(self) -> Iterable[PearlTile]:
     for info in self._infos:
       if info.layer > 0:
         break
       yield info
 
   @property
-  def inner(self):
+  def inner(self) -> Iterable[PearlTile]:
     for info in self._infos:
       if info.layer >= self._radius:
         break
       yield info
 
   @property
-  def outer(self):
+  def outer(self) -> Iterable[PearlTile]:
     for info in self._infos:
       if info.layer >= self._radius:
         yield info

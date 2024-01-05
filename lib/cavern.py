@@ -30,10 +30,6 @@ class Cavern(object):
     self._serialized: Optional[str] = None
 
   @property
-  def spaces(self) -> List[Space]:
-    return self.baseplates or self.bubbles
-
-  @property
   def planners(self) -> Iterable[Planner]:
     return self.conquest.planners if self.conquest else tuple()
 

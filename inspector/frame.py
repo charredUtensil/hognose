@@ -6,7 +6,7 @@ import math
 import pygame
 
 class Absolute(object):
-  def __init__(self, value: int):
+  def __init__(self, value: float):
     self.value = value
 
 class Relative(object):

@@ -6,7 +6,7 @@ import random
 
 from lib.base import ProceduralThing
 
-class Space(ProceduralThing):
+class Space(ProceduralThing, abc.ABC):
 
   def area(self):
     return self.width * self.height
