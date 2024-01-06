@@ -25,6 +25,7 @@ class StemPlanner(Planner):
     self.has_erosion = False
     self.crystal_richness = 0
     self.monster_spawn_rate = 0
+    self.monster_wave_size = 0
 
   @property
   def baseplates(self) -> Tuple[Baseplate]:
@@ -36,6 +37,11 @@ class StemPlanner(Planner):
 
   def rough(self, tiles):
     pass
+
+  @property
+  def pearl_radius(self):
+    fn = max if self.kind == StemPlanner.CAVE else min
+    return fn(bp.pearl_radius for bp in self.baseplates)
 
   @classmethod
   def from_outlines(
@@ -65,3 +71,11 @@ class StemPlanner(Planner):
     for path in big_cave_paths:
       yield StemPlanner(
           next(id_counter), context, path.baseplates, StemPlanner.CAVE)
+
+def average(a):
+  t = 0
+  c = 0
+  for n in a:
+    t += n
+    c += 1
+  return t // c

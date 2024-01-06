@@ -1,4 +1,4 @@
-from typing import Any, TYPE_CHECKING
+from typing import Any, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
   from lib import Cavern
@@ -8,6 +8,9 @@ import sys
 import traceback
 
 class Logger(abc.ABC):
+
+  def __init__(self):
+    self._walks = []
 
   def log_stage(self, stage: str, index: int, total_stages: int, details: Any):
     pass

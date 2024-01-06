@@ -7,13 +7,10 @@ import functools
 import itertools
 import math
 
-from .pearl import Oyster
+from .pearl import Oyster, Pearl
 from .planner import Planner
 from lib.base import Rng
 from lib.plastic import Diorama, Erosion, Landslide, Objective, Tile
-from lib.utils.geometry import plot_line
-
-PearlInfo = NamedTuple('PearlRow', pos=Tuple[int, int], layer=int, sequence=int)
 
 class SomaticPlanner(Planner):
 
@@ -21,7 +18,6 @@ class SomaticPlanner(Planner):
     super().__init__(stem.id, stem.context)
     self._oyster = oyster
     self._pearl = None
-    self._nacre = None
     self._stem = stem
 
   @property
@@ -42,11 +38,16 @@ class SomaticPlanner(Planner):
     return self._stem.has_erosion
 
   @property
+  @abc.abstractmethod
+  def inspect_color(self) -> Tuple[int, int, int]:
+    pass
+
+  @property
   def oyster(self) -> Oyster:
     return self._oyster
 
   @property
-  def pearl(self) -> Optional[Tuple[PearlInfo]]:
+  def pearl(self) -> Optional[Pearl]:
     return self._pearl
 
   @functools.cached_property
@@ -57,19 +58,15 @@ class SomaticPlanner(Planner):
   def _get_expected_crystals(self) -> int:
     pass
 
-  @abc.abstractmethod
-  def pearl_nucleus(self) -> Iterable[Tuple[int, int]]:
-    pass
-
   def rough(self, tiles: Dict[Tuple[int, int], Tile]):
-    self._pearl = tuple(self.walk_pearl(
-        nucleus = self.pearl_nucleus(),
-        max_layers = self.pearl_radius,
-        baroqueness = self.baroqueness,
-        rng = self.rng['rough.pearl']))
-    self._nacre = self.oyster.create(self._pearl[-1].layer)
-    for (x, y), layer, sequence in self._pearl:
-      self._nacre.apply(tiles, (x, y), layer, sequence)
+    self._pearl = self.oyster.create(self.pearl_radius)
+    self.build_pearl()
+    for pt in self._pearl.inner:
+      if pt.layer < len(self._pearl._layers):
+        replace = tiles.get(pt.pos, Tile.SOLID_ROCK)
+        place = self._pearl._layers[pt.layer]._data[replace]
+        if place:
+          tiles[pt.pos] = place
 
   @abc.abstractmethod
   def fine(self, diorama: Diorama):
@@ -87,13 +84,13 @@ class SomaticPlanner(Planner):
       self,
       diorama: Diorama,
       total_frequency: float,
-      pearl = None):
+      pearl: Optional[Pearl] = None):
     rng = self.rng['fine.place_landslides']
     coverage = rng.uniform(min = 0.2, max = 0.8)
     if not pearl:
       pearl = self.pearl
     def h():
-      for info in pearl:
+      for info in typing.cast(Pearl, pearl).inner:
         if (diorama.tiles.get(info.pos) in (
             Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)
             and info.pos not in diorama.landslides
@@ -101,98 +98,88 @@ class SomaticPlanner(Planner):
           yield info.pos
     positions = tuple(h())
     if positions:
-      # Total activity is in total landslides per minute, but the file takes
+      # Total frequency is in total landslides per minute, but the file takes
       # delay seconds per landslide per tile.
-      period = len(positions) * 60 / total_frequency
+      period = max(
+          len(positions) * 60 / total_frequency,
+          self.context.min_landslide_period)
       event = Landslide(period)
       for pos in positions:
         diorama.landslides[pos] = event
 
   def fine_erosion(self, diorama: Diorama):
     if self.has_erosion:
-      for info in self.pearl:
+      for info in typing.cast(Pearl, self.pearl).inner:
         if diorama.tiles.get(info.pos, Tile.SOLID_ROCK).passable_by_miner:
           diorama.erosions[info.pos] = Erosion.DEFAULT
 
-  def walk_stream(self, baseplates=None):
-    """Walks a contiguous 1-tile wide stream between contiguous baseplates."""
-    if baseplates is None:
-      baseplates = self.baseplates
-    for a, b in itertools.pairwise(baseplates):
-      ac = a.center
-      yield (math.floor(ac[0]), math.floor(ac[1]))
-      for (x1, y1), (x2, y2) in itertools.pairwise(plot_line(ac, b.center)):
-        yield x2, y2
-        if x1 != x2 and y1 != y2:
-          yield x1, y2
+  @property
+  def pearl_radius(self):
+    return self._stem.pearl_radius
+    
+  @abc.abstractmethod
+  def make_nucleus(self) -> Dict[int, Iterable[Tuple[int, int]]]:
+    pass
 
-  def walk_pearl(
-      self,
-      nucleus: Iterable[Tuple[int, int]],
-      max_layers: int,
-      baroqueness: float,
-      rng: Optional[Rng] = None,
-      include_nucleus: bool = True) -> Iterable[PearlInfo]:
-    if baroqueness and rng is None:
-      raise AttributeError('Must supply rng when using baroqueness')
-    last_layer = list(nucleus)
-    if include_nucleus:
-      for i, (x, y) in enumerate(last_layer):
-        yield PearlInfo(pos=(x, y), layer=0, sequence=i)
-    visited = {(x, y): (0, i) for i, (x, y) in enumerate(last_layer)}
-    for layer_num in range(1, max_layers):
+  def build_pearl(self):
+    rng = self.rng['rough.pearl']
+    nucleus = self.make_nucleus()
+    last_layer = []
+    for layer_num in range(0, self.pearl_radius + 4):
       this_layer = []
+      # Add tiles from nucleus
+      for x, y in nucleus.get(layer_num, []):
+        if (x, y) not in self._pearl:
+          self._pearl.mark(pos=(x, y), layer=layer_num)
+          this_layer.append((x, y))
+      queue = []
       # Starting at each point in the last layer,
-      for x1, y1 in last_layer:
-        done = False
-        cx, cy, cvx, cvy = x1, y1, 0, 0
+      for x, y in last_layer:
+        # Push all adjacent tiles onto the queue.
         for ox, oy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-          cx, cy = (x1 + ox, y1 + oy)
-          if (cx, cy) not in visited:
-            cvx, cvy = -oy, ox
-            break
-        else:
-          # Skip
-          done = True
-        # For each point the cursor visits,
-        while not done:
-          # Yield the cursor point.
-          yield PearlInfo(
-              pos=(cx, cy), layer=layer_num, sequence=len(this_layer))
-          visited[cx, cy] = (layer_num, len(this_layer))
-          this_layer.append((cx, cy))
-          # As it turns right, (vx, vy) as it turns right cycles between:
-          # (1, 0) -> (0, 1) -> (-1, 0) -> (0, -1) -> ...
-          # Try each of these possible movements:
-          for vx, vy, ox, oy in (
-              (-cvy,  cvx,    0,    0), # Right turn
-              ( cvx,  cvy, -cvy,  cvx), # Straight, but drift right
-              ( cvx,  cvy,    0,    0), # Straight
-              ( cvx,  cvy,  cvy, -cvx), # Straight, but drift left
-              ( cvy, -cvx,    0,    0), # Left turn
-              ):
-            # Find the next point
-            nx, ny = cx + vx + ox, cy + vy + oy
-            # If this point was visited,
-            if (nx, ny) in visited:
-              # ...during the current layer...
-              visited_layer, visited_steps = visited[nx, ny]
-              if (visited_layer == layer_num
-                  # ...more than a few steps ago
-                  and len(this_layer) > visited_steps + 4):
-                # Finish exploring from this point.
-                done = True
-            # And the rng allows it...
-            elif (
-                not baroqueness
-                or not typing.cast(Rng, rng).chance(baroqueness)):
-              # Move to it
-              cx, cy, cvx, cvy = nx, ny, vx, vy
+          nx, ny = (x + ox, y + oy)
+          if (nx, ny) not in self._pearl:
+            queue.append((nx, ny, -oy, ox))
+      while queue:
+        x, y, vx, vy = queue.pop(0)
+        if (x, y) in self._pearl:
+          continue
+        # Mark the cursor point.
+        self._pearl.mark(pos=(x, y), layer=layer_num)
+        this_layer.append((x, y))
+        # As it turns right, (vx, vy) as it turns right cycles between:
+        # (1, 0) -> (0, 1) -> (-1, 0) -> (0, -1) -> ...
+        # Try each of these possible movements:
+        offsets = (
+          (  0,   0, -vy,  vx), # Right turn
+          (-vy,  vx,  vx,  vy), # Straight, but drift right
+          (  0,   0,  vx,  vy), # Straight
+          ( vy, -vx,  vx,  vy), # Straight, but drift left
+          (  0,   0,  vy, -vx), # Left turn
+        )
+        next_points = tuple(
+            (x + ox + vx, y + oy + vy, vx, vy)
+            for ox, oy, vx, vy in offsets
+        )
+
+        def is_enclosed():
+          for nx, ny, _, _ in next_points:
+            if (nx, ny) not in self._pearl:
+              continue
+            info = self._pearl[nx, ny]
+            if info.layer == layer_num and info.sequence + 4 < len(this_layer):
+              return True
+          return False
+        if not is_enclosed():
+          for nx, ny, nvx, nvy in next_points:
+            # If the point was not visited and the rng allows it
+            if (nx, ny) in self._pearl:
+              continue
+            if (layer_num > self.pearl_radius
+                or not rng.chance(self.baroqueness)):
+              # Push it to the queue and don't check any other movements.
+              queue.insert(0, (nx, ny, nvx, nvy))
               break
-          # If no possible movement was acceptable,
-          else:
-            # Finish exploring this point.
-            done = True
       last_layer = this_layer
 
 

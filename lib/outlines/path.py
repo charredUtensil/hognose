@@ -119,27 +119,50 @@ class Path(ProceduralThing):
           ax, ay = a.center
           bx, by = b.center
           angles[a.id].add(math.atan2(by - ay, bx - ax))
+    yield
 
     # Compute the minimum relative angle between each end of a non-spanning
     # path and a spanning path.
     def relative_angles(p):
       for a, b in (
-          (p.baseplates[0], p.baseplates[1]),
+          (p.baseplates[ 0], p.baseplates[ 1]),
           (p.baseplates[-1], p.baseplates[-2])):
         ax, ay = a.center
         bx, by = b.center
         theta = math.atan2(by - ay, bx - ax)
-        for span_theta in angles[a.id]:
-          delta = abs(theta - span_theta)
-          # Convert reflex angles
-          if delta > math.pi:
-            yield 2 * math.pi - delta
-          else:
-            yield delta
+        def h():
+          for span_theta in angles[a.id]:
+            delta = abs(theta - span_theta)
+            # Invert reflex angles
+            if delta > math.pi:
+              yield 2 * math.pi - delta
+            else:
+              yield delta
+        yield min(h())
     
+    # Exclude any path we explicitly don't want.
+    r_squared = context.size * context.size / 4
+    for p in paths:
+      if p.kind == Path.AMBIGUOUS:
+        # Paths with a low minimum relative angle tend to be redundant or
+        # at least crowd the other paths out.
+        if min(relative_angles(p)) < math.pi / 4:
+          p.kind = Path.EXCLUDED
+        # Draw a circle tangent to the square bounds of the map.
+        # Exclude any paths that have either end outside this circle.
+        # This specifically avoids a case where long, thin, boring halls are
+        # drawn from one corner of the map to another.
+        else:
+          for bp in (p.origin, p.destination):
+            x, y = bp.center
+            if x * x + y * y > r_squared:
+              p.kind = Path.EXCLUDED
+              break
+    yield
+
     # Choose the n candidates that make the widest minimum angle.
     candidates = sorted((
-        (min(relative_angles(p)), p) for p in paths if p.kind == Path.AMBIGUOUS
+        (sum(relative_angles(p)), p) for p in paths if p.kind == Path.AMBIGUOUS
     ), key=operator.itemgetter(0), reverse=True)
     aux_count = context.weave_ratio * len(candidates)
     for i, (_, p) in enumerate(candidates):
@@ -148,6 +171,7 @@ class Path(ProceduralThing):
         _make_halls(p.baseplates)
       else:
         p.kind = Path.EXCLUDED
+    yield
 
 def _make_halls(baseplates):
   for bp in baseplates:

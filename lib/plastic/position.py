@@ -51,16 +51,19 @@ class Position(object):
     x, y = pos
     px = rng.uniform(x, x + 1)
     py = rng.uniform(y, y + 1)
-    f = (rng.uniform(-180, 180) if facing is None
+    f = (rng.uniform(-math.pi, math.pi) if facing is None
          else _coerce_facing(pos, facing))
     return cls((px, py, 0), (0, f, 0))
 
-  def serialize(self, offset: Tuple[int, int]):
+  def serialize(
+      self,
+      offset: Tuple[int, int],
+      rotation_offset: float = 0):
     tx = (self.tx + offset[0]) * Position.ENTITY_SCALE
     ty = (self.ty + offset[1]) * Position.ENTITY_SCALE
     tz = self.tz
     rp = rads_to_degrees(self.rp)
-    ry = rads_to_degrees(self.ry)
+    ry = rads_to_degrees(self.ry + rotation_offset)
     rr = rads_to_degrees(self.rr)
     return (
       f'Translation: X={tx:.3f} Y={ty:.3f} Z={tz:.3f} '

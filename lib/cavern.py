@@ -10,7 +10,7 @@ import typing
 
 from lib.base import NotHaltingError
 from lib.lore import Lore
-from lib.outlines import Path, Space, Bubble, Baseplate
+from lib.outlines import Path, Space, Bubble, Baseplate, Partition
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
 from lib.plastic import Diorama, Objective, ResourceObjective, serialize, Tile
 from lib.utils.cleanup import patch
@@ -28,10 +28,6 @@ class Cavern(object):
     self.conquest:    Optional[Conquest] = None
     self._diorama:    Diorama = Diorama(context)
     self._serialized: Optional[str] = None
-
-  @property
-  def spaces(self) -> List[Space]:
-    return self.baseplates or self.bubbles
 
   @property
   def planners(self) -> Iterable[Planner]:
@@ -56,13 +52,7 @@ class Cavern(object):
 
       # Generate "bubbles", which are rectangles of arbitrary sizes, and
       # place them roughly in a random pile in the center of the map.
-      ('bubble',       self._bubble),
-      # Perform a basic physics simulation to push overlapping bubbles apart
-      # until those bubbles no longer overlap.
-      ('separate',     self._separate),
-      # Replace the bubbles with "baseplates", rounding all edges to the
-      # nearest tile. These will become the foundation caves are built on.
-      ('rasterize',    self._rasterize),
+      ('partition',    self._partition),
       # Choose the largest lots to become "special".
       ('discriminate', self._discriminate),
       # Create a triangular mesh between the centers of all special lots.
@@ -111,8 +101,6 @@ class Cavern(object):
       # Look at the entire level to make sure it all fits together, then do
       # some final steps to put everything in the right place.
 
-      # Compute the final bounds of the level.
-      ('fence',        self._fence),
       # Figure out which tiles are discovered at the beginning of the level.
       ('discover',     self._discover),
       # Determine the objectives for the level.
@@ -121,6 +109,8 @@ class Cavern(object):
       ('enscribe',     self._enscribe),
       # Add scripting logic
       ('script',       self._script),
+      # Compute the final bounds of the level.
+      ('fence',        self._fence),
       # Serialize the output
       ('serialize',    self._serialize),
     )
@@ -147,25 +137,15 @@ class Cavern(object):
   def is_done(self) -> bool:
     return self._serialized is not None
 
-  def _bubble(self):
+  def _partition(self):
     """Randomly place randomly sized rectangular bubbles near the center."""
-    self.bubbles = [
-      Bubble.from_rng(i, self.context)
-      for i in range(self.context.bubble_count)]
-
-  def _separate(self):
-    """Push bubbles apart until they don't overlap."""
-    for i in range(300):
-      moving = Bubble.nudge_overlapping(self.bubbles)
+    partition = Partition(self.context)
+    self.bubbles = partition.bubbles
+    self.baseplates = partition.baseplates
+    yield
+    while partition.bubbles:
+      partition.step()
       yield
-      if not moving:
-        break
-    else:
-      raise NotHaltingError(f'Separation failed to halt after 300 iterations')
-  
-  def _rasterize(self):
-    """Round bubbles to the nearest grid coordinate to make baseplates."""
-    self.baseplates = [Baseplate(bubble, self.context) for bubble in self.bubbles]
  
   def _discriminate(self):
     """Choose the largest lots to become special."""
@@ -193,7 +173,7 @@ class Cavern(object):
 
   def _weave(self):
     """Randomly choose some non-spanning graph edges to keep."""
-    Path.weave(self.context, self.paths)
+    yield from Path.weave(self.context, self.paths)
 
   def _cull(self):
     for bp in self.baseplates:
@@ -253,10 +233,6 @@ class Cavern(object):
       objs = [ResourceObjective(crystals=crystals)]
     self.diorama.objectives.extend(objs)
 
-  def _script(self):
-    for planner in self.conquest.somatic_planners:
-      planner.script(self.diorama)
-
   def _enscribe(self):
     """Generate copy for briefings, etc..."""
     lore = Lore(self)
@@ -264,6 +240,11 @@ class Cavern(object):
     self.diorama.briefing_success = lore.success()
     self.diorama.briefing_failure = lore.failure()
     self.diorama.level_name = lore.level_name()
+
+  def _script(self):
+    """Write scripts."""
+    for planner in self.conquest.somatic_planners:
+      planner.script(self.diorama)
 
   def _fence(self):
     """Compute the final bounds of the level."""
@@ -282,4 +263,5 @@ class Cavern(object):
     self.diorama.bounds = (left, top, width, height)
 
   def _serialize(self):
+    """Dump everything to a string."""
     self._serialized = self.diorama.serialize()

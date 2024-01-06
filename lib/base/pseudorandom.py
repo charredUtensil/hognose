@@ -17,7 +17,7 @@ KINDS = (
   # to minimize disruption to existing caverns.
   'bubble',
   'weave',
-  'conquest.differentiate',
+  'differentiate',
   'rough.pearl',
   'fine.place_crystals',
   'flood',
@@ -28,6 +28,7 @@ KINDS = (
   'fine.place_landslides',
   'fine.place_entities',
   'monster_spawner',
+  'pick_spawn_cave',
 )
 
 class Rng(object):
@@ -127,6 +128,14 @@ def coerce_seed(seed: Optional[str]) -> int:
   m = re.match(r'\A\s*(0x)?(?P<seed>[0-9a-fA-F]{1,8})\s*\Z', seed)
   if m:
     return int(m.group('seed'), 16)
+
+  # Seed that looks like a level name: extract seed
+  m = re.match(
+      r'\A\s*((HN-?)?[KEA])?'
+      r'(?P<a>[0-9a-fA-F]{3})-?'
+      r'(?P<b>[0-9a-fA-F]{5})\s*\Z', seed)
+  if m:
+    return int(f'{m.group("a")}{m.group("b")}', 16)
 
   # Anything else: Take bits from the MD5 hash of the given phrase
   md5 = hashlib.md5()

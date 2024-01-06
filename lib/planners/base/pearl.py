@@ -6,6 +6,7 @@ import math
 from lib.plastic import BasicTile, Tile
 
 class Layer(object):
+  """Rules for replacing tiles in a single layer of a Pearl."""
 
   def __init__(
       self,
@@ -95,6 +96,11 @@ Layer.LAVA = Layer(
     solid_rock = Tile.LAVA)
 
 # Special cases
+# Replaces up to dirt or down to loose rock
+Layer.DIRT_OR_LOOSE_ROCK = Layer(
+    floor      = Tile.DIRT,
+    hard_rock  = Tile.LOOSE_ROCK,
+    solid_rock = Tile.LOOSE_ROCK)
 # Replaces up to loose or down to hard rock
 Layer.LOOSE_OR_HARD_ROCK = Layer(
     floor      = Tile.LOOSE_ROCK,
@@ -117,6 +123,7 @@ Layer.BRIDGE_ON_LAVA = Layer(
       solid_rock = Tile.LAVA)
 
 class Oyster(object):
+  """A Pearl Factory."""
 
   def __init__(self, name: str):
     self._name = name
@@ -136,7 +143,6 @@ class Oyster(object):
     return self
 
   def create(self, radius: int):
-
     radius = radius + 1
 
     grow_factor = 0
@@ -169,22 +175,55 @@ class Oyster(object):
         while round(w) > 0:
           yield layer
           w -= 1
-    return Nacre(h())
+    return Pearl(radius, h())
 
 
-class Nacre(object):
+class PearlTile(object):
+  def __init__(self, pos, layer, sequence):
+    self.pos: Tuple[int, int] = pos
+    self.layer: int = layer
+    self.sequence: int = sequence
 
-  def __init__(self, layers: Iterable[Layer]):
-    self.layers = tuple(layers)
-  
-  def apply(
-      self,
-      tiles: Dict[Tuple[int, int], Tile],
-      pos: Tuple[int, int],
-      layer: int,
-      sequence: int):
-    if layer < len(self.layers):
-      replace = tiles.get(pos, Tile.SOLID_ROCK)
-      place = self.layers[layer]._data[replace]
-      if place:
-        tiles[pos] = place
+class Pearl(object):
+  """An object describing the tiles used in a Planner."""
+
+  def __init__(self, radius: int, layers: Iterable[Layer]):
+    self._radius = radius
+    self._layers = tuple(layers)
+    self._infos = []
+    self._by_pos = {}
+
+  def mark(self, pos, layer):
+    if self._infos and layer == self._infos[-1].layer:
+      sequence = self._infos[-1].sequence + 1
+    else:
+      sequence = 0
+    pt = PearlTile(pos, layer, sequence)
+    self._infos.append(pt)
+    self._by_pos[pos] = pt
+
+  @property
+  def nucleus(self) -> Iterable[PearlTile]:
+    for info in self._infos:
+      if info.layer > 0:
+        break
+      yield info
+
+  @property
+  def inner(self) -> Iterable[PearlTile]:
+    for info in self._infos:
+      if info.layer >= self._radius:
+        break
+      yield info
+
+  @property
+  def outer(self) -> Iterable[PearlTile]:
+    for info in self._infos:
+      if info.layer >= self._radius:
+        yield info
+
+  def __contains__(self, pos: Tuple[int, int]):
+    return pos in self._by_pos
+
+  def __getitem__(self, pos: Tuple[int, int]):
+    return self._by_pos[pos]

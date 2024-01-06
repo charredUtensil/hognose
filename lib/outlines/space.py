@@ -4,36 +4,34 @@ import abc
 import math
 import random
 
-class Space(abc.ABC):
+from lib.base import ProceduralThing
+
+class Space(ProceduralThing, abc.ABC):
 
   def area(self):
     return self.width * self.height
-
-  @property
-  @abc.abstractmethod
-  def id(self) -> int:
-    pass
-
-  @property
-  @abc.abstractmethod
-  def left(self) -> float:
-    pass
-
-  @property
-  @abc.abstractmethod
-  def top(self) -> float:
-    pass
-
-  @property
-  @abc.abstractmethod
-  def right(self) -> float:
-    pass
-
-  @property
-  @abc.abstractmethod
-  def bottom(self) -> float:
-    pass
-
+    
+#
+  #@property
+  #@abc.abstractmethod
+  #def left(self) -> float:
+  #  pass
+#
+  #@property
+  #@abc.abstractmethod
+  #def top(self) -> float:
+  #  pass
+#
+  #@property
+  #@abc.abstractmethod
+  #def right(self) -> float:
+  #  pass
+#
+  #@property
+  #@abc.abstractmethod
+  #def bottom(self) -> float:
+  #  pass
+#
   @property
   @abc.abstractmethod
   def width(self) -> float:

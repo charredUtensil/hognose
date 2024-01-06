@@ -28,13 +28,19 @@ class Planner(ProceduralThing, abc.ABC):
       return (cx1 + cx2) / 2, (cy1 + cy2) / 2
 
   @property
+  @abc.abstractmethod
   def pearl_radius(self):
-    return min(min(bp.width, bp.height) for bp in self.baseplates) // 2
+    pass
 
   def __str__(self):
-    return ' '.join(
-        s for s in (
-            f'#{self.id}',
-            type(self).__name__,
-            str(self.oyster) if hasattr(self, 'oyster') else None)
-        if s is not None)
+    def h():
+      yield f'#{self.id}'
+      if hasattr(self, 'oyster'):
+        yield str(self.oyster)
+      yield type(self).__name__
+      yield f'R{self.pearl_radius}'
+      if hasattr(self, 'expected_crystals') and self.expected_crystals:
+        f'{self.expected_crystals}EC'
+      if hasattr(self, 'monster_spawner'):
+        f'{self.monster_spawner}'
+    return ' '.join(h())

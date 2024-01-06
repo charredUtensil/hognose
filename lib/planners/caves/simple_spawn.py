@@ -4,16 +4,27 @@ import itertools
 import math
 
 from .base import BaseCavePlanner
+from .monster_spawners import MonsterSpawner
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Facing, Position, Tile
+from lib.plastic import Building, Creature, Facing, Position, Tile
 from lib.utils.geometry import adjacent
 
-class SpawnCavePlanner(BaseCavePlanner):
+class SimpleSpawnCavePlanner(BaseCavePlanner):
+
+  @property
+  def inspect_color(self):
+    return (0x00, 0xff, 0xff)
   
   def _get_expected_crystals(self):
     return max(
         super()._get_expected_crystals(),
         self.rng['conquest.expected_crystals'].beta_int(min = 2, max = 7))
+
+  def _get_monster_spawner(self):
+    spawner = super()._get_monster_spawner()
+    spawner.min_initial_cooldown = 60
+    spawner.max_initial_cooldown = 180
+    return spawner
 
   def fine_recharge_seam(self, diorama):
     self.place_recharge_seam(diorama)
@@ -23,7 +34,7 @@ class SpawnCavePlanner(BaseCavePlanner):
       super().fine_landslides(diorama)
 
   def fine_buildings(self, diorama):
-    for (a, b) in itertools.pairwise(self.pearl):
+    for (a, b) in itertools.pairwise(self.pearl.inner):
       x1, y1 = a.pos
       x2, y2 = b.pos
       if diorama.tiles.get((x2, y2)) == Tile.FLOOR and adjacent((x1, y1), (x2, y2)):
@@ -54,8 +65,9 @@ class SpawnCavePlanner(BaseCavePlanner):
     diorama.camera_position.ry += math.pi * 0.75
 
 def bids(stem, conquest):
-  yield (1, lambda: SpawnCavePlanner(stem, Oysters.OPEN))
-  yield (1, lambda: SpawnCavePlanner(stem, Oysters.EMPTY))
+  if stem.fluid_type == None:
+    yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.OPEN))
+    yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.EMPTY))
 
 class Oysters:
   OPEN = (

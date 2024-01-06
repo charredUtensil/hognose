@@ -4,11 +4,16 @@ import itertools
 import math
 
 from .base import BaseCavePlanner
+from .monster_spawners import MonsterSpawner, RetriggerMode
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
 from lib.plastic import Creature, Position, ResourceObjective, Tile
 
 class TreasureCavePlanner(BaseCavePlanner):
+
+  @property
+  def inspect_color(self):
+    return Tile.CRYSTAL_SEAM.inspect_color
 
   def _get_expected_crystals(self):
     return math.floor(super()._get_expected_crystals()
@@ -25,6 +30,16 @@ class TreasureCavePlanner(BaseCavePlanner):
 
 class HoardCavePlanner(TreasureCavePlanner):
 
+  def _get_monster_spawner(self):
+    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    spawner = MonsterSpawner.normal(
+        self,
+        creature_type,
+        self._stem.monster_spawn_rate * 3.5,
+        self._stem.monster_wave_size * 1.5)
+    spawner.retrigger_mode = RetriggerMode.HOARD
+    return spawner
+
   def _monster_placements(self, diorama):
     accepted_tiles = set((Tile.FLOOR,))
     if self.context.biome == Biome.ICE:
@@ -34,7 +49,7 @@ class HoardCavePlanner(TreasureCavePlanner):
     
     layer = 0
     r = []
-    for info in self._pearl:
+    for info in self.pearl.inner:
       if info.layer > layer + 1:
         break
       if diorama.tiles[info.pos] in accepted_tiles:
@@ -46,7 +61,7 @@ class HoardCavePlanner(TreasureCavePlanner):
 
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))
-    places = tuple(pos for pos, layer, _ in self.pearl if layer == 0)
+    places = tuple(pt.pos for pt in self.pearl.nucleus)
     for x, y in itertools.islice(
         itertools.cycle(places), math.ceil(self.expected_crystals * 0.8)):
       diorama.crystals[x, y] += 1
@@ -69,12 +84,22 @@ class HoardCavePlanner(TreasureCavePlanner):
 
 class NougatCavePlanner(TreasureCavePlanner):
 
+  def _get_monster_spawner(self):
+    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    spawner = MonsterSpawner.normal(
+        self,
+        creature_type,
+        self._stem.monster_spawn_rate * 2,
+        self._stem.monster_wave_size * 1.5)
+    spawner.spawn_immediately_when_ready = True
+    return spawner
+
   def fine_crystals(self, diorama):
     t = tuple(
-      pearl_info.pos
-      for pearl_info
-      in self.pearl
-      if diorama.tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
+      pt.pos
+      for pt
+      in self.pearl.inner
+      if diorama.tiles.get(pt.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       rng = self.rng['fine.place_crystals']
       count = math.ceil(self.expected_crystals * 0.8)

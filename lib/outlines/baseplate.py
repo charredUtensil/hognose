@@ -8,7 +8,7 @@ from .space import Space
 
 from lib.base import ProceduralThing
 
-class Baseplate(ProceduralThing, Space):
+class Baseplate(Space):
   AMBIGUOUS = 'ambiguous'
   EXCLUDED  = 'excluded'
   SPECIAL   = 'special'
@@ -74,3 +74,7 @@ class Baseplate(ProceduralThing, Space):
         if ua == ub and min(va2, vb2) - max(va1, vb1) > max(va2 - va1, vb2 - vb1) / 2:
           return True
     return False
+
+  @property
+  def pearl_radius(self):
+    return min(self.width, self.height) // 2

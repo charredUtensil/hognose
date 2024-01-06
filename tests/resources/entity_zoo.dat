@@ -88,50 +88,50 @@ lavaspread{
 }
 creatures{
 CreatureRockMonster_C
-Translation: X=1950.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=1950.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=0
 CreatureIceMonster_C
-Translation: X=2250.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=2250.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=1
 CreatureLavaMonster_C
-Translation: X=2550.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=2550.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=2
 CreatureRockMonster_C
-Translation: X=1950.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=1950.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=3,Sleep=true
 CreatureIceMonster_C
-Translation: X=2250.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=2250.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=4,Sleep=true
 CreatureLavaMonster_C
-Translation: X=2550.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=2550.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=5,Sleep=true
 CreatureSlimySlug_C
-Translation: X=450.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=450.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=6
 CreatureSlimySlug_C
-Translation: X=750.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=750.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=7,Sleep=true
 CreatureSmallSpider_C
-Translation: X=1350.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=1350.000 Y=1350.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=8
 CreatureBat_C
-Translation: X=450.000 Y=1950.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
+Translation: X=450.000 Y=1950.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000
 ID=9
 }
 miners{
-ID=0,Translation: X=450.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=45.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
-ID=1,Translation: X=750.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/Level/
-ID=2,Translation: X=1050.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=135.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/Level/Level/
-ID=3,Translation: X=1350.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=153.434949 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/Level/Level/Level/
-ID=4,Translation: X=1650.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=161.565051 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/Level/Level/Level/Level/
-ID=5,Translation: X=450.000 Y=750.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/,Essential=true
-ID=6/OFFICER,Translation: X=1050.000 Y=750.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
-ID=7/Chief,Translation: X=1350.000 Y=750.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
-ID=8/Axle,Translation: X=450.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-45.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobDriver/
-ID=9/Bandit,Translation: X=750.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobSailor/
-ID=10/Docs,Translation: X=1050.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-135.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobGeologist/
-ID=11/Jet,Translation: X=1350.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-153.434949 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobPilot/
-ID=12/Sparks,Translation: X=1650.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-161.565051 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobEngineer/
+ID=0,Translation: X=450.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=135.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
+ID=1,Translation: X=750.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=-180.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/Level/
+ID=2,Translation: X=1050.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=-135.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/Level/Level/
+ID=3,Translation: X=1350.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=-116.565051 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/Level/Level/Level/
+ID=4,Translation: X=1650.000 Y=450.000 Z=0.000 Rotation: P=0.000000 Y=-108.434949 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/Level/Level/Level/Level/
+ID=5,Translation: X=450.000 Y=750.000 Z=0.000 Rotation: P=0.000000 Y=90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/,Essential=true
+ID=6/OFFICER,Translation: X=1050.000 Y=750.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
+ID=7/Chief,Translation: X=1350.000 Y=750.000 Z=0.000 Rotation: P=0.000000 Y=-90.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/
+ID=8/Axle,Translation: X=450.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=45.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobDriver/
+ID=9/Bandit,Translation: X=750.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=0.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobSailor/
+ID=10/Docs,Translation: X=1050.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-45.000000 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobGeologist/
+ID=11/Jet,Translation: X=1350.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-63.434949 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobPilot/
+ID=12/Sparks,Translation: X=1650.000 Y=1050.000 Z=0.000 Rotation: P=0.000000 Y=-71.565051 R=0.000000 Scale X=1.000 Y=1.000 Z=1.000,Drill/JobEngineer/
 }
 briefing{
 

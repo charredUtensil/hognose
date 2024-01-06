@@ -44,13 +44,19 @@ LOST_MINERS_APART = (
 SPAWN_HAS_EROSION = (
     'a nearby lava flow is threatening our Rock Raider HQ',
     'we are dangerously close to a cavern full of lava',
+    'we are worried about nearby lava flows',
 )
 
-# Generic things
+MONSTERS_PRESENT = (
+    'we are picking up signs of %s in the area',
+    'this cavern is inhabited by nests of %s',
+)
+
+# Generic premises if nothing else fits
 
 GENERIC = (
     'our mining operations have been going smoothly, and we are ready to move '
     'on to the next cavern',
     'there is nothing out of the ordinary to report today',
-    'things have been quiet and I hope they should remain that way, Cadet'
+    'things have been quiet and I hope they should remain that way, Cadet',
 )

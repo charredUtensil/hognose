@@ -1,4 +1,5 @@
 from collections.abc import Callable
+import typing
 from typing import List, Optional, Tuple
 
 import itertools
@@ -11,16 +12,6 @@ from lib import Cavern
 from lib.base import Logger
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner, SomaticPlanner
-from lib.planners.caves import (
-    EmptyCavePlanner,
-    HoardCavePlanner,
-    NougatCavePlanner,
-    LostMinersCavePlanner,
-    SpawnCavePlanner,
-    TreasureCavePlanner)
-from lib.planners.halls import (
-    EmptyHallPlanner,
-    ThinHallPlanner)
 from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
@@ -34,8 +25,7 @@ BSOD_FG_COLOR                          = (0xff, 0xff, 0xff)
 BSOD_BG_COLOR                          = (0x22, 0x22, 0xDD)
 
 BUBBLE_OUTLINE_COLOR                   = (0x10, 0x00, 0x77)
-BUBBLE_LABEL_COLOR_MOVING              = (0xff, 0xff, 0xff)
-BUBBLE_LABEL_COLOR_STATIONARY          = (0x77, 0x77, 0xff)
+BUBBLE_LABEL_COLOR                     = (0x77, 0x77, 0xff)
 
 BASEPLATE_COLORS = {
     Baseplate.AMBIGUOUS                : (0x20, 0x20, 0x20),
@@ -68,24 +58,21 @@ PLANNER_FLUID_COLORS = {
     Tile.WATER: Tile.WATER.inspect_color,
     Tile.LAVA: Tile.LAVA.inspect_color,
 }
-PLANNER_TYPE_BORDER_COLORS = {
-    EmptyCavePlanner                   : (0xff, 0xff, 0xff),
-    LostMinersCavePlanner              : (0xff, 0xff, 0x00),
-    SpawnCavePlanner                   : (0x00, 0xff, 0xff),
-    HoardCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
-    NougatCavePlanner: Tile.CRYSTAL_SEAM.inspect_color,
-    EmptyHallPlanner                   : (0x77, 0x00, 0x10),
-    ThinHallPlanner                    : (0x77, 0x00, 0x10),
-}
 PLANNER_BORDER_COLOR = Tile.DIRT.inspect_color
 PLANNER_ERODES_BORDER_COLOR = Tile.LAVA.inspect_color
 PLANNER_TEXT_COLOR                     = (0xff, 0xff, 0xff)
 
-PEARL_LAYER_COLORS = [
-                                         (0xff, 0x00, 0xff),
-                                         (0xff, 0xff, 0xff),
-                                         (0xff, 0xff, 0x00),
-                                         (0x00, 0xff, 0xff),
+PEARL_INNER_LAYER_COLORS = [
+                                         (0x40, 0xff, 0xff),
+                                         (0x40, 0xdd, 0xdd),
+                                         (0x40, 0xbb, 0xbb),
+                                         (0x40, 0x99, 0x99),
+]
+PEARL_OUTER_LAYER_COLORS = [
+                                         (0xff, 0xff, 0x20),
+                                         (0xdd, 0xdd, 0x20),
+                                         (0xbb, 0xbb, 0x20),
+                                         (0x99, 0x99, 0x20),
 ]
 
 EROSION_COLOR = Tile.LAVA.inspect_color
@@ -98,11 +85,16 @@ MINER_COLOR                             = (0xff, 0xff, 0x00)
 CREATURE_COLOR                          = (0xff, 0x00, 0x00)
 
 SCRIPT_TRIGGER_COLOR                    = (0xff, 0xff, 0x00)
+SCRIPT_SECONDARY_TRIGGER_COLOR          = (0xff, 0x7f, 0x00)
 SCRIPT_WIRE_COLOR                       = (0xff, 0xff, 0xff)
+
+# These stages have tiles, but draw them faded to emphasize overlays.
+FADED_TILE_STAGES = frozenset(('script', 'enscribe', 'discover', 'adjure'))
 
 class Inspector(Logger):
 
   def __init__(self):
+    super().__init__()
     self.cavern = None
     pygame.init()
     pygame.font.init()
@@ -138,19 +130,14 @@ class Inspector(Logger):
             b,
             BASEPLATE_COLORS[b.kind],
             BASEPLATE_OUTLINE_COLORS[b.kind])
-      if stage in ('bubble', 'separate', 'rasterize'):
-        for b in self.cavern.bubbles:
-          _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
-      if stage in ('bubble', 'separate'):
-        for b in self.cavern.bubbles:
-          color = (
-            BUBBLE_LABEL_COLOR_MOVING if b.moving
-            else BUBBLE_LABEL_COLOR_STATIONARY)
-          _draw_space_label(frame, b, self.font, color)
+      for i, b in enumerate(self.cavern.bubbles):
+        _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
+      for i, b in enumerate(self.cavern.bubbles):
+        _draw_space_label(frame, b, self.font, BUBBLE_LABEL_COLOR)
       if not self.cavern.conquest:
         for b in self.cavern.baseplates:
           if (b.kind == Baseplate.SPECIAL
-              or stage in ('rasterize', 'discriminate')):
+              or stage == 'partition'):
             _draw_space_label(
                 frame,
                 b,
@@ -178,7 +165,7 @@ class Inspector(Logger):
               PLANNER_ERODES_BORDER_COLOR if planner.has_erosion
               else PLANNER_BORDER_COLOR)
           label_radius = 13 if planner.kind == StemPlanner.CAVE else 9
-          line_thickness = 3
+          line_thickness = 7 if planner.kind == StemPlanner.CAVE else 3
           _draw_planner(
               frame,
               planner,
@@ -191,7 +178,7 @@ class Inspector(Logger):
       for planner in self.cavern.conquest.planners:
         if isinstance(planner, SomaticPlanner):
           bg_color = PLANNER_FLUID_COLORS[planner.fluid_type]
-          border_color = PLANNER_TYPE_BORDER_COLORS[type(planner)]
+          border_color = planner.inspect_color
           label_radius = 9
           line_thickness = 5
           _draw_planner(
@@ -206,12 +193,55 @@ class Inspector(Logger):
     # Draw tiles
     for (x, y), tile in self.cavern.diorama.tiles.items():
       color = tile.inspect_color
-      if (stage == 'script'
-          or (stage == 'discover'
-              and (x, y) not in self.cavern.diorama.discovered)):
-        c = sum(color) / 6
-        color = (c, c, c)
+      if stage == 'discover':
+        if (x, y) in self.cavern.diorama.discovered:
+          r, g, b = color
+          color = ((r + 255) / 2, g, (b + 255) / 2)
+        else:
+          c = sum(color)
+          color = (c / 8, c / 6, c / 8)
+      elif stage in FADED_TILE_STAGES:
+        c = sum(color)
+        color = (c / 6, c / 6, c / 6)
       frame.draw_rect(color, (x, y, 1, 1))
+
+    # Draw pearl if it exists
+    if details and hasattr(details, 'pearl') and details.pearl:
+      pearl = details.pearl
+      for walk, colors, line_thickness in (
+          (pearl.inner, PEARL_INNER_LAYER_COLORS, 3),
+          (pearl.outer, PEARL_OUTER_LAYER_COLORS, 1)):
+        circles = []
+        for a, b in itertools.pairwise(itertools.chain([None], walk)):
+          assert b is not None
+          bx, by = b.pos
+          if a is not None and a.layer == b.layer:
+            ax, ay = a.pos
+            adj = (ax in range(bx - 1, bx + 2)) and (ay in range(by - 1, by + 2))
+            if adj:
+              frame.draw_line(
+                colors[a.layer % len(colors)],
+                (ax + 0.5, ay + 0.5),
+                (bx + 0.5, by + 0.5),
+                line_thickness)
+            else:
+              circles.append(b)
+          else:
+            circles.append(b)
+        for c in circles:
+          x, y = c.pos
+          frame.draw_circle(
+            colors[c.layer % len(colors)],
+            (x + 0.5, y + 0.5),
+            0.3)
+          frame.draw_label_for_rect(
+            self.font,
+            str(c.layer),
+            (0, 0, 0),
+            None,
+            (x, y, 1, 1),
+            (0, 0),
+            False)
 
     if stage == 'script':
       infos = [
@@ -222,13 +252,23 @@ class Inspector(Logger):
             and p.monster_spawner
             and p.monster_spawner.script_info)]
       for info in infos:
-        for x, y in info.enter_triggers:
+        for x, y in info.trigger_tiles:
           frame.draw_rect(
               SCRIPT_TRIGGER_COLOR,
               (x, y, 1, 1),
               1)
+        for x, y in info.secondary_trigger_tiles:
+          frame.draw_rect(
+              SCRIPT_SECONDARY_TRIGGER_COLOR,
+              (x, y, 1, 1),
+              1)
       for info in infos:
-        for x, y in info.enter_triggers:
+        for x, y in info.trigger_tiles:
+          frame.draw_line(
+              SCRIPT_WIRE_COLOR,
+              (x + 0.5, y + 0.5),
+              (info.emerges[0][0] + 0.5, info.emerges[0][1] + 0.5))
+        for x, y in info.secondary_trigger_tiles:
           frame.draw_line(
               SCRIPT_WIRE_COLOR,
               (x + 0.5, y + 0.5),
@@ -256,7 +296,19 @@ class Inspector(Logger):
               (x1 + 0.5, y1 + 0.5),
               (x2 + 0.5, y2 + 0.5),
               2)
-    elif stage != 'discover':
+    elif stage == 'enscribe':
+      text = _word_wrap('\n---\n'.join((
+          self.cavern.diorama.level_name,
+          self.cavern.diorama.briefing,
+          self.cavern.diorama.briefing_success,
+          self.cavern.diorama.briefing_failure)), 60)
+      frame.draw_text(
+        self.font_med,
+        text,
+        TITLE_COLOR,
+        (Relative(0.5), Relative(0.5)),
+        (0, 0))
+    elif stage not in FADED_TILE_STAGES:
       # Draw erosions
       for (x, y), event in self.cavern.diorama.erosions.items():
         frame.draw_line(
@@ -332,14 +384,15 @@ class Inspector(Logger):
             (miner.x, miner.y),
             (miner.x + math.cos(theta), miner.y + math.sin(theta)))
 
-    # Draw objectives that have map positions
-    for objective in self.cavern.diorama.objectives:
-      if isinstance(objective, FindMinerObjective):
-        frame.draw_circle(
-            MINER_COLOR,
-            (objective.miner.x, objective.miner.y),
-            2,
-            2)
+    if stage == 'adjure' or stage not in FADED_TILE_STAGES:
+      # Draw objectives that have map positions
+      for objective in self.cavern.diorama.objectives:
+        if isinstance(objective, FindMinerObjective):
+          frame.draw_circle(
+              MINER_COLOR,
+              (objective.miner.x, objective.miner.y),
+              2,
+              2)
 
     # Label height and width
     if stage == 'fence':
@@ -414,21 +467,8 @@ class Inspector(Logger):
           LOG_DETAILS_COLOR,
           (Relative(0.5), Relative(1)),
           (0, -1))
-      if stage == 'rough':
-        for ((x1, y1), l1, _), ((x2, y2), l2, _) in itertools.pairwise(details._pearl):
-          if l1 > 0 and l1 == l2 and (x1 in range(x2-1,x2+2)) and (y1 in range(y2-1,y2+2)):
-            frame.draw_line(
-              PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
-              (x1 + 0.5, y1 + 0.5),
-              (x2 + 0.5, y2 + 0.5),
-              2)
-          else:
-            frame.draw_circle(
-              PEARL_LAYER_COLORS[l1 % len(PEARL_LAYER_COLORS)],
-              (x1 + 0.5, y1 + 0.5),
-              0.3)
 
-    # Draw warnings since the last frame
+    # Draw warnings
     if self.warnings:
       frame.draw_text(
         self.font_med,
@@ -436,7 +476,6 @@ class Inspector(Logger):
         WARNING_COLOR,
         (Relative(1), Relative(1)),
         (-1, -1))
-      self.warnings.clear()
 
     # Save the frame
     self.frames.append((frame, stage))
@@ -590,6 +629,12 @@ def _draw_space_label(frame, space, font, color):
         (-1, -1))
 
 def _draw_planner(frame, planner, font, border_color, bg_color, label_radius, line_thickness):
+  if len(planner.baseplates) > 1:
+    for bp in planner.baseplates:
+      frame.draw_circle(
+        border_color,
+        bp.center,
+        Absolute(line_thickness / 2 + 2))
   origin = planner.center
   frame.draw_circle(
     border_color,
@@ -601,6 +646,12 @@ def _draw_planner(frame, planner, font, border_color, bg_color, label_radius, li
       a.center,
       b.center,
       line_thickness + 4)
+  if len(planner.baseplates) > 1:
+    for bp in planner.baseplates:
+      frame.draw_circle(
+        bg_color,
+        bp.center,
+        Absolute(line_thickness / 2))
   frame.draw_circle(
     bg_color,
     origin,
@@ -611,15 +662,28 @@ def _draw_planner(frame, planner, font, border_color, bg_color, label_radius, li
       a.center,
       b.center,
       line_thickness)
-  if len(planner.baseplates) > 1:
-    for i in 0, -1:
-      frame.draw_circle(
-        border_color,
-        planner.baseplates[i].center,
-        Absolute(4))
   frame.draw_text(
     font,
     f'{planner.id:d}',
     PLANNER_TEXT_COLOR,
     origin,
     (0, 0))
+
+def _word_wrap(text: str, chars: int):
+  def h():
+    for line in text.splitlines():
+      while line:
+        if len(line) <= chars:
+          yield line
+          break
+        ptr = chars
+        while ptr > 0:
+          if line[ptr].isspace():
+            yield line[:ptr]
+            line = line[ptr+1:]
+            break
+          ptr -= 1
+        else:
+          yield line[:chars]
+          line = line[chars:]
+  return '\n'.join(h())
