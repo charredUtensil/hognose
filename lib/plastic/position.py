@@ -63,7 +63,7 @@ class Position(object):
     ty = (self.ty + offset[1]) * Position.ENTITY_SCALE
     tz = self.tz
     rp = rads_to_degrees(self.rp)
-    ry = rads_to_degrees(self.ry) + rotation_offset
+    ry = rads_to_degrees(self.ry + rotation_offset)
     rr = rads_to_degrees(self.rr)
     return (
       f'Translation: X={tx:.3f} Y={ty:.3f} Z={tz:.3f} '
