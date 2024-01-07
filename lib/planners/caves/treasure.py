@@ -120,22 +120,24 @@ def bids(stem, conquest):
     # Only put treasure caves at dead ends
     return
   pr = stem.pearl_radius
+  fh = any(p.fluid_type is not None for p in conquest.intersecting(stem))
   if stem.fluid_type == Tile.WATER and pr > 3:
     yield (0.5, lambda: NougatCavePlanner(
         stem, Oysters.ISLAND_NOUGAT))
-    if not any(p.fluid_type for p in conquest.intersecting(stem)):
+    if not fh:
       yield (0.5, lambda: HoardCavePlanner(
           stem, Oysters.PENINSULA_HOARD))
   elif stem.fluid_type == Tile.LAVA and pr > 3:
     yield (0.5, lambda: NougatCavePlanner(
         stem, Oysters.LAVA_ISLAND_NOUGAT))
-    if not any(p.fluid_type for p in conquest.intersecting(stem)):
+    if not fh:
       yield (0.5, lambda: HoardCavePlanner(
           stem, Oysters.LAVA_PENINSULA_HOARD))
   elif len(stem.baseplates) > 1:
     yield (1, lambda: NougatCavePlanner(stem, Oysters.OPEN_NOUGAT))
   else:
-    yield (0.5, lambda: HoardCavePlanner(stem, Oysters.OPEN_HOARD))
+    if not fh:
+      yield (0.5, lambda: HoardCavePlanner(stem, Oysters.OPEN_HOARD))
     yield (0.5, lambda: HoardCavePlanner(stem, Oysters.SEALED_HOARD))
 
 class Oysters:

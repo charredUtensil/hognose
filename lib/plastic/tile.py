@@ -21,6 +21,10 @@ class Tile(enum.Enum):
   HARD_ROCK     = (34,  True,  True, (0x73, 0x1C, 0xAD))
   SOLID_ROCK    = (38,  True, False, (0x80, 0x00, 0x80))
   # Floor tiles
+  RUBBLE_1      = ( 2, False,  True, (0x18, 0x00, 0x32))
+  RUBBLE_2      = ( 3, False,  True, (0x18, 0x00, 0x32))
+  RUBBLE_3      = ( 4, False,  True, (0x18, 0x00, 0x32))
+  RUBBLE_4      = ( 5, False,  True, (0x18, 0x00, 0x32))
   FOUNDATION    = (14, False,  True, (0xBF, 0xBF, 0xBF))
   POWER_PATH    = (24, False,  True, (0x9D, 0x9B, 0x00))
   # Wall tiles

@@ -73,7 +73,7 @@ class Context(object):
     # longer rivers. Smaller numbers result in more individual lakes.
     # Does not affect the total water or lava in the cavern.
     self.water_spread                    = 0.75
-    self.lava_spread                     = 0.30
+    self.lava_spread                     = 0.15
 
     # The chance for a cave/hall with lava or erosion to spread erosion to
     # its neighbors.

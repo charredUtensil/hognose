@@ -1,6 +1,6 @@
 """Plastic (because LEGO) is anything that actually goes in the file."""
 
-from .building import Building
+from .building import Building, BuildingDoesNotFitException
 from .creatures import Creature
 from .diorama import Diorama
 from .hazards import Erosion, Landslide

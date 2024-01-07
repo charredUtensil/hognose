@@ -79,6 +79,7 @@ EROSION_COLOR = Tile.LAVA.inspect_color
 LANDSLIDE_COLOR                         = (0xff, 0x00, 0x00)
 CRYSTAL_COLOR = Tile.CRYSTAL_SEAM.inspect_color
 BUILDING_COLOR                          = (0xff, 0xff, 0x00)
+BUILDING_LABEL_COLOR                    = (0x44, 0x44, 0x00)
 BUILDING_LABEL_RADIUS = 10
 
 MINER_COLOR                             = (0xff, 0xff, 0x00)
@@ -130,9 +131,9 @@ class Inspector(Logger):
             b,
             BASEPLATE_COLORS[b.kind],
             BASEPLATE_OUTLINE_COLORS[b.kind])
-      for i, b in enumerate(self.cavern.bubbles):
+      for b in self.cavern.bubbles:
         _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
-      for i, b in enumerate(self.cavern.bubbles):
+      for b in self.cavern.bubbles:
         _draw_space_label(frame, b, self.font, BUBBLE_LABEL_COLOR)
       if not self.cavern.conquest:
         for b in self.cavern.baseplates:
@@ -352,13 +353,29 @@ class Inspector(Logger):
 
       # Draw buildings
       for building in self.cavern.diorama.buildings:
+        rect = (building.x - 0.5, building.y - 0.5, 1, 1)
+        frame.draw_rect(
+            BUILDING_COLOR,
+            rect)
+        frame.draw_rect(
+            Tile.FOUNDATION.inspect_color,
+            rect,
+            2)
+        theta = building.theta
+        frame.draw_line(
+            BUILDING_COLOR,
+            (building.x, building.y),
+            (building.x + math.cos(theta) * 0.5,
+             building.y + math.sin(theta) * 0.5),
+            3)
         frame.draw_label_for_rect(
-          self.font,
-          building.type.inspect_abbrev,
-          BUILDING_COLOR,
-          None,
-          (building.x - 0.5, building.y - 0.5, 1, 1),
-          (0, 0))
+            self.font,
+            building.type.inspect_abbrev,
+            BUILDING_LABEL_COLOR,
+            None,
+            rect,
+            (0, 0),
+            False)
 
       # Draw creatures
       for creature in self.cavern.diorama.creatures:
@@ -413,6 +430,12 @@ class Inspector(Logger):
             None,
             label_rect,
            (1, 0))
+
+    if stage == 'foo':
+      for b in details:
+        _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
+      for b in details:
+        _draw_space_label(frame, b, self.font, BUBBLE_LABEL_COLOR)
 
     # Draw titles
     # Top left: Frame + Stage
