@@ -5,7 +5,7 @@ import math
 from .base import BaseCavePlanner
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, BuildingDoesNotFitException, Facing, Tile
+from lib.plastic import Building, Facing, Position, Tile
 from lib.utils.geometry import plot_line
 
 class EstablishedHQCavePlanner(BaseCavePlanner):
@@ -78,7 +78,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
           f'failed to place remaining {len(template_queue)} buildings')
     if self.is_spawn:
       diorama.open_cave_flags.add(buildings[0].foundation_tiles[0])
-      x, y = baseplate.center
+      x, y = bp.center
       diorama.camera_position = Position(
           (x, y, 0), (math.pi / 4, math.pi * 0.75, 0))
     for building in buildings:
