@@ -11,7 +11,8 @@ def bids(stem, conquest):
   pr = stem.pearl_radius
   if stem.fluid_type == Tile.WATER:
     yield (1, lambda: EmptyHallPlanner(stem, Oysters.RIVER))
-    if pr > 1:
+    if pr > 1 and all(
+        p.fluid_type == Tile.WATER for p in conquest.intersecting(stem)):
       yield (1, lambda: EmptyHallPlanner(stem, Oysters.STREAM))
   elif stem.fluid_type == Tile.LAVA:
     yield (1, lambda: EmptyHallPlanner(stem, Oysters.LAVA_RIVER))

@@ -134,6 +134,7 @@ class Conquest(ProceduralThing):
             + curve.hops * stem.hops_to_spawn / queue[-1].hops_to_spawn
             + curve.completion * i / self.total)
       stem.crystal_richness   = curved(self.context.crystal_richness)
+      stem.ore_richness       = curved(self.context.ore_richness)
       stem.monster_spawn_rate = curved(self.context.monster_spawn_rate)
       stem.monster_wave_size  = curved(self.context.monster_wave_size)
       if i == 0:

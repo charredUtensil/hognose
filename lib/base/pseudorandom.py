@@ -30,6 +30,8 @@ KINDS = (
   'monster_spawner',
   'pick_spawn_cave',
   'place_buildings',
+  'expected_ore',
+  'place_ore',
 )
 
 class Rng(object):

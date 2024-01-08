@@ -17,10 +17,20 @@ class BaseCavePlanner(SomaticPlanner):
   def baroqueness(self) -> float:
     return self.context.cave_baroqueness
 
+  @functools.cached_property
+  def expected_ore(self) -> int:
+    return self._get_expected_ore()
+
   def _get_expected_crystals(self):
     area = sum(bp.area() for bp in self.baseplates)
     mean = math.sqrt(area) * self._stem.crystal_richness
     return self.rng['conquest.expected_crystals'].beta_int(
+        a = 5, b = 2, min = 0, max = mean * 1.25)
+
+  def _get_expected_ore(self):
+    area = sum(bp.area() for bp in self.baseplates)
+    mean = math.sqrt(area) * self._stem.ore_richness
+    return self.rng['expected_ore'].beta_int(
         a = 5, b = 2, min = 0, max = mean * 1.25)
 
   @functools.cached_property
@@ -63,6 +73,7 @@ class BaseCavePlanner(SomaticPlanner):
     self.fine_recharge_seam(diorama)
     self.fine_buildings(diorama)
     self.fine_crystals(diorama)
+    self.fine_ore(diorama)
     self.fine_landslides(diorama)
     self.fine_erosion(diorama)
     self.fine_place_entities(diorama)
@@ -76,6 +87,9 @@ class BaseCavePlanner(SomaticPlanner):
 
   def fine_crystals(self, diorama: Diorama):
     self.place_crystals(diorama, self.expected_crystals)
+
+  def fine_ore(self, diorama: Diorama):
+    self.place_ore(diorama, self.expected_ore)
 
   def fine_landslides(self, diorama: Diorama):
     if self.rng['fine.place_landslides'].chance(self.context.cave_landslide_chance):
@@ -93,33 +107,57 @@ class BaseCavePlanner(SomaticPlanner):
     monster_spawner = self.monster_spawner
     if monster_spawner:
       monster_spawner.place_script(diorama)
-    
+
   def place_crystals(self, diorama: Diorama, count: int):
-    rng = self.rng['fine.place_crystals']
+    self._place_resource(
+        self.rng['fine.place_crystals'],
+        Tile.CRYSTAL_SEAM,
+        'crystals',
+        diorama.tiles,
+        diorama.crystals,
+        count)
+
+  def place_ore(self, diorama: Diorama, count: int):
+    self._place_resource(
+        self.rng['place_ore'],
+        Tile.ORE_SEAM,
+        'ore',
+        diorama.tiles,
+        diorama.ore,
+        count)
+    
+  def _place_resource(
+      self,
+      rng,
+      seam,
+      resource_name,
+      tiles,
+      resource,
+      count):
     t = tuple(
       pearl_info.pos
       for pearl_info
       in self.pearl.inner
-      if diorama.tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
+      if tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       for _ in range(count):
         x, y = rng.uniform_choice(t)
-        existing = diorama.crystals.get((x, y), 0)
-        if existing >= 3 and diorama.tiles.get((x, y)) != Tile.CRYSTAL_SEAM:
-          diorama.tiles[x, y] = Tile.CRYSTAL_SEAM
-          diorama.crystals[x, y] = existing - 3
+        existing = resource.get((x, y), 0)
+        if existing >= 3 and tiles.get((x, y)) != seam:
+          tiles[x, y] = seam
+          resource[x, y] = existing - 3
         else:
-          diorama.crystals[x, y] = existing + 1
+          resource[x, y] = existing + 1
     else:
       def placements():
         for pearl_info in self.pearl.outer:
           x, y = pearl_info.pos
-          tile = diorama.tiles.get((x, y), Tile.SOLID_ROCK)
+          tile = tiles.get((x, y), Tile.SOLID_ROCK)
           if tile == Tile.SOLID_ROCK:
             neighbor_count = collections.Counter()
             for (ox, oy) in ((0, -1), (0, 1), (-1, 0), (1, 0)):
               neighbor_count[
-                  diorama.tiles.get((x + ox, y + oy), Tile.SOLID_ROCK)] += 1
+                  tiles.get((x + ox, y + oy), Tile.SOLID_ROCK)] += 1
             if any(
                 n not in (Tile.SOLID_ROCK, Tile.RECHARGE_SEAM)
                 for n in neighbor_count):
@@ -128,16 +166,16 @@ class BaseCavePlanner(SomaticPlanner):
             yield 4, (x, y)
       try:
         _, (x, y) = max(placements())
-        crystals = count
-        if crystals >= 4:
-          diorama.tiles[x, y] = Tile.CRYSTAL_SEAM
-          crystals -= 4
-        elif diorama.tiles.get((x, y), Tile.SOLID_ROCK) == Tile.SOLID_ROCK:
-          diorama.tiles[x, y] = Tile.LOOSE_ROCK
-        diorama.crystals[x, y] += crystals
+        remaining = count
+        if remaining >= 4:
+          tiles[x, y] = seam
+          remaining -= 4
+        elif tiles.get((x, y), Tile.SOLID_ROCK) == Tile.SOLID_ROCK:
+          tiles[x, y] = Tile.LOOSE_ROCK
+        resource[x, y] += remaining
       except ValueError:
         self.context.logger.log_warning(
-            f'Failed to place crystals in #{self.id}')
+            f'Failed to place {resource_name} in #{self.id}')
 
   def place_recharge_seam(self, diorama):
     def placements():

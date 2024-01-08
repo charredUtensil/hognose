@@ -78,6 +78,8 @@ PEARL_OUTER_LAYER_COLORS = [
 EROSION_COLOR = Tile.LAVA.inspect_color
 LANDSLIDE_COLOR                         = (0xff, 0x00, 0x00)
 CRYSTAL_COLOR = Tile.CRYSTAL_SEAM.inspect_color
+ORE_COLOR = Tile.ORE_SEAM.inspect_color
+
 BUILDING_COLOR                          = (0xff, 0xff, 0x00)
 BUILDING_LABEL_COLOR                    = (0x44, 0x44, 0x00)
 BUILDING_LABEL_RADIUS = 10
@@ -310,6 +312,25 @@ class Inspector(Logger):
         (Relative(0.5), Relative(0.5)),
         (0, 0))
     elif stage not in FADED_TILE_STAGES:
+      # Draw ore
+      for (x, y), ore in self.cavern.diorama.ore.items():
+        if self.cavern.diorama.tiles.get((x, y)) == Tile.ORE_SEAM:
+          ore += 4
+        if ore < 5:
+          frame.draw_circle(
+            ORE_COLOR,
+            (x + 0.25, y + 0.25),
+            ore / 4,
+            1)
+        else:
+          frame.draw_label_for_rect(
+            self.font,
+            f'{ore:d}',
+            ORE_COLOR,
+            (0, 0, 0),
+            (x, y, 1, 1),
+            (0, 0))
+
       # Draw erosions
       for (x, y), event in self.cavern.diorama.erosions.items():
         frame.draw_line(
@@ -339,7 +360,7 @@ class Inspector(Logger):
         if crystals < 5:
           frame.draw_circle(
             CRYSTAL_COLOR,
-            (x + 0.5, y + 0.5),
+            (x + 0.75, y + 0.75),
             crystals / 4,
             1)
         else:

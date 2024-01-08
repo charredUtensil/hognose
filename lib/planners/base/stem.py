@@ -24,6 +24,7 @@ class StemPlanner(Planner):
       Tile.LAVA]] = None
     self.has_erosion = False
     self.crystal_richness = 0
+    self.ore_richness = 0
     self.monster_spawn_rate = 0
     self.monster_wave_size = 0
 
