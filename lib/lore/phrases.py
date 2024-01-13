@@ -77,26 +77,8 @@ class PhraseGraph(object):
     states['start'] = True
     states['end'] = True
     self._check_state_keys(states)
-    
-    # Remove any phrases that don't apply to the state
-    pruned = set(
-        p._id for p in self._phrases
-        if isinstance(p, Condition) and not states[p.state])
-    # Remove any dead ends
-    prune_queue = set(p._id for p in self._phrases) - pruned
-    while prune_queue:
-      id = prune_queue.pop()
-      if id <= self._end._id:
-        continue
-      p = self._phrases[id]
-      if all(idb in pruned for idb in p._before):
-        pruned.add(id)
-        prune_queue.update(set(p._after) - pruned)
-      if all(ida in pruned for ida in p._after):
-        pruned.add(id)
-        prune_queue.update(set(p._before) - pruned)
 
-    # Determine which states can be reached at or downstream from each phrase
+    # Determine which sets of states can be reached at or downstream from each phrase
     tags: List[Optional[FrozenSet[FrozenSet[str]]]] = [None for p in self._phrases]
     tag_queue = set((self._end._id,))
     while tag_queue:
@@ -104,22 +86,26 @@ class PhraseGraph(object):
       p = self._phrases[id]
       def pat():
         for ida in p._after:
-          if ida not in pruned:
-            yield from tags[ida]
+          yield from tags[ida]
       pt = set(pat())
-      if isinstance(p, Condition) and states[p.state]:
-        pt.add(frozenset())
-        ptc = frozenset((p.state,))
-        pt = (s | ptc for s in pt)
+      # If we reach a condition...
+      if isinstance(p, Condition):
+        # ...for a state we want...
+        if states[p.state]:
+          # ...add it to all possible states
+          pt.add(frozenset())
+          ptc = frozenset((p.state,))
+          pt = (s | ptc for s in pt)
+        # ...for a state we can't have
+        else:
+          # no possible states can be reached from here.
+          # since 'end' is a state, that will ensure this path is not chosen.
+          pt = frozenset()
       tags[id] = frozenset(pt)
       for idb in p._before:
-        if idb not in pruned:
-          pb = self._phrases[idb]
-          for idab in pb._after:
-            if idab not in pruned and tags[idab] is None:
-              break
-          else:
-            tag_queue.add(idb)
+        pb = self._phrases[idb]
+        if not any(tags[idab] is None for idab in pb._after):
+          tag_queue.add(idb)
 
     # Choose random path (n.b. this should probably be weighted instead)
     def walk():
@@ -132,11 +118,10 @@ class PhraseGraph(object):
           states_remaining.remove(p.state)
         def c():
           for ida in p._after:
-            if ida not in pruned:
-              for ta in tags[ida]:
-                if states_remaining <= ta:
-                  yield ida
-                  break
+            for ta in tags[ida]:
+              if states_remaining <= ta:
+                yield ida
+                break
         choices = tuple(c())
         if not choices:
           raise ValueError(

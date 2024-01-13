@@ -41,30 +41,38 @@ def _make_pg():
         'another cavern where we can continue our mining operations')).then()
 
   however = pg.then(
-      'However,',
-      'Unfortunately,',
-      'The bad news?')
+      '. However,',
+      '. Unfortunately,',
+      '. Unfortunately for us,',
+      '. The bad news?')
 
   be_careful = pg.then(
       ', but be careful!',
-      ', but use extreme caution!',
-      '. Stay sharp, though.'
-  )
+      ', but use caution!',
+      '. Stay sharp, though.')
 
   miners_are_missing = pg.then().then(
       pg.on('lost_miners_one').then(
           'one of our Rock Raiders has gone missing',
           'a recent cave-in has trapped one of our Rock Radiers',
-          'a teleporter malfunction sent one of our Rock Raiders to the wrong cave') |
+          'a teleporter malfunction sent one of our Rock Raiders to the wrong '
+          'cave') |
       pg.on('lost_miners_together').then(
           'some of our Rock Raidiers have gone missing',
           'a recent cave-in has trapped some of our Rock Raiders',
-          'our Rock Raider surveying group has not checked in for some time') |
+          'a surveying group has not checked in for some time') |
       pg.on('lost_miners_many').then(
-          'some of the Rock Raidiers that were exploring this cavern have gone '
-          'missing',
-          'a teleporter malfunction has scattered some of our miners throughout '
-          'the cavern')).then()
+          'some of the Rock Raidiers that were exploring this cavern have '
+          'gone missing',
+          'a teleporter malfunction has scattered some of our miners '
+          'throughout the cavern')).then()
+
+  find_them = (
+    pg.on('has_monsters').then(
+      '. We need to find them before the %(monster_type)s monsters do.',
+      ', and I hope they don\'t meet any of the %(monster_type)s monsters '
+      'roaming this cavern.')
+  )
 
   spawn_is_ruins = pg.on('spawn_is_ruins').then(
       'Recent seismic activity has damaged our Rock Raider HQ')
@@ -91,10 +99,9 @@ def _make_pg():
       'we are concerned about nearby lava flows that could engulf this cavern')
 
   has_monsters = pg.on('has_monsters').then(
-      'the tunnels here are full of creatures that threaten our operations.',
-      'we are picking up signs of large creatures in the area.',
-      'this cavern is inhabited by nests of monsters.')
-  has_monsters.end()
+      'the tunnels here are full of creatures that threaten our operations',
+      'we are picking up signs of large creatures in the area',
+      'this cavern is inhabited by nests of %(monster_type)s monsters')
 
   pg.start.then(
       'Our mining operations have been going smoothly, and we are ready to '
@@ -107,14 +114,15 @@ def _make_pg():
   greeting.then(we_found).then(a_cave)
   a_cave.then('.').end()
   a_cave.then(however | be_careful)
-  miners_are_missing.then('.').end()
   (greeting | however).then(miners_are_missing)
   greeting.then(spawn_is_ruins)
   hq_destroyed_and_miners_lost.then('.').end()
   (however | hardship_and).then(spawn_has_erosion)
+  miners_are_missing.then(find_them).then('.').end()
   be_careful.then(spawn_has_erosion | has_monsters)
   spawn_has_erosion.then('.').end()
   (hardship_and | spawn_has_erosion.then('. Also,')).then(has_monsters)
+  has_monsters.then('.').end()
   return pg
 
 PREMISES = _make_pg()

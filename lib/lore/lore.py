@@ -35,6 +35,11 @@ class Lore(object):
     lost_miner_caves = sum(
         1 for p in self.cavern.conquest.planners
         if isinstance(p, LostMinersCavePlanner))
+    monster_type = {
+        Biome.ROCK: 'rock',
+        Biome.ICE: 'ice',
+        Biome.LAVA: 'lava',
+    }[self.cavern.context.biome]
     treasure_count = sum(
         1 for p in self.cavern.conquest.planners
         if isinstance(p, TreasureCavePlanner))
@@ -42,11 +47,15 @@ class Lore(object):
     spawn = self.cavern.conquest.spawn
     spawn_is_ruins = (
         isinstance(spawn, EstablishedHQCavePlanner) and spawn.is_ruin)
+    find_hq = not spawn_is_ruins and any(
+        isinstance(p, EstablishedHQCavePlanner) for p in self.cavern.conquest.planners
+    )
 
     premise = PREMISES.generate(rng, {
+        'has_monsters': self.cavern.context.has_monsters,
+        #'find_hq': find_hq,
         'flooded_lava': flooded_kind == Tile.LAVA,
         'flooded_water': flooded_kind == Tile.WATER,
-        'has_monsters': self.cavern.context.has_monsters,
         'lost_miners_one': lost_miners == 1,
         'lost_miners_together': lost_miners > 1 and lost_miner_caves == 1,
         'lost_miners_many': lost_miner_caves > 1,
@@ -57,6 +66,7 @@ class Lore(object):
     })
     orders = ORDERS.generate(rng, {
         'collect_resources': bool(resources),
+        'find_hq': find_hq,
         'has_monsters': self.cavern.context.has_monsters,
         'lost_miners_one': lost_miners == 1,
         'lost_miners_many': lost_miners > 1,
