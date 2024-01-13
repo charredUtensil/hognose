@@ -4,6 +4,8 @@ from typing import List, Optional, Tuple
 
 import itertools
 import math
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame
 import traceback
 

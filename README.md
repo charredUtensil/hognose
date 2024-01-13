@@ -66,6 +66,9 @@ easier to add would be caves with specific things in them - like
 Unfortunately, things have been changing so quickly that seeds still aren't
 generating consistent caverns between versions.
 
+0x659f9b99 - Find a ruined base in a lava cavern
+0x65a20857 - A large water lake in a lava cavern
+
 ## Were any of these Qs actually FA'ed?
 
 No.

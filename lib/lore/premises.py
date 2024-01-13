@@ -1,118 +1,120 @@
-def premise():
-  ph = phrasegen()
+from typing import Iterable
 
-  ths = ph.start.then('The Hognose scanner')
-  alm = ths.then('aboard the L.M.S. Explorer')
-  ipu = ph.start.any(ths, alm).then(
-      'is picking up', 'has discovered', 'indicates', 'is showing')
+from .phrases import PhraseGraph
 
-  ts  = ph.start.then('The scanners')
-  alm = tsz.then('aboard the L.M.S. Explorer')
-  we  = ph.start.then('We')
-  hf  = ph.any(ts, alm, we).then(
-      'have found', 'have located', 'have discovered')
+def _make_pg():
+  pg = PhraseGraph()
 
-  itr = ph.any(ipu, hf)
-  del ths, alm, ipu, ts, we, hf
+  greeting = (
+      pg.then(
+          'Are you ready for the next mission?',
+          'I hope you\'re prepared for this one, Cadet.',
+          'Cadet, are you up for some more action?') |
+      pg.on('flooded_water').then(
+          'Are you ready to set sail?',
+          'I hope you packed your lifejacket, Cadet.') |
+      pg.on('flooded_lava').then(
+          'I hope you\'re not afraid of a little heat!')).then()
 
-  otc = itr.on(treasure_caves == 1).then(
-      'a large Energy Crystal signature near here',
-      'a nearby cave with an abundance of Energy Crystals')
+  we_found = (
+      pg.then(
+          'A recent scan',
+          'The Hognose scanner',
+          'The Hognose scanner aboard the L.M.S. Explorer'
+          ).then(
+          'found', 'has discovered', 'has indicated') |
+      pg.then(
+          'We',
+          'The scanners',
+          'The scanners aboard the L.M.S. Explorer'
+          ).then(
+          'have found', 'have located', 'have discovered')).then()
 
-  mtc = itr.on(treasure_caves > 1).then(
-      'large deposits of Energy Crystals in this cavern',
-      'a cave system with an abundance of Energy Crystals')
+  a_cave = (
+      pg.on('treasure_one').then(
+          'a large Energy Crystal signature near here',
+          'a nearby cave with an abundance of Energy Crystals') |
+      pg.on('treasure_many').then(
+          'large deposits of Energy Crystals in this cavern',
+          'a cave system with an abundance of Energy Crystals') |
+      pg.then(
+        'another cavern where we can continue our mining operations')).then()
 
-  gcr = itr.then(
-      'another cavern to continue our mining operations')
-
-  fcs = ph.any(otc, mtc, gcr).then('.')
-  del otc, mtc, gcr
-  fcs.end()
-
-  pnb = fcs.then(
+  however = pg.then(
       'However,',
       'Unfortunately,',
       'The bad news?')
 
-  olm = ph.any(ph.start, pnb).on(lost_miners == 1).then(
-      'one of our Rock Raiders has gone missing',
-      'a recent cave-in has trapped one of our Rock Radiers',
-      'a teleporter malfunction sent one of our Rock Raiders to the wrong cave')
+  be_careful = pg.then(
+      ', but be careful!',
+      ', but use extreme caution!',
+      '. Stay sharp, though.'
+  )
 
-  lmt = ph.any(ph.start, pnb).on(lost_miners > 1 and lost_miner_caves == 1).then(
-      'some of our Rock Radiers have gone missing',
-      'a recent cave-in has trapped some of our Rock Raiders',
-      'our Rock Raider surveying group has not checked in for some time')
+  miners_are_missing = pg.then().then(
+      pg.on('lost_miners_one').then(
+          'one of our Rock Raiders has gone missing',
+          'a recent cave-in has trapped one of our Rock Radiers',
+          'a teleporter malfunction sent one of our Rock Raiders to the wrong cave') |
+      pg.on('lost_miners_together').then(
+          'some of our Rock Raidiers have gone missing',
+          'a recent cave-in has trapped some of our Rock Raiders',
+          'our Rock Raider surveying group has not checked in for some time') |
+      pg.on('lost_miners_many').then(
+          'some of the Rock Raidiers that were exploring this cavern have gone '
+          'missing',
+          'a teleporter malfunction has scattered some of our miners throughout '
+          'the cavern')).then()
 
-  lma = ph.any(ph.start, pnb).on(lost_miner_caves > 1).then(
-      'some of the Rock Radiers that were exploring this cavern have gone '
-      'missing',
-      'a teleporter malfunction has scattered some of our miners throughout '
-      'the cavern')
+  spawn_is_ruins = pg.on('spawn_is_ruins').then(
+      'Recent seismic activity has damaged our Rock Raider HQ')
 
-  lm  = ph.any(olm, lmt, lma)
-  del olm, lmt, lma
-  lm.then('.').end()
-  nxp = ph.any(pnb, lm.then('.', 'and', '. If that wasn\'t hard enough,'))
+  hq_destroyed_and_miners_lost = spawn_is_ruins.then('.', ', and').then(
+      pg.on('lost_miners_one').then(
+          'one of our Rock Raiders is missing') |
+      pg.on('lost_miners_together').then(
+          'a group of Rock Raidiers are missing',
+          'a group of Rock Raidiers are trapped somewhere in the cavern') |
+      pg.on('lost_miners_many').then(
+          'some of our Rock Raidiers are missing',
+          'our Rock Raiders are trapped throughout the cavern')).then()
 
-  sha = nxp.then(
-      'a nearby lava flow is threatening our Rock Raider HQ',
+  hardship_and = (
+      miners_are_missing.then(
+          '.', 'and', '. If that wasn\'t hard enough,') |
+      spawn_is_ruins.then('.', ', and') |
+      hq_destroyed_and_miners_lost.then(
+          '.', '. If that wasn\'t hard enough,')).then()
+
+  spawn_has_erosion = pg.on('spawn_has_erosion').then(
       'we are dangerously close to a cavern full of lava',
-      'we are worried about nearby lava flows')
-  sha.then('.').end()
+      'we are concerned about nearby lava flows that could engulf this cavern')
 
-  mp  = ph.any(nxp, sha.then('.')).then(
-      'we are picking up signs of %s in the area' % monster_type,
-      'this cavern is inhabited by nests of %s' % monster_type)
-  mp.then('.').end()
+  has_monsters = pg.on('has_monsters').then(
+      'the tunnels here are full of creatures that threaten our operations.',
+      'we are picking up signs of large creatures in the area.',
+      'this cavern is inhabited by nests of monsters.')
+  has_monsters.end()
 
-  ph.start.then(
-      'our mining operations have been going smoothly, and we are ready to '
-      'move on to the next cavern',
-      'there is nothing out of the ordinary to report today',
-      'things have been quiet and I hope they should remain that way, Cadet',
-      ).then('.').end()
-  
-  return ph.generate()
+  pg.start.then(
+      'Our mining operations have been going smoothly, and we are ready to '
+      'move on to the next cavern.',
+      'There is nothing out of the ordinary to report today.',
+      'Things have been quiet and I hope they should remain that way, Cadet!',
+      ).end()
 
+  pg.start.then(greeting)
+  greeting.then(we_found).then(a_cave)
+  a_cave.then('.').end()
+  a_cave.then(however | be_careful)
+  miners_are_missing.then('.').end()
+  (greeting | however).then(miners_are_missing)
+  greeting.then(spawn_is_ruins)
+  hq_destroyed_and_miners_lost.then('.').end()
+  (however | hardship_and).then(spawn_has_erosion)
+  be_careful.then(spawn_has_erosion | has_monsters)
+  spawn_has_erosion.then('.').end()
+  (hardship_and | spawn_has_erosion.then('. Also,')).then(has_monsters)
+  return pg
 
-class Phrase(object):
-
-  def __init__(self, pg: 'PhraseGenerator', id: int, texts: Iterable[str], condition):
-    self._pg = pg
-    self._id = id
-    self._texts = tuple(texts)
-    self._after = []
-    self._before = []
-
-  def _then(self, other):
-    self._after.append(other)
-    other._before.append(self)
-
-  def then(self, *texts) -> 'Phrase':
-    r = self._pg._phrase(*texts)
-    self._then(r)
-    return r
-
-  def end(self):
-    self._then(self._pg._end)
-
-
-class PhraseGenerator(object):
-
-  def __init__(self):
-    self._phrases = []
-    self.start = self._phrase()
-    self._end = self._phrase()
-
-  def _phrase(self, *texts) -> Phrase:
-    r = Phrase(self, len(), texts)
-    self._phrases.append(r)
-    return r
-
-  def any(self, *phrases):
-    r = self._phrase()
-    for ph in phrases:
-      ph._then(r)
-    return r
+PREMISES = _make_pg()
