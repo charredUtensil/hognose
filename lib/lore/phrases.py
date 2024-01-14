@@ -11,7 +11,10 @@ class Phrase(object):
     self._before = []
 
   def __str__(self):
-    return f'{self._id}\n'+'\n'.join(t for t in self._texts)
+    return f'{self._id}\n'+'\n\n'.join(_word_wrap(t, 40) for t in self._texts)
+
+  def __repr__(self):
+    return f'{self._id}[%s]' % '/'.join(t[:10] for t in self._texts)
 
   def _join(self, other: 'Phrase'):
     self._after.append(other._id)
@@ -34,6 +37,11 @@ class PhraseGraph(object):
     s = (self._condition('start'),)
     self.start = PgBuilder(self, s, s)
     self._end = self._condition('end')
+    self.end = PgBuilder(self, (self._end,), (self._end,))
+
+  def __call__(self, *args) -> 'PgBuilder':
+    ph = (self._phrase(*args),)
+    return PgBuilder(self, ph, ph)
 
   def _condition(self, state) -> Condition:
     self._states.add(state)
@@ -46,28 +54,27 @@ class PhraseGraph(object):
     self._phrases.append(r)
     return r
 
-  def on(self, *args) -> 'PgBuilder':
-    ph = (self._condition(*args),)
-    return PgBuilder(self, ph, ph)
-
-  def then(self, *args) -> 'PgBuilder':
-    ph = (self._phrase(*args),)
-    return PgBuilder(self, ph, ph)
-
   def dump_svg(self, filename: str):
     import pydot
-    dot = pydot.Dot(graph_type='digraph')
+    dot = pydot.Dot(graph_type='digraph', rankdir='LR')
     def mknode(p):
-      n = pydot.Node(str(p))
-      n.set_shape('rectangle' if p._texts else 'none')
+      n = pydot.Node(
+          str(p),
+          shape='rectangle' if p._texts else 'none',
+          fontcolor='blue' if isinstance(p, Condition) else 'black')
       return n
     nodes = [mknode(p) for p in self._phrases]
     for n in nodes:
       dot.add_node(n)
     def edges():
-      for phrase in self._phrases:
-        for after in phrase._after:
-          yield pydot.Edge(nodes[phrase._id], nodes[after])
+      for p in self._phrases:
+        for ida in p._after:
+          pa = self._phrases[ida]
+          is_condition = isinstance(p, Condition) or isinstance(pa, Condition)
+          yield pydot.Edge(
+              nodes[p._id],
+              nodes[ida],
+              color='blue' if is_condition else 'black')
     for e in edges():
       dot.add_edge(e)
     dot.write_svg(filename)
@@ -92,10 +99,11 @@ class PhraseGraph(object):
       if isinstance(p, Condition):
         # ...for a state we want...
         if states[p.state]:
-          # ...add it to all possible states
+          # ...add it to all possible states and prune any downstream that already has
+          # that state.
           pt.add(frozenset())
           ptc = frozenset((p.state,))
-          pt = (s | ptc for s in pt)
+          pt = (s | ptc for s in pt if p.state not in s)
         # ...for a state we can't have
         else:
           # no possible states can be reached from here.
@@ -166,25 +174,44 @@ class PgBuilder(object):
         self._heads + other._heads,
         self._tails + other._tails)
 
-  def on(self, state) -> 'PgBuilder':
-    ph = (self._pg._condition(state),)
-    for t in self._tails:
-      t._join(ph[0])
-    return PgBuilder(self._pg, self._heads, ph)
+  def __repr__(self):
+    return f'PgBuilder {repr(self._heads)}>>{repr(self._tails)}'
 
-  def then(self, *args) -> 'PgBuilder':
-    if args and isinstance(args[0], PgBuilder):
-      other = args[0]
+  def __and__(self, state) -> 'PgBuilder':
+    ph = self._pg._condition(state)
+    for t in self._tails:
+      t._join(ph)
+    return PgBuilder(self._pg, self._heads, (ph,))
+
+  def __rshift__(self, other) -> 'PgBuilder':
+    if isinstance(other, PgBuilder):
       for t in self._tails:
         for h in other._heads:
           t._join(h)
       return PgBuilder(self._pg, self._heads, other._tails)
     else:
-      ph = (self._pg._phrase(*args),)
+      ph = (self._pg._phrase(other) if isinstance(other, str)
+          else self._pg._phrase(*other))
       for t in self._tails:
-        t._join(ph[0])
-      return PgBuilder(self._pg, self._heads, ph)
+        t._join(ph)
+      return PgBuilder(self._pg, self._heads, (ph,))
 
-  def end(self):
-    for t in self._tails:
-      t._join(self._pg._end)
+
+def _word_wrap(text: str, chars: int):
+  def h():
+    for line in text.splitlines():
+      while line:
+        if len(line) <= chars:
+          yield line
+          break
+        ptr = chars
+        while ptr > 0:
+          if line[ptr].isspace():
+            yield line[:ptr]
+            line = line[ptr+1:]
+            break
+          ptr -= 1
+        else:
+          yield line[:chars]
+          line = line[chars:]
+  return '\n'.join(h())

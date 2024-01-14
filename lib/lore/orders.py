@@ -5,80 +5,95 @@ from .phrases import PhraseGraph
 def _make_pg():
   pg = PhraseGraph()
 
-  build_hq = pg.then(
+  build_hq = pg(
       'build the Rock Raider HQ',
       'build up your base')
 
-  and_defend_it = pg.on('has_monsters').then(
+  and_defend_it = pg(
       'and keep it safe',
-      'and make sure it is heavily defended')
+      'and make sure it is heavily defended'
+      ) & 'has_monsters'
 
-  explore = pg.then(
+  explore = pg(
       'explore the cavern')
 
-  get_to_safety = pg.on('spawn_has_erosion').then(
+  get_to_safety = pg(
       'move to a safer cavern',
-      'get your Rock Raiders to safety')
+      'get your Rock Raiders to safety'
+      ) & 'spawn_has_erosion'
 
-  find_lost_miners = pg.then().then(
-      pg.on('lost_miners_one').then(
+  find_lost_miners = pg() >> (
+      pg(
           'find the lost Rock Raider',
-          'locate the missing Rock Raider') |
-      pg.on('lost_miners_many').then(
+          'locate the missing Rock Raider'
+          ) & 'lost_miners_one' |
+      pg(
           'find the lost Rock Raiders',
-          'locate the missing Rock Raiders')).then()
+          'locate the missing Rock Raiders'
+          ) & 'lost_miners_many'
+      ) >> ()
 
-  defend_hq = pg.on('has_monsters').then(
+  defend_hq = pg(
       'defend the Rock Radier HQ',
       'build up your defenses',
-      'arm your Rock Raiders')
+      'arm your Rock Raiders'
+      ) & 'has_monsters'
 
-  repair_hq = pg.on('spawn_is_ruins').then(
+  repair_hq = pg(
       'clean up this mess',
-      'get the Rock Raider HQ back in operation')
+      'get the Rock Raider HQ back in operation'
+      ) & 'spawn_is_ruins'
 
-  find_hq = pg.on('find_hq').then(
+  find_hq = pg(
       'reach the Rock Raider HQ',
-      'locate the base')
+      'locate the base'
+      ) & 'find_hq'
 
-  and_use_it_to = pg.then(
+  and_use_it_to = pg(
       'and use it to',
       ', and from there you can')
 
-  collect_resources = pg.on('collect_resources').then(
+  collect_resources = pg(
       'continue our mining operation by collecting %(resources)s',
-      'collect %(resources)s')
+      'collect %(resources)s'
+      ) & 'collect_resources'
 
-  sendoff = pg.then(
+  sendoff = pg(
       'We\'re counting on you, Cadet!',
       'Good luck out there, Cadet!')
 
-  first_task = pg.start.then(
+  first_task = pg.start >> (
       explore | build_hq | repair_hq | defend_hq |
-      get_to_safety).then()
-  defend_hq.then(',').then(explore)
-  pg.start.then(find_hq)
-  get_to_safety.then(',').then(build_hq | find_hq)
-  (first_task | find_hq).then('and').then(collect_resources)
-  first_task.then(
+      get_to_safety) >> ()
+
+  pg.start >> find_hq
+  get_to_safety >> ',' >> (build_hq | find_hq)
+
+  pg.start >> find_lost_miners
+  first_task >> (
       ', then',
       'and',
-      ).then(find_lost_miners)
-  (build_hq | repair_hq | find_hq).then(and_defend_it)
-  find_hq.then(and_use_it_to).then(find_lost_miners | collect_resources)
-  and_defend_it.then(
+      ) >> find_lost_miners
+
+  (build_hq | repair_hq | find_hq) >> and_defend_it
+  find_hq >> and_use_it_to >> (find_lost_miners | collect_resources)
+  defend_hq >> ',' >> explore
+
+  (first_task | find_hq) >> 'and' >> collect_resources
+  and_defend_it >> (
       '. Then',
       '. Once you have done that,'
-      ).then(collect_resources)
-  pg.start.then(find_lost_miners)
-  find_lost_miners.then(
+      ) >> collect_resources
+  find_lost_miners >> (
       '. Once you have done that,',
       '. With them secure,',
       '. Along the way,'
-      ).then(collect_resources)
-  last_task = (and_defend_it | find_lost_miners | collect_resources).then('.')
-  last_task.end()
-  last_task.then(sendoff).end()
+      ) >> collect_resources
+
+  last_task = (and_defend_it | find_lost_miners | collect_resources) >> '.'
+  last_task >> pg.end
+  last_task >> sendoff >> pg.end
+
   return pg
 
 ORDERS = _make_pg()
