@@ -1,24 +1,26 @@
-from typing import FrozenSet, Iterable, List, Tuple
+from typing import Dict, FrozenSet, Iterable, List, Set, Tuple
 
+import collections
 import functools
 
 class Phrase(object):
 
-  def __init__(self, id: int, texts: Iterable[str]):
-    self._id = id
-    self._texts = tuple(texts)
-    self._after = []
-    self._before = []
+  def __init__(self, id: int, texts):
+    self._id: int = id
+    self._texts: Tuple[str] = tuple(texts)
+    self._after: List['Phrase'] = []
+    self._before: List['Phrase'] = []
+    self._tagged_states: Optional[Dict(FrozenSet[str], int)] = None
 
   def __str__(self):
-    return f'{self._id}\n'+'\n\n'.join(_word_wrap(t, 40) for t in self._texts)
+    return f'{self._id}\n'+'\n'.join(_word_wrap(t, 40) for t in self._texts)
 
   def __repr__(self):
     return f'{self._id}[%s]' % '/'.join(t[:10] for t in self._texts)
 
   def _join(self, other: 'Phrase'):
-    self._after.append(other._id)
-    other._before.append(self._id)
+    self._after.append(other)
+    other._before.append(self)
 
 class Condition(Phrase):
 
@@ -56,106 +58,78 @@ class PhraseGraph(object):
 
   def dump_svg(self, filename: str):
     import pydot
-    dot = pydot.Dot(graph_type='digraph', rankdir='LR')
+    dot = pydot.Dot(graph_type='digraph', rankdir='LR', TBbalance='max')
     def mknode(p):
       n = pydot.Node(
           str(p),
           shape='rectangle' if p._texts else 'none',
-          fontcolor='blue' if isinstance(p, Condition) else 'black')
+          fontcolor=_graph_node_color(p))
       return n
     nodes = [mknode(p) for p in self._phrases]
     for n in nodes:
       dot.add_node(n)
     def edges():
       for p in self._phrases:
-        for ida in p._after:
-          pa = self._phrases[ida]
-          is_condition = isinstance(p, Condition) or isinstance(pa, Condition)
+        for after in p._after:
           yield pydot.Edge(
               nodes[p._id],
-              nodes[ida],
-              color='blue' if is_condition else 'black')
+              nodes[after._id],
+              color=_graph_edge_color(p, after))
     for e in edges():
       dot.add_edge(e)
     dot.write_svg(filename)
-
-  def generate(self, rng, states):
-    states = dict(states)
-    states['start'] = True
-    states['end'] = True
-    self._check_state_keys(states)
-
+  
+  def compile(self):
     # Determine which sets of states can be reached at or downstream from each phrase
-    tags: List[Optional[FrozenSet[FrozenSet[str]]]] = [None for p in self._phrases]
-    tag_queue = set((self._end._id,))
-    while tag_queue:
-      id = tag_queue.pop()
-      p = self._phrases[id]
-      def pat():
-        for ida in p._after:
-          yield from tags[ida]
-      pt = set(pat())
+    queue: Set[Phrase] = set(p for p in self._phrases if not p._after)
+    while queue:
+      p = queue.pop()
+      pt = collections.Counter()
+      for after in p._after:
+        for states, count in after._tagged_states.items():
+          pt[states] += count
       # If we reach a condition...
       if isinstance(p, Condition):
-        # ...for a state we want...
-        if states[p.state]:
-          # ...add it to all possible states and prune any downstream that already has
-          # that state.
-          pt.add(frozenset())
-          ptc = frozenset((p.state,))
-          pt = (s | ptc for s in pt if p.state not in s)
-        # ...for a state we can't have
-        else:
-          # no possible states can be reached from here.
-          # since 'end' is a state, that will ensure this path is not chosen.
-          pt = frozenset()
-      tags[id] = frozenset(pt)
-      for idb in p._before:
-        pb = self._phrases[idb]
-        if not any(tags[idab] is None for idab in pb._after):
-          tag_queue.add(idb)
+        # ...add it to all possible states and prune any downstream that already has
+        # that state.
+        ptc = frozenset((p.state,))
+        pt2 = {} if pt else {ptc: 1}
+        for states, count in pt.items():
+          if p.state not in states:
+            pt2[states | ptc] = count + 1
+        p._tagged_states = pt2
+      else:
+        p._tagged_states = pt
+      for pb in p._before:
+        if not any(pab._tagged_states is None for pab in pb._after):
+          queue.add(pb)
 
-    # Choose random path (n.b. this should probably be weighted instead)
+  def generate(self, rng, states: FrozenSet[str]):
+    states = (states & self._states) | frozenset(('start', 'end'))
+
     def walk():
-      states_remaining = set(s for s, v in states.items() if v)
+      states_remaining = frozenset(states)
       p = self._phrases[0]
-      cap = False
       while p != self._end:
-        yield p
-        if isinstance(p, Condition) and states[p.state]:
-          states_remaining.remove(p.state)
-        def c():
-          for ida in p._after:
-            for ta in tags[ida]:
-              if states_remaining <= ta:
-                yield ida
-                break
-        choices = tuple(c())
-        if not choices:
-          raise ValueError(
-              f'No continuation has {repr(states_remaining)} at phrase #{p._id}')
-        p = self._phrases[rng.uniform_choice(choices)]
-    def join():
-      capitalize_next = True
-      for p in walk():
         if p._texts:
-          text = rng.uniform_choice(p._texts)
-          if capitalize_next:
-            text = text[0].upper() + text[1:]
-          if text[0] not in frozenset(',.!?'):
-            yield ' '
-          capitalize_next = text[-1] in frozenset('.!?')
-          yield text
-    return ''.join(join())
+          yield rng.uniform_choice(p._texts)
+        if isinstance(p, Condition):
+          states_remaining -= frozenset((p.state,))
+        choices = tuple(
+            after for after in p._after
+            if states_remaining in after._tagged_states)
+        if not choices:
+          continuations = ''.join(
+              f'\n  {after._id:2d}:' + ''.join(
+                  f'\n    {repr(ts)}' for ts in after._tagged_states)
+              for after in p._after)
+          raise ValueError(
+              f'No continuation has {repr(states_remaining)} '
+              f'at phrase #{p._id}.\n'
+              f'Continuations:{continuations}')
+        p = rng.uniform_choice(choices)
 
-  def _check_state_keys(self, state):
-    passed = set(state)
-    u = passed.difference(self._states)
-    if u:
-      raise ValueError(f'{repr(u)} in args but not in the graph')
-    m = self._states.difference(passed)
-    if m:
-      raise ValueError(f'{repr(m)} in graph but missing from args')
+    return ''.join(_join_phrase_texts(walk()))
 
 class PgBuilder(object):
 
@@ -167,12 +141,6 @@ class PgBuilder(object):
     self._pg = pg
     self._heads = heads
     self._tails = tails
-    
-  def __or__(self, other: 'PgBuilder') -> 'PgBuilder':
-    return PgBuilder(
-        self._pg,
-        self._heads + other._heads,
-        self._tails + other._tails)
 
   def __repr__(self):
     return f'PgBuilder {repr(self._heads)}>>{repr(self._tails)}'
@@ -182,6 +150,12 @@ class PgBuilder(object):
     for t in self._tails:
       t._join(ph)
     return PgBuilder(self._pg, self._heads, (ph,))
+    
+  def __or__(self, other: 'PgBuilder') -> 'PgBuilder':
+    return PgBuilder(
+        self._pg,
+        self._heads + other._heads,
+        self._tails + other._tails)
 
   def __rshift__(self, other) -> 'PgBuilder':
     if isinstance(other, PgBuilder):
@@ -196,6 +170,31 @@ class PgBuilder(object):
         t._join(ph)
       return PgBuilder(self._pg, self._heads, (ph,))
 
+def _graph_node_color(p):
+  if not any('end' in ts for ts in (p._tagged_states or ())):
+    return 'red'
+  if isinstance(p, Condition):
+    return 'blue'
+  return 'black'
+
+def _graph_edge_color(p1, p2):
+  if not any('end' in ts for ts in (p2._tagged_states or ())):
+    return 'red'
+  if isinstance(p1, Condition) or isinstance(p2, Condition):
+    return 'blue'
+  return 'black'
+
+def _join_phrase_texts(texts):
+  capitalize_next = True
+  for i, text in enumerate(texts):
+    if i > 0 and text[0] not in frozenset(',.!?\n'):
+      yield ' '
+    if capitalize_next:
+      yield text[0].upper()
+      yield text[1:]
+    else:
+      yield text
+    capitalize_next = text[-1] in frozenset('.!?')
 
 def _word_wrap(text: str, chars: int):
   def h():

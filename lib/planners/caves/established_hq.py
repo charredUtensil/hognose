@@ -127,7 +127,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
         yield type, level, is_rubble
         if not is_rubble:
           crystals -= type.crystals
-      elif rng.chance(0.40):
+      elif self.is_ruin and rng.chance(0.40):
         yield type, level, True
       
 
@@ -155,14 +155,14 @@ def bids(stem, conquest):
           isinstance(p, EstablishedHQCavePlanner)
           for p in conquest.planners)):
     yield (1, lambda: EstablishedHQCavePlanner(
-        stem, Oysters.DEFAULT, False, False, False))
+        stem, Oysters.DEFAULT, False, False, is_ruin=False))
 
 def spawn_bids(stem, conquest):
   if stem.fluid_type is None and stem.pearl_radius > 5:
     yield (0.25, lambda: EstablishedHQCavePlanner(
-        stem, Oysters.DEFAULT, True, True, False))
+        stem, Oysters.DEFAULT, True, True, is_ruin=False))
     yield (0.75, lambda: EstablishedHQCavePlanner(
-        stem, Oysters.DEFAULT, True, True, True))
+        stem, Oysters.DEFAULT, True, True, is_ruin=True))
 
 class Oysters:
   DEFAULT = (

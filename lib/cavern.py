@@ -220,10 +220,10 @@ class Cavern(object):
   def _enscribe(self):
     """Generate copy for briefings, etc..."""
     lore = Lore(self)
-    self.diorama.briefing = lore.briefing()
-    self.diorama.briefing_success = lore.success()
-    self.diorama.briefing_failure = lore.failure()
-    self.diorama.level_name = lore.level_name()
+    self.diorama.briefing = lore.briefing
+    self.diorama.briefing_success = lore.success
+    self.diorama.briefing_failure = lore.failure
+    self.diorama.level_name = lore.level_name
 
   def _script(self):
     """Write scripts."""
