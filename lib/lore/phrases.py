@@ -45,6 +45,11 @@ class PhraseGraph(object):
     ph = (self._phrase(*args),)
     return PgBuilder(self, ph, ph)
 
+  def states(self, *states) -> 'PgBuilder':
+    ph = tuple(
+        self._condition(s) if s else self._phrase() for s in states)
+    return PgBuilder(self, ph, ph)
+
   def _condition(self, state) -> Condition:
     self._states.add(state)
     r = Condition(len(self._phrases), state)
@@ -154,8 +159,8 @@ class PgBuilder(object):
   def __or__(self, other: 'PgBuilder') -> 'PgBuilder':
     return PgBuilder(
         self._pg,
-        self._heads + other._heads,
-        self._tails + other._tails)
+        tuple(set(self._heads + other._heads)),
+        tuple(set(self._tails + other._tails)))
 
   def __rshift__(self, other) -> 'PgBuilder':
     if isinstance(other, PgBuilder):
@@ -173,6 +178,8 @@ class PgBuilder(object):
 def _graph_node_color(p):
   if not any('end' in ts for ts in (p._tagged_states or ())):
     return 'red'
+  if p._id <= 1:
+    return 'green'
   if isinstance(p, Condition):
     return 'blue'
   return 'black'
@@ -180,6 +187,8 @@ def _graph_node_color(p):
 def _graph_edge_color(p1, p2):
   if not any('end' in ts for ts in (p2._tagged_states or ())):
     return 'red'
+  if p1._id <= 1 or p2._id <= 1:
+    return 'green'
   if isinstance(p1, Condition) or isinstance(p2, Condition):
     return 'blue'
   return 'black'

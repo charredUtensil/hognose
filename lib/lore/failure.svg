@@ -12,8 +12,8 @@
 <!-- 0\n[start] -->
 <g id="node1" class="node">
 <title>0\n[start]</title>
-<text text-anchor="middle" x="27" y="-37.8" font-family="Times,serif" font-size="14.00" fill="blue">0</text>
-<text text-anchor="middle" x="27" y="-22.8" font-family="Times,serif" font-size="14.00" fill="blue">[start]</text>
+<text text-anchor="middle" x="27" y="-37.8" font-family="Times,serif" font-size="14.00" fill="green">0</text>
+<text text-anchor="middle" x="27" y="-22.8" font-family="Times,serif" font-size="14.00" fill="green">[start]</text>
 </g>
 <!-- 2\nOh, dear. -->
 <g id="node3" class="node">
@@ -25,8 +25,8 @@
 <!-- 0\n[start]&#45;&gt;2\nOh, dear. -->
 <g id="edge1" class="edge">
 <title>0\n[start]&#45;&gt;2\nOh, dear.</title>
-<path fill="none" stroke="blue" d="M54.07,-40.62C62.09,-42.66 71.13,-44.95 79.96,-47.2"/>
-<polygon fill="blue" stroke="blue" points="79.2,-50.62 89.76,-49.68 80.93,-43.83 79.2,-50.62"/>
+<path fill="none" stroke="green" d="M54.07,-40.62C62.09,-42.66 71.13,-44.95 79.96,-47.2"/>
+<polygon fill="green" stroke="green" points="79.2,-50.62 89.76,-49.68 80.93,-43.83 79.2,-50.62"/>
 </g>
 <!-- 5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to -->
 <g id="node6" class="node">
@@ -40,14 +40,14 @@
 <!-- 0\n[start]&#45;&gt;5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to -->
 <g id="edge2" class="edge">
 <title>0\n[start]&#45;&gt;5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to</title>
-<path fill="none" stroke="blue" d="M54.23,-31.93C65.26,-31.16 78.25,-30.38 90,-30 120.06,-29.03 152.84,-29.28 182.48,-29.99"/>
-<polygon fill="blue" stroke="blue" points="182.74,-33.5 192.82,-30.26 182.92,-26.5 182.74,-33.5"/>
+<path fill="none" stroke="green" d="M54.23,-31.93C65.26,-31.16 78.25,-30.38 90,-30 120.06,-29.03 152.84,-29.28 182.48,-29.99"/>
+<polygon fill="green" stroke="green" points="182.74,-33.5 192.82,-30.26 182.92,-26.5 182.74,-33.5"/>
 </g>
 <!-- 1\n[end] -->
 <g id="node2" class="node">
 <title>1\n[end]</title>
-<text text-anchor="middle" x="1979" y="-86.8" font-family="Times,serif" font-size="14.00" fill="blue">1</text>
-<text text-anchor="middle" x="1979" y="-71.8" font-family="Times,serif" font-size="14.00" fill="blue">[end]</text>
+<text text-anchor="middle" x="1979" y="-86.8" font-family="Times,serif" font-size="14.00" fill="green">1</text>
+<text text-anchor="middle" x="1979" y="-71.8" font-family="Times,serif" font-size="14.00" fill="green">[end]</text>
 </g>
 <!-- 2\nOh, dear.&#45;&gt;5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to -->
 <g id="edge3" class="edge">
@@ -93,7 +93,7 @@
 <text text-anchor="middle" x="428" y="-82.3" font-family="Times,serif" font-size="14.00">7</text>
 </g>
 <!-- 5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to&#45;&gt;7 -->
-<g id="edge6" class="edge">
+<g id="edge7" class="edge">
 <title>5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to&#45;&gt;7</title>
 <path fill="none" stroke="black" d="M365.08,-64.1C374.29,-67.36 383.25,-70.52 391.37,-73.39"/>
 <polygon fill="black" stroke="black" points="390.21,-76.7 400.8,-76.73 392.54,-70.1 390.21,-76.7"/>
@@ -107,7 +107,7 @@
 <text text-anchor="middle" x="1140" y="-37.3" font-family="Times,serif" font-size="14.00">get the %(resources)s we needed</text>
 </g>
 <!-- 5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to&#45;&gt;15\ncollect all %(resources)s\nget the %(resources)s we needed -->
-<g id="edge7" class="edge">
+<g id="edge6" class="edge">
 <title>5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to&#45;&gt;15\ncollect all %(resources)s\nget the %(resources)s we needed</title>
 <path fill="none" stroke="black" d="M365.05,-23.68C422.66,-17.56 500.55,-11 569.5,-11 569.5,-11 569.5,-11 890,-11 937.07,-11 988.36,-18.88 1032.09,-28.05"/>
 <polygon fill="black" stroke="black" points="1031.36,-31.47 1041.87,-30.15 1032.83,-24.63 1031.36,-31.47"/>
@@ -115,8 +115,8 @@
 <!-- 6\nMission Failed&#45;&gt;1\n[end] -->
 <g id="edge8" class="edge">
 <title>6\nMission Failed&#45;&gt;1\n[end]</title>
-<path fill="none" stroke="blue" d="M1916.25,-83C1924.76,-83 1933.48,-83 1941.6,-83"/>
-<polygon fill="blue" stroke="blue" points="1941.85,-86.5 1951.85,-83 1941.85,-79.5 1941.85,-86.5"/>
+<path fill="none" stroke="green" d="M1916.25,-83C1924.76,-83 1933.48,-83 1941.6,-83"/>
+<polygon fill="green" stroke="green" points="1941.85,-86.5 1951.85,-83 1941.85,-79.5 1941.85,-86.5"/>
 </g>
 <!-- 8\nfind the lost Rock Raider -->
 <g id="node9" class="node">

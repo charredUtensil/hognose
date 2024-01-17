@@ -12,8 +12,8 @@
 <!-- 0\n[start] -->
 <g id="node1" class="node">
 <title>0\n[start]</title>
-<text text-anchor="middle" x="27" y="-67.35" font-family="Times,serif" font-size="14.00" fill="blue">0</text>
-<text text-anchor="middle" x="27" y="-52.35" font-family="Times,serif" font-size="14.00" fill="blue">[start]</text>
+<text text-anchor="middle" x="27" y="-67.35" font-family="Times,serif" font-size="14.00" fill="green">0</text>
+<text text-anchor="middle" x="27" y="-52.35" font-family="Times,serif" font-size="14.00" fill="green">[start]</text>
 </g>
 <!-- 2\nWell done!\nGood work!\nOutstanding!\nI knew you could do it, Cadet!\nWe were right to count on you, Cadet! -->
 <g id="node3" class="node">
@@ -27,10 +27,10 @@
 <text text-anchor="middle" x="217" y="-116.35" font-family="Times,serif" font-size="14.00">We were right to count on you, Cadet!</text>
 </g>
 <!-- 0\n[start]&#45;&gt;2\nWell done!\nGood work!\nOutstanding!\nI knew you could do it, Cadet!\nWe were right to count on you, Cadet! -->
-<g id="edge1" class="edge">
+<g id="edge2" class="edge">
 <title>0\n[start]&#45;&gt;2\nWell done!\nGood work!\nOutstanding!\nI knew you could do it, Cadet!\nWe were right to count on you, Cadet!</title>
-<path fill="none" stroke="blue" d="M54.24,-79.53C65.17,-85.98 78.07,-93.36 90,-99.55 92.89,-101.05 95.82,-102.55 98.78,-104.05"/>
-<polygon fill="blue" stroke="blue" points="97.25,-107.2 107.76,-108.54 100.38,-100.94 97.25,-107.2"/>
+<path fill="none" stroke="green" d="M54.24,-79.53C65.17,-85.98 78.07,-93.36 90,-99.55 92.89,-101.05 95.82,-102.55 98.78,-104.05"/>
+<polygon fill="green" stroke="green" points="97.25,-107.2 107.76,-108.54 100.38,-100.94 97.25,-107.2"/>
 </g>
 <!-- 4\nThose %(monster_type)s monsters were no\nmatch for you! -->
 <g id="node5" class="node">
@@ -41,10 +41,10 @@
 <text text-anchor="middle" x="217" y="-44.85" font-family="Times,serif" font-size="14.00">match for you!</text>
 </g>
 <!-- 0\n[start]&#45;&gt;4\nThose %(monster_type)s monsters were no\nmatch for you! -->
-<g id="edge2" class="edge">
+<g id="edge1" class="edge">
 <title>0\n[start]&#45;&gt;4\nThose %(monster_type)s monsters were no\nmatch for you!</title>
-<path fill="none" stroke="blue" d="M54.14,-63.55C61.63,-63.55 70.35,-63.55 79.78,-63.55"/>
-<polygon fill="blue" stroke="blue" points="79.85,-67.05 89.85,-63.55 79.85,-60.05 79.85,-67.05"/>
+<path fill="none" stroke="green" d="M54.14,-63.55C61.63,-63.55 70.35,-63.55 79.78,-63.55"/>
+<polygon fill="green" stroke="green" points="79.85,-67.05 89.85,-63.55 79.85,-60.05 79.85,-67.05"/>
 </g>
 <!-- 10\nYou managed to\nYou were able to -->
 <g id="node11" class="node">
@@ -57,14 +57,14 @@
 <!-- 0\n[start]&#45;&gt;10\nYou managed to\nYou were able to -->
 <g id="edge3" class="edge">
 <title>0\n[start]&#45;&gt;10\nYou managed to\nYou were able to</title>
-<path fill="none" stroke="blue" d="M53.79,-44.49C64.44,-37.74 77.26,-30.98 90,-27.55 267.98,20.37 488.68,-5.67 595.74,-23.42"/>
-<polygon fill="blue" stroke="blue" points="595.3,-26.89 605.74,-25.11 596.46,-19.99 595.3,-26.89"/>
+<path fill="none" stroke="green" d="M53.79,-44.49C64.44,-37.74 77.26,-30.98 90,-27.55 267.98,20.37 488.68,-5.67 595.74,-23.42"/>
+<polygon fill="green" stroke="green" points="595.3,-26.89 605.74,-25.11 596.46,-19.99 595.3,-26.89"/>
 </g>
 <!-- 1\n[end] -->
 <g id="node2" class="node">
 <title>1\n[end]</title>
-<text text-anchor="middle" x="2570" y="-64.35" font-family="Times,serif" font-size="14.00" fill="blue">1</text>
-<text text-anchor="middle" x="2570" y="-49.35" font-family="Times,serif" font-size="14.00" fill="blue">[end]</text>
+<text text-anchor="middle" x="2570" y="-64.35" font-family="Times,serif" font-size="14.00" fill="green">1</text>
+<text text-anchor="middle" x="2570" y="-49.35" font-family="Times,serif" font-size="14.00" fill="green">[end]</text>
 </g>
 <!-- 3\n[commend] -->
 <g id="node4" class="node">
@@ -190,8 +190,8 @@
 <!-- 11\nMission Complete!&#45;&gt;1\n[end] -->
 <g id="edge14" class="edge">
 <title>11\nMission Complete!&#45;&gt;1\n[end]</title>
-<path fill="none" stroke="blue" d="M2371.15,-64.17C2383.03,-64.74 2395.4,-65.25 2407,-65.55 2451.43,-66.71 2462.59,-67.34 2507,-65.55 2515.36,-65.21 2524.34,-64.62 2532.8,-63.96"/>
-<polygon fill="blue" stroke="blue" points="2533.11,-67.45 2542.78,-63.14 2532.53,-60.47 2533.11,-67.45"/>
+<path fill="none" stroke="green" d="M2371.15,-64.17C2383.03,-64.74 2395.4,-65.25 2407,-65.55 2451.43,-66.71 2462.59,-67.34 2507,-65.55 2515.36,-65.21 2524.34,-64.62 2532.8,-63.96"/>
+<polygon fill="green" stroke="green" points="2533.11,-67.45 2542.78,-63.14 2532.53,-60.47 2533.11,-67.45"/>
 </g>
 <!-- 24\n[has_monsters] -->
 <g id="node25" class="node">
@@ -226,7 +226,7 @@
 <text text-anchor="middle" x="921.5" y="-48.35" font-family="Times,serif" font-size="14.00">find the lost Rock Raiders</text>
 </g>
 <!-- 12&#45;&gt;15\nfind the lost Rock Raiders -->
-<g id="edge17" class="edge">
+<g id="edge18" class="edge">
 <title>12&#45;&gt;15\nfind the lost Rock Raiders</title>
 <path fill="none" stroke="black" d="M806.1,-82.35C813.75,-80.82 822.59,-79.06 831.88,-77.21"/>
 <polygon fill="black" stroke="black" points="832.58,-80.64 841.71,-75.25 831.22,-73.78 832.58,-80.64"/>
@@ -239,7 +239,7 @@
 <text text-anchor="middle" x="921.5" y="-160.35" font-family="Times,serif" font-size="14.00">find the lost Rock Raiders</text>
 </g>
 <!-- 12&#45;&gt;17\nfind the lost Rock Raiders -->
-<g id="edge18" class="edge">
+<g id="edge17" class="edge">
 <title>12&#45;&gt;17\nfind the lost Rock Raiders</title>
 <path fill="none" stroke="black" d="M796.42,-105.73C808.14,-117.81 824.82,-133.28 842,-143.55 844.65,-145.13 847.4,-146.65 850.22,-148.09"/>
 <polygon fill="black" stroke="black" points="848.87,-151.33 859.4,-152.47 851.88,-145.01 848.87,-151.33"/>
@@ -374,8 +374,8 @@
 <!-- 24\n[has_monsters]&#45;&gt;1\n[end] -->
 <g id="edge33" class="edge">
 <title>24\n[has_monsters]&#45;&gt;1\n[end]</title>
-<path fill="none" stroke="blue" d="M2507.01,-47.71C2515.67,-49.5 2524.54,-51.34 2532.76,-53.04"/>
-<polygon fill="blue" stroke="blue" points="2532.27,-56.52 2542.77,-55.12 2533.69,-49.66 2532.27,-56.52"/>
+<path fill="none" stroke="green" d="M2507.01,-47.71C2515.67,-49.5 2524.54,-51.34 2532.76,-53.04"/>
+<polygon fill="green" stroke="green" points="2532.27,-56.52 2542.77,-55.12 2533.69,-49.66 2532.27,-56.52"/>
 </g>
 </g>
 </svg>

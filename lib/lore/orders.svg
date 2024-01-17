@@ -12,8 +12,8 @@
 <!-- 0\n[start] -->
 <g id="node1" class="node">
 <title>0\n[start]</title>
-<text text-anchor="middle" x="27" y="-233.01" font-family="Times,serif" font-size="14.00" fill="blue">0</text>
-<text text-anchor="middle" x="27" y="-218.01" font-family="Times,serif" font-size="14.00" fill="blue">[start]</text>
+<text text-anchor="middle" x="27" y="-233.01" font-family="Times,serif" font-size="14.00" fill="green">0</text>
+<text text-anchor="middle" x="27" y="-218.01" font-family="Times,serif" font-size="14.00" fill="green">[start]</text>
 </g>
 <!-- 2\nbuild the Rock Raider HQ\nbuild up your base -->
 <g id="node3" class="node">
@@ -24,10 +24,10 @@
 <text text-anchor="middle" x="859.5" y="-117.51" font-family="Times,serif" font-size="14.00">build up your base</text>
 </g>
 <!-- 0\n[start]&#45;&gt;2\nbuild the Rock Raider HQ\nbuild up your base -->
-<g id="edge2" class="edge">
+<g id="edge4" class="edge">
 <title>0\n[start]&#45;&gt;2\nbuild the Rock Raider HQ\nbuild up your base</title>
-<path fill="none" stroke="blue" d="M33.07,-209.91C40.75,-185.04 57.96,-142.81 90,-124.21 194.36,-63.61 512.32,-117.1 633,-116.21 681.89,-115.85 694.29,-112.02 743,-116.21 751.54,-116.94 760.41,-117.98 769.25,-119.19"/>
-<polygon fill="blue" stroke="blue" points="768.81,-122.66 779.2,-120.63 769.81,-115.74 768.81,-122.66"/>
+<path fill="none" stroke="green" d="M33.07,-209.91C40.75,-185.04 57.96,-142.81 90,-124.21 194.36,-63.61 512.32,-117.1 633,-116.21 681.89,-115.85 694.29,-112.02 743,-116.21 751.54,-116.94 760.41,-117.98 769.25,-119.19"/>
+<polygon fill="green" stroke="green" points="768.81,-122.66 779.2,-120.63 769.81,-115.74 768.81,-122.66"/>
 </g>
 <!-- 5\nexplore the cavern -->
 <g id="node6" class="node">
@@ -37,10 +37,10 @@
 <text text-anchor="middle" x="859.5" y="-227.01" font-family="Times,serif" font-size="14.00">explore the cavern</text>
 </g>
 <!-- 0\n[start]&#45;&gt;5\nexplore the cavern -->
-<g id="edge1" class="edge">
+<g id="edge5" class="edge">
 <title>0\n[start]&#45;&gt;5\nexplore the cavern</title>
-<path fill="none" stroke="blue" d="M54.23,-229.49C167.64,-230.72 617.95,-235.6 790.62,-237.47"/>
-<polygon fill="blue" stroke="blue" points="790.81,-240.97 800.85,-237.58 790.89,-233.97 790.81,-240.97"/>
+<path fill="none" stroke="green" d="M54.23,-229.49C167.64,-230.72 617.95,-235.6 790.62,-237.47"/>
+<polygon fill="green" stroke="green" points="790.81,-240.97 800.85,-237.58 790.89,-233.97 790.81,-240.97"/>
 </g>
 <!-- 6\nmove to a safer cavern\nget your Rock Raiders to safety\nmake sure your Rock Raiders are safe -->
 <g id="node7" class="node">
@@ -52,10 +52,10 @@
 <text text-anchor="middle" x="202" y="-141.01" font-family="Times,serif" font-size="14.00">make sure your Rock Raiders are safe</text>
 </g>
 <!-- 0\n[start]&#45;&gt;6\nmove to a safer cavern\nget your Rock Raiders to safety\nmake sure your Rock Raiders are safe -->
-<g id="edge5" class="edge">
+<g id="edge2" class="edge">
 <title>0\n[start]&#45;&gt;6\nmove to a safer cavern\nget your Rock Raiders to safety\nmake sure your Rock Raiders are safe</title>
-<path fill="none" stroke="blue" d="M54.27,-219.79C66.02,-215.58 80.7,-210.32 96.2,-204.76"/>
-<polygon fill="blue" stroke="blue" points="97.71,-207.94 105.94,-201.27 95.35,-201.35 97.71,-207.94"/>
+<path fill="none" stroke="green" d="M54.27,-219.79C66.02,-215.58 80.7,-210.32 96.2,-204.76"/>
+<polygon fill="green" stroke="green" points="97.71,-207.94 105.94,-201.27 95.35,-201.35 97.71,-207.94"/>
 </g>
 <!-- 8 -->
 <g id="node9" class="node">
@@ -65,8 +65,8 @@
 <!-- 0\n[start]&#45;&gt;8 -->
 <g id="edge7" class="edge">
 <title>0\n[start]&#45;&gt;8</title>
-<path fill="none" stroke="blue" d="M29.65,-248.3C33.64,-282.13 46.93,-352.48 90,-389.21 222.29,-502.03 298.64,-471.21 472.5,-471.21 472.5,-471.21 472.5,-471.21 1011,-471.21 1138.61,-471.21 1271.11,-382.4 1328.97,-338.37"/>
-<polygon fill="blue" stroke="blue" points="1331.17,-341.09 1336.95,-332.22 1326.89,-335.55 1331.17,-341.09"/>
+<path fill="none" stroke="green" d="M29.65,-248.3C33.64,-282.13 46.93,-352.48 90,-389.21 222.29,-502.03 298.64,-471.21 472.5,-471.21 472.5,-471.21 472.5,-471.21 1011,-471.21 1138.61,-471.21 1271.11,-382.4 1328.97,-338.37"/>
+<polygon fill="green" stroke="green" points="1331.17,-341.09 1336.95,-332.22 1326.89,-335.55 1331.17,-341.09"/>
 </g>
 <!-- 18\ndefend the Rock Radier HQ\nbuild up your defenses\narm your Rock Raiders -->
 <g id="node19" class="node">
@@ -78,10 +78,10 @@
 <text text-anchor="middle" x="202" y="-277.01" font-family="Times,serif" font-size="14.00">arm your Rock Raiders</text>
 </g>
 <!-- 0\n[start]&#45;&gt;18\ndefend the Rock Radier HQ\nbuild up your defenses\narm your Rock Raiders -->
-<g id="edge4" class="edge">
+<g id="edge1" class="edge">
 <title>0\n[start]&#45;&gt;18\ndefend the Rock Radier HQ\nbuild up your defenses\narm your Rock Raiders</title>
-<path fill="none" stroke="blue" d="M54.27,-240.45C69.92,-247.14 90.78,-256.06 111.85,-265.07"/>
-<polygon fill="blue" stroke="blue" points="110.63,-268.36 121.21,-269.07 113.39,-261.92 110.63,-268.36"/>
+<path fill="none" stroke="green" d="M54.27,-240.45C69.92,-247.14 90.78,-256.06 111.85,-265.07"/>
+<polygon fill="green" stroke="green" points="110.63,-268.36 121.21,-269.07 113.39,-261.92 110.63,-268.36"/>
 </g>
 <!-- 20\nclean up this mess\nget the Rock Raider HQ back in operation -->
 <g id="node21" class="node">
@@ -94,8 +94,8 @@
 <!-- 0\n[start]&#45;&gt;20\nclean up this mess\nget the Rock Raider HQ back in operation -->
 <g id="edge3" class="edge">
 <title>0\n[start]&#45;&gt;20\nclean up this mess\nget the Rock Raider HQ back in operation</title>
-<path fill="none" stroke="blue" d="M32.25,-248.26C39.3,-274.97 56.11,-322.87 90,-346.21 162.27,-395.96 260.87,-407.07 339.87,-406.08"/>
-<polygon fill="blue" stroke="blue" points="339.96,-409.57 349.89,-405.88 339.82,-402.58 339.96,-409.57"/>
+<path fill="none" stroke="green" d="M32.25,-248.26C39.3,-274.97 56.11,-322.87 90,-346.21 162.27,-395.96 260.87,-407.07 339.87,-406.08"/>
+<polygon fill="green" stroke="green" points="339.96,-409.57 349.89,-405.88 339.82,-402.58 339.96,-409.57"/>
 </g>
 <!-- 22\nreach the Rock Raider HQ\nlocate the base -->
 <g id="node23" class="node">
@@ -108,14 +108,14 @@
 <!-- 0\n[start]&#45;&gt;22\nreach the Rock Raider HQ\nlocate the base -->
 <g id="edge6" class="edge">
 <title>0\n[start]&#45;&gt;22\nreach the Rock Raider HQ\nlocate the base</title>
-<path fill="none" stroke="blue" d="M30.32,-210.14C35.21,-179.31 49.66,-119.24 90,-92.21 298.62,47.62 615.62,-3.48 769.06,-40.4"/>
-<polygon fill="blue" stroke="blue" points="768.38,-43.84 778.93,-42.81 770.04,-37.04 768.38,-43.84"/>
+<path fill="none" stroke="green" d="M30.32,-210.14C35.21,-179.31 49.66,-119.24 90,-92.21 298.62,47.62 615.62,-3.48 769.06,-40.4"/>
+<polygon fill="green" stroke="green" points="768.38,-43.84 778.93,-42.81 770.04,-37.04 768.38,-43.84"/>
 </g>
 <!-- 1\n[end] -->
 <g id="node2" class="node">
 <title>1\n[end]</title>
-<text text-anchor="middle" x="3409" y="-341.01" font-family="Times,serif" font-size="14.00" fill="blue">1</text>
-<text text-anchor="middle" x="3409" y="-326.01" font-family="Times,serif" font-size="14.00" fill="blue">[end]</text>
+<text text-anchor="middle" x="3409" y="-341.01" font-family="Times,serif" font-size="14.00" fill="green">1</text>
+<text text-anchor="middle" x="3409" y="-326.01" font-family="Times,serif" font-size="14.00" fill="green">[end]</text>
 </g>
 <!-- 3\nand keep it safe\nand make sure it is heavily defended -->
 <g id="node4" class="node">
@@ -566,8 +566,8 @@
 <!-- 28\nWe&#39;re counting on you, Cadet!\nGood luck out there, Cadet!&#45;&gt;1\n[end] -->
 <g id="edge49" class="edge">
 <title>28\nWe&#39;re counting on you, Cadet!\nGood luck out there, Cadet!&#45;&gt;1\n[end]</title>
-<path fill="none" stroke="blue" d="M3346.21,-326.3C3355.29,-327.9 3364.08,-329.46 3372.04,-330.86"/>
-<polygon fill="blue" stroke="blue" points="3371.54,-334.33 3381.99,-332.62 3372.75,-327.43 3371.54,-334.33"/>
+<path fill="none" stroke="green" d="M3346.21,-326.3C3355.29,-327.9 3364.08,-329.46 3372.04,-330.86"/>
+<polygon fill="green" stroke="green" points="3371.54,-334.33 3381.99,-332.62 3372.75,-327.43 3371.54,-334.33"/>
 </g>
 <!-- 31\n, then\nand -->
 <g id="node32" class="node">
@@ -640,8 +640,8 @@
 <!-- 37&#45;&gt;1\n[end] -->
 <g id="edge60" class="edge">
 <title>37&#45;&gt;1\n[end]</title>
-<path fill="none" stroke="blue" d="M3126.15,-341.86C3137.18,-343.59 3150.18,-345.35 3162,-346.21 3243.57,-352.1 3264.43,-352.1 3346,-346.21 3354.41,-345.6 3363.4,-344.54 3371.87,-343.35"/>
-<polygon fill="blue" stroke="blue" points="3372.47,-346.79 3381.85,-341.86 3371.44,-339.87 3372.47,-346.79"/>
+<path fill="none" stroke="green" d="M3126.15,-341.86C3137.18,-343.59 3150.18,-345.35 3162,-346.21 3243.57,-352.1 3264.43,-352.1 3346,-346.21 3354.41,-345.6 3363.4,-344.54 3371.87,-343.35"/>
+<polygon fill="green" stroke="green" points="3372.47,-346.79 3381.85,-341.86 3371.44,-339.87 3372.47,-346.79"/>
 </g>
 <!-- 37&#45;&gt;28\nWe&#39;re counting on you, Cadet!\nGood luck out there, Cadet! -->
 <g id="edge61" class="edge">
