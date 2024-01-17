@@ -63,7 +63,7 @@ class PhraseGraph(object):
 
   def dump_svg(self, filename: str):
     import pydot
-    dot = pydot.Dot(graph_type='digraph', rankdir='LR', TBbalance='max')
+    dot = pydot.Dot(graph_type='digraph', rankdir='LR')
     def mknode(p):
       n = pydot.Node(
           str(p),
@@ -195,15 +195,17 @@ def _graph_edge_color(p1, p2):
 
 def _join_phrase_texts(texts):
   capitalize_next = True
-  for i, text in enumerate(texts):
-    if i > 0 and text[0] not in frozenset(',.!?\n'):
+  space_next = False
+  for text in texts:
+    if space_next and text[0] not in frozenset(',.!?\n'):
       yield ' '
     if capitalize_next:
       yield text[0].upper()
       yield text[1:]
     else:
       yield text
-    capitalize_next = text[-1] in frozenset('.!?')
+    capitalize_next = text[-1] in frozenset('.!?\n')
+    space_next = text[-1] not in frozenset('\n')
 
 def _word_wrap(text: str, chars: int):
   def h():

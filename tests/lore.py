@@ -14,6 +14,7 @@ STATE_COMBOS = (
   ('collect_resources', 'lost_miners_one', 'lost_miners_together', 'lost_miners_apart'),
   (None, 'collect_resources'),
   (None, 'spawn_has_erosion'),
+  (None, 'has_monsters'),
   (None, 'spawn_is_ruin', 'spawn_is_hq', 'find_hq'),
   (None, 'treasure_one', 'treasure_many'),
   ('end',),

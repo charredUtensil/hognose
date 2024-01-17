@@ -45,6 +45,9 @@ class Lore(object):
       if resources:
         yield 'collect_resources'
 
+      if self.cavern.context.has_monsters:
+        yield 'has_monsters'
+
       spawn = self.cavern.conquest.spawn
       if _spawn_has_erosion(self.cavern):
         yield 'spawn_has_erosion'
