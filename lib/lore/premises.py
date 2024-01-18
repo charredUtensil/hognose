@@ -257,16 +257,14 @@ def _make_pg():
           teleporter_malfunction
       ) >> ('.', '. If that wasn\'t hard enough,')
   ) >> ()
-
-  (
-      and_has_monsters |
-      hq_destroyed_and_miners_lost
-  ) >> '.' >> (reassurance | pg.end)
   
   hardship_and >> (spawn_has_erosion | has_monsters)
   spawn_has_erosion >> and_has_monsters
 
-  (spawn_has_erosion | has_monsters | and_has_monsters) >> '.' >> pg.end
+  spawn_has_erosion >> '.' >> pg.end
+  hq_destroyed_and_miners_lost >> '.' >> (reassurance | pg.end)
+  and_has_monsters >> '.' >> (reassurance | pg.end)
+  has_monsters >> '.' >> pg.end
 
   reassurance >> pg.end
 
