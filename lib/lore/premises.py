@@ -266,7 +266,7 @@ def _make_pg():
   hardship_and >> (spawn_has_erosion | has_monsters)
   spawn_has_erosion >> and_has_monsters
 
-  (has_monsters | and_has_monsters) >> '.' >> pg.end
+  (spawn_has_erosion | has_monsters | and_has_monsters) >> '.' >> pg.end
 
   reassurance >> pg.end
 
