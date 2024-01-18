@@ -15,7 +15,8 @@ def _make_pg():
       ) & 'has_monsters'
 
   explore = pg(
-      'explore the cavern')
+      'explore the cavern'
+  )
 
   get_to_safety = pg(
       'move to a safer cavern',
@@ -73,8 +74,8 @@ def _make_pg():
       ) & 'collect_resources'
 
   sendoff = pg(
-      'We\'re counting on you, Cadet!',
-      'Good luck out there, Cadet!')
+      'We\'re counting on you!',
+      'Good luck out there!')
 
   first_task = pg()
   pg.start >> (

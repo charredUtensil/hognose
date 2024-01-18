@@ -10,6 +10,7 @@ def _make_pg():
           'Are you ready for the next mission?',
           'Welcome back, Cadet.',
           'I hope you\'re prepared for this one, Cadet.',
+          'Up and at \'em, Cadet!',
           'Cadet, are you up for some more action?') |
       pg(
           'Are you ready to set sail?',
@@ -53,10 +54,12 @@ def _make_pg():
   
   forced_to_evac = pg(
       ', when an increase in seismic activity forced us to evacuate.',
+      ', but we were forced to evacuate when the cavern started to collapse.',
   )
 
   cavern_collapsed = pg(
-      ', when the cavern collapsed.'
+      ', when the cavern collapsed.',
+      'before a massive cave-in occurred.',
   )
 
   no_one_hurt_but_base_destroyed = (
@@ -72,7 +75,7 @@ def _make_pg():
       pg(
           'we presume our Rock Radier HQ has been destroyed'
       ) & 'find_hq'
-  ) >> ()
+  )
 
   they_are_trapped_and = (
       pg(
@@ -91,7 +94,8 @@ def _make_pg():
           'Crystals'
       ) & 'treasure_one' |
       pg(
-          'exploring this cavern'
+          'exploring this cavern',
+          'conducting mining operations here',
       ) >> pg.states('treasure_many', None)
   ) >> (
       forced_to_evac >> '\nUnfortunately,' >> (
@@ -111,7 +115,7 @@ def _make_pg():
       pg(
           ', but we have not been able to contact them for some time now',
           'and were buried by a recent cave-in',
-      ) >> pg.states('lost_miners_together', 'lost_miners_apart')
+      ) >> pg.states('lost_miners_together', 'lost_miners_apart') >> ()
   ) >> ()
 
   teleporter_malfunction = pg() >> (
@@ -134,15 +138,12 @@ def _make_pg():
       '. \nHowever,',
       '. \nUnfortunately,',
       '. \nUnfortunately for us,',
-      '. \nThe bad news?')
+      '. \nThe bad news?',
+      '. Use caution!',
+      ', but proceed with caution!\n',
+      ', but this is no walk in the park.')
 
-  be_careful = pg(
-      ', but be careful!\n',
-      ', but use caution!\n',
-      '. Stay sharp!\n',
-      ', but it won\'t be easy.\n')
-
-  find_them = (
+  find_them = pg() >> (
       pg(
           'we need to find them before the %(monster_type)s '
           'monsters do.',
@@ -175,7 +176,7 @@ def _make_pg():
           ', but this is all that\'s left',
           'and the geology seems to be stable again',
       ) & 'spawn_is_ruin'
-  ) >> '.'
+  )
 
   hq_destroyed_and_miners_lost = hq_destroyed >> ', and' >> (
       pg('one of our Rock Raiders is missing') & 'lost_miners_one' |
@@ -201,23 +202,30 @@ def _make_pg():
 
   spawn_has_erosion = pg(
       'we are dangerously close to a cavern full of lava',
-      'we are concerned about nearby lava flows that could engulf this cavern'
-      ) & 'spawn_has_erosion'
+      'we are concerned about nearby lava flows that could engulf this cavern',
+      'you will need to keep an eye on the volcanic activity in this cavern',
+  ) & 'spawn_has_erosion'
 
-  has_monsters = pg(
-      'the tunnels here are full of creatures that threaten our operations',
+  has_monsters_texts = (
+      'the tunnels here are full of large creatures that threaten our operations',
       'we are picking up signs of large creatures in the area',
-      'this cavern is inhabited by nests of %(monster_type)s monsters') & 'has_monsters'
+      'this cavern is inhabited by nests of %(monster_type)s monsters',
+      'we have reason to believe there are dozens of %(monster_type)s '
+      'monsters just out of sight',
+  )
+
+  has_monsters = pg(*has_monsters_texts) & 'has_monsters'
+  and_has_monsters = pg(', and') >> pg(*has_monsters_texts) & 'has_monsters'
 
   pg.start >> (
       'Our mining operations have been going smoothly, and we are ready to '
       'move on to the next cavern.',
       'There is nothing out of the ordinary to report today.',
       'Things have been quiet and I hope they should remain that way, Cadet!',
-      ) >> pg.end
+  ) >> pg.end
 
-  greeting >> we_found_a_cave >> (pg('.') >> pg.end | however | be_careful)
-  be_careful >> (spawn_has_erosion | has_monsters)
+  greeting >> we_found_a_cave >> (pg('.') >> pg.end | however)
+  however >> (spawn_has_erosion | has_monsters)
 
   (greeting | negative_greeting) >> pg() >> (
       miners_were_exploring_then_lost |
@@ -235,9 +243,14 @@ def _make_pg():
 
   find_them >> pg.end
 
-  hardship_and = (
+  empty_hq_destroyed = (
       no_one_hurt_but_base_destroyed |
-      hq_destroyed_but_evacuated |
+      hq_destroyed_but_evacuated
+  ) >> '.'
+  empty_hq_destroyed >> pg.end
+
+  hardship_and = (
+      empty_hq_destroyed |
       (
           miners_were_exploring_then_lost |
           hq_destroyed_and_miners_lost |
@@ -246,21 +259,14 @@ def _make_pg():
   ) >> ()
 
   (
-      hq_destroyed_and_miners_lost |
-      spawn_has_erosion
+      and_has_monsters |
+      hq_destroyed_and_miners_lost
   ) >> '.' >> (reassurance | pg.end)
   
-  (hardship_and | however) >> spawn_has_erosion
+  hardship_and >> (spawn_has_erosion | has_monsters)
+  spawn_has_erosion >> and_has_monsters
 
-  (
-      (hardship_and | spawn_has_erosion >> ', and')
-      >> has_monsters
-      >> '.'
-      >> pg.end
-  )
-
-  hq_destroyed_but_evacuated >> pg.end
-  no_one_hurt_but_base_destroyed >> '.' >> pg.end
+  (has_monsters | and_has_monsters) >> '.' >> pg.end
 
   reassurance >> pg.end
 
