@@ -28,6 +28,7 @@ class Cavern(object):
     self.conquest:    Optional[Conquest] = None
     self._diorama:    Diorama = Diorama(context)
     self._serialized: Optional[str] = None
+    self._lore:       Optional[Lore] = None
 
   @property
   def planners(self) -> Iterable[Planner]:
@@ -105,13 +106,13 @@ class Cavern(object):
       ('discover',     self._discover),
       # Determine the objectives for the level.
       ('adjure',       self._adjure),
-      # Write the objectives
+      # Write the objectives.
       ('enscribe',     self._enscribe),
-      # Add scripting logic
+      # Add scripting logic.
       ('script',       self._script),
       # Compute the final bounds of the level.
       ('fence',        self._fence),
-      # Serialize the output
+      # Serialize the output.
       ('serialize',    self._serialize),
     )
     try:
@@ -219,16 +220,16 @@ class Cavern(object):
 
   def _enscribe(self):
     """Generate copy for briefings, etc..."""
-    lore = Lore(self)
-    self.diorama.briefing = lore.briefing
-    self.diorama.briefing_success = lore.success
-    self.diorama.briefing_failure = lore.failure
-    self.diorama.level_name = lore.level_name
+    self._lore = Lore(self)
+    self.diorama.briefing         = self._lore.briefing
+    self.diorama.briefing_success = self._lore.success
+    self.diorama.briefing_failure = self._lore.failure
+    self.diorama.level_name       = self._lore.level_name
 
   def _script(self):
     """Write scripts."""
     for planner in self.conquest.somatic_planners:
-      planner.script(self.diorama)
+      planner.script(self.diorama, self._lore)
 
   def _fence(self):
     """Compute the final bounds of the level."""

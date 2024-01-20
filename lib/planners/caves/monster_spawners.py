@@ -107,6 +107,7 @@ class MonsterSpawner(object):
 
   def _gen_script(self, diorama: Diorama) -> Iterable[str]:
     prefix = f'p{self.planner.id}ms_'
+    yield '## Spawn monsters'
 
     # Initialization
     # State of the spawner.

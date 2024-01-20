@@ -24,7 +24,7 @@
 <text text-anchor="middle" x="766.5" y="-110.83" font-family="Times,serif" font-size="14.00">build up your base</text>
 </g>
 <!-- 0\n[start]&#45;&gt;2\nbuild the Rock Raider HQ\nbuild up your base -->
-<g id="edge5" class="edge">
+<g id="edge4" class="edge">
 <title>0\n[start]&#45;&gt;2\nbuild the Rock Raider HQ\nbuild up your base</title>
 <path fill="none" stroke="green" d="M33.08,-203.24C40.77,-178.39 57.99,-136.18 90,-117.53 197.53,-54.87 526,-98.87 650,-109.53 658.54,-110.26 667.41,-111.29 676.25,-112.51"/>
 <polygon fill="green" stroke="green" points="675.81,-115.98 686.2,-113.95 676.81,-109.05 675.81,-115.98"/>
@@ -37,7 +37,7 @@
 <text text-anchor="middle" x="766.5" y="-220.33" font-family="Times,serif" font-size="14.00">explore the cavern</text>
 </g>
 <!-- 0\n[start]&#45;&gt;5\nexplore the cavern -->
-<g id="edge4" class="edge">
+<g id="edge5" class="edge">
 <title>0\n[start]&#45;&gt;5\nexplore the cavern</title>
 <path fill="none" stroke="green" d="M54.25,-222.85C157.84,-224.11 540.3,-228.78 697.43,-230.69"/>
 <polygon fill="green" stroke="green" points="697.85,-234.2 707.89,-230.82 697.94,-227.2 697.85,-234.2"/>

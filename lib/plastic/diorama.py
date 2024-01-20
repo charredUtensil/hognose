@@ -12,7 +12,7 @@ from .building import Building
 from .creatures import Creature
 from .hazards import Erosion, Landslide
 from .miners import Miner
-from .objectives import Objective
+from .objectives import Objective, ResourceObjective
 from .position import Position
 from .serialize import serialize
 from .scripts import Script
@@ -111,6 +111,13 @@ class Diorama(object):
   @property
   def objectives(self) -> List[Objective]:
     return self._objectives
+
+  @property
+  def resource_objective(self) -> Optional[ResourceObjective]:
+    for o in self._objectives:
+      if isinstance(o, ResourceObjective):
+        return o
+    return None
 
   @property
   def total_crystals(self) -> int:

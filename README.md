@@ -69,6 +69,7 @@ generating consistent caverns between versions.
 0x659f9b99 - Find a ruined base in a lava cavern
 0x65a20857 - A large water lake in a lava cavern
 0x65a72422 - A large lava lake in an ice cavern
+0x65aa0e8b - Somewhat balanced level where erosion is a problem
 
 ## Were any of these Qs actually FA'ed?
 

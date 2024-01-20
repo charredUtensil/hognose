@@ -16,6 +16,12 @@ It does so through the use of _premise graphs_.
 ## Failure
 ![failure](/lib/lore/failure.svg)
 
+## Found Hoard (event)
+![found_hoard](/lib/lore/found_hoard.svg)
+
+## Found HQ (event)
+![found_hq](/lib/lore/found_hq.svg)
+
 # Syntax
 
 Initialize the premise graph with `pg = PhraseGraph()`.

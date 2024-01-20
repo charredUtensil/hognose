@@ -1,6 +1,7 @@
 from typing import FrozenSet
 
 from lib.lore.conclusions import SUCCESS, FAILURE
+from lib.lore.events import FOUND_HOARD, FOUND_HQ
 from lib.lore.orders import ORDERS
 from lib.lore.phrases import PhraseGraph
 from lib.lore.premises import PREMISES
@@ -31,6 +32,7 @@ def _all_possible_states(pg: PhraseGraph, states: FrozenSet[str], i: int):
         yield from _all_possible_states(pg, states, i + 1)
 
 class TestLore(unittest.TestCase):
+  # TODO: This should use parameterized instead
 
   def _test_comprehensive(self, pg):
     for states in _all_possible_states(pg, frozenset(), 0):
@@ -49,3 +51,9 @@ class TestLore(unittest.TestCase):
 
   def test_comprehensive_failure(self):
     self._test_comprehensive(FAILURE)
+
+  def test_event_find_hoard(self):
+    self._test_comprehensive(FOUND_HOARD)
+
+  def test_event_find_hq(self):
+    self._test_comprehensive(FOUND_HQ)

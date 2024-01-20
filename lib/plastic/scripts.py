@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple
+from typing import Iterable, List, Set, Tuple
 
 import re
 
@@ -7,7 +7,8 @@ MACRO_RE = re.compile(r'(?P<name>[x|y])@(?P<value>-?\d+)')
 class Script(object):
 
   def __init__(self):
-    self._parts = []
+    self._parts: List[str] = []
+    self.flags: Set[str] = set()
 
   def append(self, part: str):
     self._parts.append(part)
@@ -23,3 +24,7 @@ class Script(object):
       for p in self._parts:
         yield MACRO_RE.sub(macro, p)
     return '\n'.join(lines())
+
+  @staticmethod
+  def escape_string(s: str) -> str:
+    return s.replace('"', '\\"').replace('\n', '\\n')

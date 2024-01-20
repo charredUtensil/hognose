@@ -93,7 +93,7 @@
 <text text-anchor="middle" x="428" y="-54.3" font-family="Times,serif" font-size="14.00">7</text>
 </g>
 <!-- 5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to&#45;&gt;7 -->
-<g id="edge6" class="edge">
+<g id="edge7" class="edge">
 <title>5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to&#45;&gt;7</title>
 <path fill="none" stroke="black" d="M365.08,-47.89C374.09,-49.36 382.86,-50.79 390.83,-52.09"/>
 <polygon fill="black" stroke="black" points="390.37,-55.57 400.8,-53.72 391.5,-48.66 390.37,-55.57"/>
@@ -107,7 +107,7 @@
 <text text-anchor="middle" x="1140" y="-37.3" font-family="Times,serif" font-size="14.00">get the %(resources)s we needed</text>
 </g>
 <!-- 5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to&#45;&gt;14\ncollect all %(resources)s\nget the %(resources)s we needed -->
-<g id="edge7" class="edge">
+<g id="edge6" class="edge">
 <title>5\nYou didn&#39;t\nYou couldn&#39;t\nWe were counting on you to&#45;&gt;14\ncollect all %(resources)s\nget the %(resources)s we needed</title>
 <path fill="none" stroke="black" d="M365.05,-23.68C422.66,-17.56 500.55,-11 569.5,-11 569.5,-11 569.5,-11 890,-11 937.07,-11 988.36,-18.88 1032.09,-28.05"/>
 <polygon fill="black" stroke="black" points="1031.36,-31.47 1041.87,-30.15 1032.83,-24.63 1031.36,-31.47"/>
@@ -126,7 +126,7 @@
 <text text-anchor="middle" x="570.5" y="-46.8" font-family="Times,serif" font-size="14.00">find the lost Rock Raider</text>
 </g>
 <!-- 7&#45;&gt;8\nfind the lost Rock Raider -->
-<g id="edge10" class="edge">
+<g id="edge9" class="edge">
 <title>7&#45;&gt;8\nfind the lost Rock Raider</title>
 <path fill="none" stroke="black" d="M455.1,-58C463.37,-58 473.02,-58 483.14,-58"/>
 <polygon fill="black" stroke="black" points="483.38,-61.5 493.38,-58 483.38,-54.5 483.38,-61.5"/>
@@ -139,7 +139,7 @@
 <text text-anchor="middle" x="570.5" y="-102.8" font-family="Times,serif" font-size="14.00">find the lost Rock Raiders</text>
 </g>
 <!-- 7&#45;&gt;10\nfind the lost Rock Raiders -->
-<g id="edge9" class="edge">
+<g id="edge10" class="edge">
 <title>7&#45;&gt;10\nfind the lost Rock Raiders</title>
 <path fill="none" stroke="black" d="M455.04,-70.33C466.05,-75.39 479.06,-81.18 491,-86 495.46,-87.8 500.09,-89.6 504.76,-91.38"/>
 <polygon fill="black" stroke="black" points="503.79,-94.76 514.39,-94.98 506.25,-88.2 503.79,-94.76"/>

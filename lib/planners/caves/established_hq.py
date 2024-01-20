@@ -5,7 +5,7 @@ import math
 from .base import BaseCavePlanner
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Facing, Position, Tile
+from lib.plastic import Building, Diorama, Facing, Position, Script, Tile, VariableObjective
 from lib.utils.geometry import plot_line
 
 class EstablishedHQCavePlanner(BaseCavePlanner):
@@ -129,7 +129,6 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
           crystals -= type.crystals
       elif self.is_ruin and rng.chance(0.40):
         yield type, level, True
-      
 
   def _make_building(self, diorama, rng, type, pt, level) -> Optional[Building]:
     for facing, ox, oy in (
@@ -145,6 +144,42 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
           if all(diorama.tiles.get((x, y)) == Tile.FLOOR
               for x, y in b.foundation_tiles):
             return b
+    return None
+
+  @property
+  def objectives(self):
+    if not self.is_spawn:
+      yield VariableObjective(
+          f'p{self.id}obj_found>0/Find the lost Rock Raider HQ')
+
+  def script(self, diorama, lore):
+    super().script(diorama, lore)
+    if self.is_spawn:
+      return
+    prefix = f'p{self.id}obj_'
+    x, y = self._discovery_tile(diorama)
+    bp = max(self.baseplates, key=lambda b: b.pearl_radius)
+    cx, cy = bp.center
+    msg = Script.escape_string(lore.event_found_hq)
+    diorama.script.extend((
+        '## Objective: Find the lost Rock Raider HQ',
+        f'string {prefix}discoverMessage="{msg}"',
+        f'int {prefix}found=0',
+        f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscover]',
+        f'{prefix}onDiscover::;',
+        f'msg:{prefix}discoverMessage;',
+        f'pan:y@{math.floor(cy):d},x@{math.floor(cx):d};',
+        'wait:1;',
+        f'{prefix}found=1;',
+        '',
+    ))
+
+
+  def _discovery_tile(self, diorama: Diorama) -> Tuple[int, int]:
+    for info in self.pearl.inner:
+      if (not diorama.tiles.get(info.pos, Tile.SOLID_ROCK).is_wall
+          and not info.pos in diorama.discovered):
+        return info.pos
     return None
 
 def bids(stem, conquest):

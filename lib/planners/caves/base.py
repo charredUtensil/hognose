@@ -1,4 +1,6 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+  from lib.lore import Lore
 
 import abc
 import collections
@@ -99,7 +101,7 @@ class BaseCavePlanner(SomaticPlanner):
   def fine_place_entities(self, diorama: Diorama):
     pass
 
-  def script(self, diorama: Diorama):
+  def script(self, diorama: Diorama, lore: 'Lore'):
     diorama.script.append(f'# {self}')
     self.script_place_monster_spawns(diorama)
 

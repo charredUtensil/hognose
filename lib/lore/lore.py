@@ -8,6 +8,7 @@ import functools
 import math
 
 from .conclusions import SUCCESS, FAILURE
+from .events import FOUND_HOARD, FOUND_HQ
 from .orders import ORDERS
 from .premises import PREMISES
 
@@ -80,7 +81,6 @@ class Lore(object):
 
   @functools.cached_property
   def level_name(self) -> str:
-    #rng = self.cavern.context.rng['lore', 0]
     seed = f'{self.cavern.context.seed:08X}'
     return (
       'HN-'
@@ -89,24 +89,32 @@ class Lore(object):
 
   @functools.cached_property
   def briefing(self) -> str:
-    rng = self.cavern.context.rng['lore', 1]
-
+    rng = self.cavern.context.rng['lore', -1]
     premise = PREMISES.generate(rng, self._states)
     orders = ORDERS.generate(rng, self._states)
     return f'{premise}\n{orders}' % self._vars
   
   @functools.cached_property
   def success(self) -> str:
-    rng = self.cavern.context.rng['lore', 2]
+    rng = self.cavern.context.rng['lore', -2]
     return SUCCESS.generate(
         rng, self._states | frozenset(('commend',))) % self._vars
   
   @functools.cached_property
   def failure(self) -> str:
-    rng = self.cavern.context.rng['lore', 3]
+    rng = self.cavern.context.rng['lore', -3]
     return FAILURE.generate(
         rng, self._states | frozenset(('console',))) % self._vars
 
+  @functools.cached_property
+  def event_found_hoard(self) -> str:
+    rng = self.cavern.context.rng['lore', -4]
+    return FOUND_HOARD.generate(rng, self._states) % self._vars
+
+  @functools.cached_property
+  def event_found_hq(self) -> str:
+    rng = self.cavern.context.rng['lore', -5]
+    return FOUND_HQ.generate(rng, self._states) % self._vars
 
 # String manipulation methods
 def _capitalize_first(s: str) -> str:

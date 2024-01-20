@@ -33,7 +33,6 @@ class FindMinerObjective(Objective):
   def serialize(self):
     return f'findminer:{self.miner.id:d}'
 
-
 class ResourceObjective(Objective):
 
   def __init__(self, crystals, ore=0, studs=0):
@@ -43,3 +42,11 @@ class ResourceObjective(Objective):
 
   def serialize(self):
     return f'resources: {self.crystals:d},{self.ore:d},{self.studs:d}'
+
+class VariableObjective(Objective):
+
+  def __init__(self, part:str):
+    self.part = part
+
+  def serialize(self):
+    return f'variable:{self.part}'

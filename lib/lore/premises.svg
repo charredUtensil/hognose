@@ -28,7 +28,7 @@
 <text text-anchor="middle" x="487.5" y="-568.3" font-family="Times,serif" font-size="14.00">Cadet, are you up for some more action?</text>
 </g>
 <!-- 0\n[start]&#45;&gt;2\nAre you ready for the next mission?\nWelcome back, Cadet.\nI hope you&#39;re prepared for this one,\nCadet.\nUp and at &#39;em, Cadet!\nCadet, are you up for some more action? -->
-<g id="edge2" class="edge">
+<g id="edge1" class="edge">
 <title>0\n[start]&#45;&gt;2\nAre you ready for the next mission?\nWelcome back, Cadet.\nI hope you&#39;re prepared for this one,\nCadet.\nUp and at &#39;em, Cadet!\nCadet, are you up for some more action?</title>
 <path fill="none" stroke="green" d="M35.06,-528.11C44.14,-549.61 62.13,-583.54 90,-599 170.47,-643.64 274.87,-646.6 356.35,-639.23"/>
 <polygon fill="green" stroke="green" points="357.06,-642.67 366.67,-638.23 356.38,-635.71 357.06,-642.67"/>
@@ -43,7 +43,7 @@
 <text text-anchor="middle" x="210.5" y="-529.8" font-family="Times,serif" font-size="14.00">Cadet.</text>
 </g>
 <!-- 0\n[start]&#45;&gt;3\nAre you ready to set sail?\nI hope you packed your lifejacket,\nCadet. -->
-<g id="edge1" class="edge">
+<g id="edge2" class="edge">
 <title>0\n[start]&#45;&gt;3\nAre you ready to set sail?\nI hope you packed your lifejacket,\nCadet.</title>
 <path fill="none" stroke="green" d="M54,-515.73C66.38,-518.94 82.1,-523.01 98.77,-527.33"/>
 <polygon fill="green" stroke="green" points="98.12,-530.77 108.68,-529.89 99.87,-524 98.12,-530.77"/>
@@ -400,7 +400,7 @@
 <text text-anchor="middle" x="3855.5" y="-789.8" font-family="Times,serif" font-size="14.00">, but this is no walk in the park.</text>
 </g>
 <!-- 21&#45;&gt;61\n. \nHowever,\n. \nUnfortunately,\n. \nUnfortunately for us,\n. \nThe bad news?\n. Use caution!\n, but proceed with caution!\n, but this is no walk in the park. -->
-<g id="edge32" class="edge">
+<g id="edge33" class="edge">
 <title>21&#45;&gt;61\n. \nHowever,\n. \nUnfortunately,\n. \nUnfortunately for us,\n. \nThe bad news?\n. Use caution!\n, but proceed with caution!\n, but this is no walk in the park.</title>
 <path fill="none" stroke="black" d="M3665.45,-1010.85C3686.94,-995.52 3719.23,-972.49 3751.07,-949.78"/>
 <polygon fill="black" stroke="black" points="3753.48,-952.36 3759.59,-943.7 3749.41,-946.66 3753.48,-952.36"/>
@@ -413,7 +413,7 @@
 <text text-anchor="middle" x="4832" y="-858.8" font-family="Times,serif" font-size="14.00">.</text>
 </g>
 <!-- 21&#45;&gt;94\n. -->
-<g id="edge33" class="edge">
+<g id="edge32" class="edge">
 <title>21&#45;&gt;94\n.</title>
 <path fill="none" stroke="black" d="M3666.03,-1027.4C3737.23,-1023.17 3941.22,-1012 4111,-1012 4111,-1012 4111,-1012 4389.5,-1012 4547.4,-1012 4722.47,-928.67 4795.74,-889.68"/>
 <polygon fill="black" stroke="black" points="4797.43,-892.75 4804.58,-884.93 4794.11,-886.58 4797.43,-892.75"/>
@@ -667,7 +667,7 @@
 <text text-anchor="middle" x="1447" y="-454.3" font-family="Times,serif" font-size="14.00">abundance of Energy Crystals</text>
 </g>
 <!-- 35\nSome of our Rock Raiders were&#45;&gt;36\nsearching for a nearby cavern with an\nabundance of Energy Crystals -->
-<g id="edge54" class="edge">
+<g id="edge53" class="edge">
 <title>35\nSome of our Rock Raiders were&#45;&gt;36\nsearching for a nearby cavern with an\nabundance of Energy Crystals</title>
 <path fill="none" stroke="black" d="M1300.25,-468.77C1308.67,-469.01 1317.25,-469.26 1325.84,-469.51"/>
 <polygon fill="black" stroke="black" points="1325.81,-473.01 1335.91,-469.8 1326.01,-466.01 1325.81,-473.01"/>
@@ -681,7 +681,7 @@
 <text text-anchor="middle" x="1447" y="-383.3" font-family="Times,serif" font-size="14.00">conducting mining operations here</text>
 </g>
 <!-- 35\nSome of our Rock Raiders were&#45;&gt;38\nexploring this cavern\nconducting mining operations here -->
-<g id="edge53" class="edge">
+<g id="edge54" class="edge">
 <title>35\nSome of our Rock Raiders were&#45;&gt;38\nexploring this cavern\nconducting mining operations here</title>
 <path fill="none" stroke="black" d="M1276.66,-446.97C1295.38,-442 1315.99,-436.53 1336.2,-431.16"/>
 <polygon fill="black" stroke="black" points="1337.31,-434.48 1346.08,-428.54 1335.51,-427.72 1337.31,-434.48"/>
@@ -699,13 +699,13 @@
 <polygon fill="blue" stroke="blue" points="1589.07,-476.5 1599.07,-473 1589.07,-469.5 1589.07,-476.5"/>
 </g>
 <!-- 37\n[treasure_one]&#45;&gt;22\n, when an increase in seismic activity\nforced us to evacuate.\n, but we were forced to evacuate when\nthe cavern started to collapse. -->
-<g id="edge58" class="edge">
+<g id="edge56" class="edge">
 <title>37\n[treasure_one]&#45;&gt;22\n, when an increase in seismic activity\nforced us to evacuate.\n, but we were forced to evacuate when\nthe cavern started to collapse.</title>
 <path fill="none" stroke="blue" d="M1694.5,-481.81C1704.26,-483.66 1714.97,-485.69 1726.07,-487.8"/>
 <polygon fill="blue" stroke="blue" points="1725.43,-491.24 1735.91,-489.66 1726.73,-484.36 1725.43,-491.24"/>
 </g>
 <!-- 37\n[treasure_one]&#45;&gt;23\n, when the cavern collapsed.\nbefore a massive cave&#45;in occurred. -->
-<g id="edge56" class="edge">
+<g id="edge58" class="edge">
 <title>37\n[treasure_one]&#45;&gt;23\n, when the cavern collapsed.\nbefore a massive cave&#45;in occurred.</title>
 <path fill="none" stroke="blue" d="M1689.44,-453.84C1693.25,-451.18 1696.85,-448.23 1700,-445 1724.71,-419.68 1709.07,-396.94 1736,-374 1737.52,-372.7 1739.09,-371.45 1740.7,-370.25"/>
 <polygon fill="blue" stroke="blue" points="1742.75,-373.09 1749.07,-364.59 1738.83,-367.29 1742.75,-373.09"/>
@@ -749,13 +749,13 @@
 <polygon fill="black" stroke="black" points="1610.83,-372.68 1619.93,-367.27 1609.44,-365.82 1610.83,-372.68"/>
 </g>
 <!-- 39\n[treasure_many]&#45;&gt;22\n, when an increase in seismic activity\nforced us to evacuate.\n, but we were forced to evacuate when\nthe cavern started to collapse. -->
-<g id="edge63" class="edge">
+<g id="edge61" class="edge">
 <title>39\n[treasure_many]&#45;&gt;22\n, when an increase in seismic activity\nforced us to evacuate.\n, but we were forced to evacuate when\nthe cavern started to collapse.</title>
 <path fill="none" stroke="blue" d="M1686.44,-436.08C1701.8,-443.63 1719.69,-452.32 1736,-460 1739.61,-461.7 1743.28,-463.42 1747,-465.15"/>
 <polygon fill="blue" stroke="blue" points="1745.76,-468.43 1756.31,-469.47 1748.71,-462.08 1745.76,-468.43"/>
 </g>
 <!-- 39\n[treasure_many]&#45;&gt;23\n, when the cavern collapsed.\nbefore a massive cave&#45;in occurred. -->
-<g id="edge61" class="edge">
+<g id="edge63" class="edge">
 <title>39\n[treasure_many]&#45;&gt;23\n, when the cavern collapsed.\nbefore a massive cave&#45;in occurred.</title>
 <path fill="none" stroke="blue" d="M1684.29,-397.8C1699.96,-389.89 1718.64,-380.97 1736,-374 1741.05,-371.97 1746.27,-369.97 1751.56,-368.02"/>
 <polygon fill="blue" stroke="blue" points="1752.92,-371.25 1761.15,-364.57 1750.55,-364.67 1752.92,-371.25"/>
@@ -767,13 +767,13 @@
 <polygon fill="blue" stroke="blue" points="1727.46,-420.5 1737.46,-417 1727.46,-413.5 1727.46,-420.5"/>
 </g>
 <!-- 40&#45;&gt;22\n, when an increase in seismic activity\nforced us to evacuate.\n, but we were forced to evacuate when\nthe cavern started to collapse. -->
-<g id="edge66" class="edge">
+<g id="edge64" class="edge">
 <title>40&#45;&gt;22\n, when an increase in seismic activity\nforced us to evacuate.\n, but we were forced to evacuate when\nthe cavern started to collapse.</title>
 <path fill="none" stroke="black" d="M1674.15,-371.68C1683.15,-375.96 1692.77,-381.7 1700,-389 1724.9,-414.14 1710.44,-435.53 1736,-460 1737.09,-461.04 1738.2,-462.07 1739.34,-463.07"/>
 <polygon fill="black" stroke="black" points="1737.19,-465.83 1747.15,-469.44 1741.61,-460.41 1737.19,-465.83"/>
 </g>
 <!-- 40&#45;&gt;23\n, when the cavern collapsed.\nbefore a massive cave&#45;in occurred. -->
-<g id="edge64" class="edge">
+<g id="edge66" class="edge">
 <title>40&#45;&gt;23\n, when the cavern collapsed.\nbefore a massive cave&#45;in occurred.</title>
 <path fill="none" stroke="black" d="M1674.21,-358.86C1690.56,-356.91 1712.84,-354.24 1736.01,-351.47"/>
 <polygon fill="black" stroke="black" points="1736.46,-354.94 1745.97,-350.27 1735.63,-347.99 1736.46,-354.94"/>
@@ -999,7 +999,7 @@
 <text text-anchor="middle" x="2966.5" y="-167.3" font-family="Times,serif" font-size="14.00">sent to the wrong cavern</text>
 </g>
 <!-- 55&#45;&gt;56\nA teleporter malfunction sent one of our\nRock Raiders to a cavern near here\nThe teleporter on the L.M.S. Explorer\nhas been acting up again and one of our\nRock Raiders is trapped in an uncharted\ncavern\nOne of our Rock Raiders was accidentally\nsent to the wrong cavern -->
-<g id="edge86" class="edge">
+<g id="edge85" class="edge">
 <title>55&#45;&gt;56\nA teleporter malfunction sent one of our\nRock Raiders to a cavern near here\nThe teleporter on the L.M.S. Explorer\nhas been acting up again and one of our\nRock Raiders is trapped in an uncharted\ncavern\nOne of our Rock Raiders was accidentally\nsent to the wrong cavern</title>
 <path fill="none" stroke="black" d="M2710.68,-162.99C2739.11,-170.58 2786.69,-183.28 2833.09,-195.66"/>
 <polygon fill="black" stroke="black" points="2832.4,-199.1 2842.96,-198.29 2834.21,-192.33 2832.4,-199.1"/>
@@ -1017,7 +1017,7 @@
 <text text-anchor="middle" x="2966.5" y="-36.3" font-family="Times,serif" font-size="14.00">uncharted cavern</text>
 </g>
 <!-- 55&#45;&gt;58\nA teleporter malfunction sent a group of\nour Rock Raiders to a cavern near here\nThe teleporter on the L.M.S. Explorer\nhas been acting up again and a group of\nour Rock Raiders ended up in an\nuncharted cavern -->
-<g id="edge85" class="edge">
+<g id="edge86" class="edge">
 <title>55&#45;&gt;58\nA teleporter malfunction sent a group of\nour Rock Raiders to a cavern near here\nThe teleporter on the L.M.S. Explorer\nhas been acting up again and a group of\nour Rock Raiders ended up in an\nuncharted cavern</title>
 <path fill="none" stroke="black" d="M2710.68,-149.38C2740.19,-141.93 2790.33,-129.26 2838.37,-117.12"/>
 <polygon fill="black" stroke="black" points="2839.42,-120.47 2848.26,-114.62 2837.71,-113.68 2839.42,-120.47"/>
@@ -1088,7 +1088,7 @@
 <text text-anchor="middle" x="4112" y="-617.3" font-family="Times,serif" font-size="14.00">volcanic activity in this cavern</text>
 </g>
 <!-- 61\n. \nHowever,\n. \nUnfortunately,\n. \nUnfortunately for us,\n. \nThe bad news?\n. Use caution!\n, but proceed with caution!\n, but this is no walk in the park.&#45;&gt;86\nwe are dangerously close to a cavern\nfull of lava\nwe are concerned about nearby lava flows\nthat could engulf this cavern\nyou will need to keep an eye on the\nvolcanic activity in this cavern -->
-<g id="edge93" class="edge">
+<g id="edge94" class="edge">
 <title>61\n. \nHowever,\n. \nUnfortunately,\n. \nUnfortunately for us,\n. \nThe bad news?\n. Use caution!\n, but proceed with caution!\n, but this is no walk in the park.&#45;&gt;86\nwe are dangerously close to a cavern\nfull of lava\nwe are concerned about nearby lava flows\nthat could engulf this cavern\nyou will need to keep an eye on the\nvolcanic activity in this cavern</title>
 <path fill="none" stroke="black" d="M3951.27,-797.8C3978.67,-775.19 4008.24,-750.79 4034.39,-729.21"/>
 <polygon fill="black" stroke="black" points="4036.9,-731.68 4042.39,-722.61 4032.45,-726.28 4036.9,-731.68"/>
@@ -1109,7 +1109,7 @@
 <text text-anchor="middle" x="4112" y="-789.8" font-family="Times,serif" font-size="14.00">out of sight</text>
 </g>
 <!-- 61\n. \nHowever,\n. \nUnfortunately,\n. \nUnfortunately for us,\n. \nThe bad news?\n. Use caution!\n, but proceed with caution!\n, but this is no walk in the park.&#45;&gt;88\nthe tunnels here are full of large\ncreatures that threaten our operations\nwe are picking up signs of large\ncreatures in the area\nthis cavern is inhabited by nests of\n%(monster_type)s monsters\nwe have reason to believe there are\ndozens of %(monster_type)s monsters just\nout of sight -->
-<g id="edge94" class="edge">
+<g id="edge93" class="edge">
 <title>61\n. \nHowever,\n. \nUnfortunately,\n. \nUnfortunately for us,\n. \nThe bad news?\n. Use caution!\n, but proceed with caution!\n, but this is no walk in the park.&#45;&gt;88\nthe tunnels here are full of large\ncreatures that threaten our operations\nwe are picking up signs of large\ncreatures in the area\nthis cavern is inhabited by nests of\n%(monster_type)s monsters\nwe have reason to believe there are\ndozens of %(monster_type)s monsters just\nout of sight</title>
 <path fill="none" stroke="black" d="M3951.27,-870.41C3959.6,-869.92 3968.12,-869.42 3976.7,-868.92"/>
 <polygon fill="black" stroke="black" points="3976.99,-872.4 3986.77,-868.32 3976.58,-865.42 3976.99,-872.4"/>
@@ -1126,7 +1126,7 @@
 <text text-anchor="middle" x="4112" y="-294.8" font-family="Times,serif" font-size="14.00">cavern.</text>
 </g>
 <!-- 62&#45;&gt;63\nwe need to find them before the\n%(monster_type)s monsters do.\nI hope they don&#39;t meet any of the\n%(monster_type)s monsters roaming this\ncavern. -->
-<g id="edge96" class="edge">
+<g id="edge95" class="edge">
 <title>62&#45;&gt;63\nwe need to find them before the\n%(monster_type)s monsters do.\nI hope they don&#39;t meet any of the\n%(monster_type)s monsters roaming this\ncavern.</title>
 <path fill="none" stroke="black" d="M3882.78,-335.1C3906.4,-335.2 3942.98,-335.34 3979.99,-335.49"/>
 <polygon fill="black" stroke="black" points="3980.41,-338.99 3990.43,-335.53 3980.44,-331.99 3980.41,-338.99"/>
@@ -1141,7 +1141,7 @@
 <text text-anchor="middle" x="4388.5" y="-401.8" font-family="Times,serif" font-size="14.00">there.</text>
 </g>
 <!-- 62&#45;&gt;65\nwe&#39;re counting on you to find them!\nwe don&#39;t know how long they&#39;ll last out\nthere. -->
-<g id="edge95" class="edge">
+<g id="edge96" class="edge">
 <title>62&#45;&gt;65\nwe&#39;re counting on you to find them!\nwe don&#39;t know how long they&#39;ll last out\nthere.</title>
 <path fill="none" stroke="black" d="M3882.52,-349.97C3908.18,-363.95 3948.98,-384.1 3987,-394 4077.34,-417.52 4182.63,-425.74 4262.58,-428.23"/>
 <polygon fill="black" stroke="black" points="4262.6,-431.73 4272.69,-428.52 4262.8,-424.74 4262.6,-431.73"/>
@@ -1256,7 +1256,7 @@
 <text text-anchor="middle" x="2683.5" y="-766.3" font-family="Times,serif" font-size="14.00">destroyed</text>
 </g>
 <!-- 69\n. We were able to evacuate in time\n. All of our Rock Raiders made it out\n. We evacuated the cavern\n. Everyone evacuated safely&#45;&gt;70\n, but this is as close as we can get for\nnow\n, but the teleporter seems to have been\ndestroyed -->
-<g id="edge106" class="edge">
+<g id="edge107" class="edge">
 <title>69\n. We were able to evacuate in time\n. All of our Rock Raiders made it out\n. We evacuated the cavern\n. Everyone evacuated safely&#45;&gt;70\n, but this is as close as we can get for\nnow\n, but the teleporter seems to have been\ndestroyed</title>
 <path fill="none" stroke="black" d="M2511.35,-804.26C2527.28,-803.87 2543.77,-803.46 2559.94,-803.05"/>
 <polygon fill="black" stroke="black" points="2560.04,-806.55 2569.95,-802.8 2559.87,-799.55 2560.04,-806.55"/>
@@ -1270,7 +1270,7 @@
 <text text-anchor="middle" x="2683.5" y="-695.3" font-family="Times,serif" font-size="14.00">and the geology seems to be stable again</text>
 </g>
 <!-- 69\n. We were able to evacuate in time\n. All of our Rock Raiders made it out\n. We evacuated the cavern\n. Everyone evacuated safely&#45;&gt;72\n, but this is all that&#39;s left\nand the geology seems to be stable again -->
-<g id="edge107" class="edge">
+<g id="edge106" class="edge">
 <title>69\n. We were able to evacuate in time\n. All of our Rock Raiders made it out\n. We evacuated the cavern\n. Everyone evacuated safely&#45;&gt;72\n, but this is all that&#39;s left\nand the geology seems to be stable again</title>
 <path fill="none" stroke="black" d="M2511.33,-767.16C2528.25,-761.27 2545.56,-755.37 2562,-750 2568.48,-747.88 2575.18,-745.74 2581.94,-743.62"/>
 <polygon fill="black" stroke="black" points="2583.36,-746.85 2591.87,-740.53 2581.28,-740.16 2583.36,-746.85"/>
@@ -1319,7 +1319,7 @@
 <text text-anchor="middle" x="2683.5" y="-1039.8" font-family="Times,serif" font-size="14.00">one of our Rock Raiders is missing</text>
 </g>
 <!-- 74\n, and&#45;&gt;75\none of our Rock Raiders is missing -->
-<g id="edge113" class="edge">
+<g id="edge114" class="edge">
 <title>74\n, and&#45;&gt;75\none of our Rock Raiders is missing</title>
 <path fill="none" stroke="black" d="M2427.74,-953.87C2458.71,-973.1 2512.3,-1004.29 2562,-1023 2567.74,-1025.16 2573.69,-1027.19 2579.75,-1029.08"/>
 <polygon fill="black" stroke="black" points="2578.74,-1032.44 2589.33,-1031.96 2580.76,-1025.73 2578.74,-1032.44"/>
@@ -1349,7 +1349,7 @@
 <text text-anchor="middle" x="2683.5" y="-867.8" font-family="Times,serif" font-size="14.00">the cavern</text>
 </g>
 <!-- 74\n, and&#45;&gt;79\nsome of our Rock Raidiers are missing\nour Rock Raiders are trapped throughout\nthe cavern -->
-<g id="edge114" class="edge">
+<g id="edge113" class="edge">
 <title>74\n, and&#45;&gt;79\nsome of our Rock Raidiers are missing\nour Rock Raiders are trapped throughout\nthe cavern</title>
 <path fill="none" stroke="black" d="M2427.68,-932.99C2456.88,-928.53 2506.26,-920.97 2553.82,-913.69"/>
 <polygon fill="black" stroke="black" points="2554.58,-917.12 2563.94,-912.14 2553.52,-910.2 2554.58,-917.12"/>
@@ -1676,13 +1676,13 @@
 <polygon fill="black" stroke="black" points="3827.45,-637.15 3836.92,-641.89 3832.47,-632.28 3827.45,-637.15"/>
 </g>
 <!-- 99&#45;&gt;86\nwe are dangerously close to a cavern\nfull of lava\nwe are concerned about nearby lava flows\nthat could engulf this cavern\nyou will need to keep an eye on the\nvolcanic activity in this cavern -->
-<g id="edge147" class="edge">
+<g id="edge148" class="edge">
 <title>99&#45;&gt;86\nwe are dangerously close to a cavern\nfull of lava\nwe are concerned about nearby lava flows\nthat could engulf this cavern\nyou will need to keep an eye on the\nvolcanic activity in this cavern</title>
 <path fill="none" stroke="black" d="M3882.78,-660.62C3906.11,-661.17 3942.09,-662.02 3978.63,-662.88"/>
 <polygon fill="black" stroke="black" points="3978.86,-666.39 3988.94,-663.12 3979.02,-659.39 3978.86,-666.39"/>
 </g>
 <!-- 99&#45;&gt;88\nthe tunnels here are full of large\ncreatures that threaten our operations\nwe are picking up signs of large\ncreatures in the area\nthis cavern is inhabited by nests of\n%(monster_type)s monsters\nwe have reason to believe there are\ndozens of %(monster_type)s monsters just\nout of sight -->
-<g id="edge148" class="edge">
+<g id="edge147" class="edge">
 <title>99&#45;&gt;88\nthe tunnels here are full of large\ncreatures that threaten our operations\nwe are picking up signs of large\ncreatures in the area\nthis cavern is inhabited by nests of\n%(monster_type)s monsters\nwe have reason to believe there are\ndozens of %(monster_type)s monsters just\nout of sight</title>
 <path fill="none" stroke="black" d="M3879.53,-678.19C3907.58,-700.34 3956.92,-739.31 4002.85,-775.59"/>
 <polygon fill="black" stroke="black" points="4000.77,-778.4 4010.78,-781.85 4005.11,-772.91 4000.77,-778.4"/>
