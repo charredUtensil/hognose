@@ -4,206 +4,117 @@ if TYPE_CHECKING:
   from lib import Cavern
 
 import collections
+import functools
 import math
 
-from . import conclusions, openings, orders, premises
+from .conclusions import SUCCESS, FAILURE
+from .events import FOUND_HOARD, FOUND_HQ
+from .orders import ORDERS
+from .premises import PREMISES
 
 from lib.base import Biome
-from lib.planners.caves import LostMinersCavePlanner, TreasureCavePlanner
+from lib.planners.caves import EstablishedHQCavePlanner, LostMinersCavePlanner, TreasureCavePlanner
 from lib.plastic import FindMinerObjective, ResourceObjective, Tile
 
 class Lore(object):
   def __init__(self, cavern: 'Cavern'):
     self.cavern = cavern
 
+    resources = _resources(cavern)
+
+    def states():
+      flooded_kind = _flooded_kind(self.cavern)
+      if flooded_kind == Tile.WATER:
+        yield 'flooded_water'
+      if flooded_kind == Tile.LAVA:
+        yield 'flooded_lava'
+
+      lost_miners_count = sum(
+          1 for o in self.cavern.diorama.objectives
+          if isinstance(o, FindMinerObjective))
+      if lost_miners_count:
+        lost_miner_caves_count = sum(
+            1 for p in self.cavern.conquest.planners
+            if isinstance(p, LostMinersCavePlanner))
+        if lost_miners_count == 1:
+          yield 'lost_miners_one'
+        elif lost_miner_caves_count == 1:
+          yield 'lost_miners_together'
+        else:
+          yield 'lost_miners_apart'
+      
+      if resources:
+        yield 'collect_resources'
+
+      if self.cavern.context.has_monsters:
+        yield 'has_monsters'
+
+      spawn = self.cavern.conquest.spawn
+      if _spawn_has_erosion(self.cavern):
+        yield 'spawn_has_erosion'
+      if isinstance(spawn, EstablishedHQCavePlanner):
+        if spawn.is_ruin:
+          yield 'spawn_is_ruin'
+        else:
+          yield 'spawn_is_hq'
+      elif any(
+          isinstance(p, EstablishedHQCavePlanner)
+          for p in self.cavern.conquest.planners):
+        yield 'find_hq'
+
+      treasure_count = sum(
+          1 for p in self.cavern.conquest.planners
+          if isinstance(p, TreasureCavePlanner))
+      if treasure_count == 1:
+        yield 'treasure_one'
+      elif treasure_count > 1:
+        yield 'treasure_many'
+
+    self._states = frozenset(states())
+    self._vars = {
+      'monster_type': {
+          Biome.ROCK: 'rock',
+          Biome.ICE: 'ice',
+          Biome.LAVA: 'lava',
+      }[self.cavern.context.biome],
+      'resources': resources}
+
+  @functools.cached_property
   def level_name(self) -> str:
-    #rng = self.cavern.context.rng['lore', 0]
     seed = f'{self.cavern.context.seed:08X}'
     return (
       'HN-'
       f'{self.cavern.context.biome.value[-1].upper()}'
       f'{seed[:3]}-{seed[3:]}')
 
+  @functools.cached_property
   def briefing(self) -> str:
-    rng = self.cavern.context.rng['lore', 1]
-    opening = self._opening(rng)
-    premise = self._premise(rng)
-    orders = self._orders(rng)
-    return f'{opening}\n{premise}\n{orders}'
+    rng = self.cavern.context.rng['lore', -1]
+    premise = PREMISES.generate(rng, self._states)
+    orders = ORDERS.generate(rng, self._states)
+    return f'{premise}\n{orders}' % self._vars
   
+  @functools.cached_property
   def success(self) -> str:
-    rng = self.cavern.context.rng['lore', 2]
-    opening = rng.uniform_choice(openings.SUCCESS)
-    conclusion = self._objectives_achieved(rng)
-    congratulation = rng.uniform_choice(conclusions.CONGRATULATION)
-    return f'{opening} {conclusion} {congratulation}'
+    rng = self.cavern.context.rng['lore', -2]
+    return SUCCESS.generate(
+        rng, self._states | frozenset(('commend',))) % self._vars
   
+  @functools.cached_property
   def failure(self) -> str:
-    rng = self.cavern.context.rng['lore', 3]
-    opening = rng.uniform_choice(openings.FAILURE)
-    conclusion = self._objectives_failed(rng)
-    condolence = rng.uniform_choice(conclusions.CONDOLENCE)
-    return f'{opening} {conclusion} {condolence}'
+    rng = self.cavern.context.rng['lore', -3]
+    return FAILURE.generate(
+        rng, self._states | frozenset(('console',))) % self._vars
 
-  # Opening lines.
-    
-  def _opening(self, rng) -> str:
-    lava = 0
-    water = 0
-    total = 0
-    for p in self.cavern.conquest.planners:
-      if p.fluid_type == Tile.LAVA:
-        lava += 1
-      elif p.fluid_type == Tile.WATER:
-        water += 1
-      total += 1
-    if lava / total > 0.4:
-      return rng.uniform_choice(openings.LAVA_FLOODED)
-    elif water / total > 0.4:
-      return rng.uniform_choice(openings.WATER_FLOODED)
-    else:
-      return rng.uniform_choice(openings.NORMAL)
+  @functools.cached_property
+  def event_found_hoard(self) -> str:
+    rng = self.cavern.context.rng['lore', -4]
+    return FOUND_HOARD.generate(rng, self._states) % self._vars
 
-  # Premise - used in briefings, for flavor.
-    
-  def _premise(self, rng) -> str:
-    positive = []
-    negative = []
-
-    positive.extend(self._premise_treasure(rng))
-    negative.extend(self._premise_lost_miners(rng))
-
-    if _spawn_has_erosion(self.cavern):
-      negative.append(rng.uniform_choice(premises.SPAWN_HAS_EROSION))
-
-    if self.cavern.context.has_monsters:
-      monster_kind = {
-        Biome.ROCK: 'Rock Monsters',
-        Biome.ICE: 'Ice Monsters',
-        Biome.LAVA: 'Lava Monsters',
-      }[self.cavern.context.biome]
-      negative.append(rng.uniform_choice(premises.MONSTERS_PRESENT) % monster_kind)
-
-    if positive and negative:
-      bridge = rng.uniform_choice(premises.POSITIVE_NEGATIVE_BRIDGE)
-      negative = _join_human(negative)
-      if bridge[-1] in '.!?':
-        negative = _capitalize_first(negative)
-      return (
-          f'{_capitalize_first(_join_human(positive))}. '
-          f'{bridge} {negative}.')
-    return _capitalize_first(
-        _join_human(positive or negative)
-        or rng.uniform_choice(premises.GENERIC)) + '.'
-
-  def _premise_treasure(self, rng) -> Iterable[str]:
-    planners = tuple(
-        p for p in self.cavern.conquest.planners
-        if isinstance(p, TreasureCavePlanner))
-    if len(planners) == 1:
-      yield rng.uniform_choice(premises.ONE_TREASURE_CAVE)
-    elif planners:
-      yield rng.uniform_choice(premises.TREASURE_CAVES)
-
-  def _premise_lost_miners(self, rng) -> Iterable[str]:
-    planners = tuple(
-        p for p in self.cavern.conquest.planners
-        if isinstance(p, LostMinersCavePlanner))
-    if len(planners) == 1:
-      lost_miners = sum(
-          1 for o in self.cavern.diorama.objectives
-          if isinstance(o, FindMinerObjective))
-      if lost_miners == 1:
-        yield rng.uniform_choice(premises.LOST_MINER)
-      else:
-        yield rng.uniform_choice(premises.LOST_MINERS_TOGETHER)
-    elif planners:
-      yield rng.uniform_choice(premises.LOST_MINERS_APART)
-
-
-  # Orders - objectives phrased in briefings.
-
-  def _resource_objective(self) -> Optional[ResourceObjective]:
-    for o in self.cavern.diorama.objectives:
-      if isinstance(o, ResourceObjective):
-        return o
-    return None
-  
-  def _non_resource_orders(self, rng) -> Iterable[str]:
-    result = []
-    if _spawn_has_erosion(self.cavern):
-      result.append(rng.uniform_choice(orders.SPAWN_HAS_EROSION))
-    if self.cavern.context.has_monsters:
-      result.append(rng.uniform_choice(orders.DEFEND_HQ))
-    if not result:
-      result.append(rng.uniform_choice(orders.GENERIC))
-    lost_miners = sum(
-        1 for o in self.cavern.diorama.objectives
-        if isinstance(o, FindMinerObjective))
-    if lost_miners > 0:
-      if lost_miners > 1:
-        miners = f'{_spell_number(lost_miners)} lost Rock Raiders'
-      else:
-        miners = 'lost Rock Raider'
-      result.append(rng.uniform_choice(orders.FIND_LOST_MINERS) % miners)
-    return result
-
-  def _resource_orders(self) -> Iterable[str]:
-    o = self._resource_objective()
-    if o:
-      if o.crystals:
-        yield f'{_spell_number(o.crystals)} Energy Crystals'
-      if o.ore:
-        yield f'{_spell_number(o.ore)} Ore'
-      if o.studs:
-        yield f'{_spell_number(o.studs)} Building Studs'
-
-  def _orders(self, rng) -> str:
-    nro = tuple(self._non_resource_orders(rng))
-    ro = tuple(self._resource_orders())
-    if not ro:
-      return f'{_capitalize_first(_join_human(nro))}.'
-    if len(ro) == 1:
-      return f'{_capitalize_first(_join_human(nro + (f"collect {ro[0]}",)))}.'
-    return (
-        f'{_capitalize_first(_join_human(nro))}, '
-        f'then collect {_join_human(ro)}.')
-
-  # Conclusions - success and failure messages based on objectives.
-
-  def _objectives_conclusion(self, rng) -> str:
-    result = []
-
-    lost_miners = sum(
-        1 for o in self.cavern.diorama.objectives
-        if isinstance(o, FindMinerObjective))
-    if lost_miners > 0:
-      result.append(f'find the lost Rock Raider{"s" if lost_miners > 1 else ""}')
-    
-    ro = self._resource_objective()
-    if ro:
-      resources = tuple((s, qty) for s, qty in (
-          (f'Energy Crystals', ro.crystals),
-          (f'ore', ro.ore),
-          (f'Building Studs', ro.studs)) if qty > 0)
-      if len(resources) > 1:
-        resource = 'the resources'
-      else:
-        resource = f'{_spell_number(resources[0][1])} {resources[0][0]}'
-      result.append(rng.uniform_choice(conclusions.RESOURCES) % resource)
-
-    return _join_human(result)
-
-  def _objectives_achieved(self, rng) -> str:
-    return (
-        rng.uniform_choice(conclusions.ACHIEVED)
-        % self._objectives_conclusion(rng))
-
-  def _objectives_failed(self, rng) -> str:
-    return (
-        rng.uniform_choice(conclusions.FAILED)
-        % self._objectives_conclusion(rng))
-
+  @functools.cached_property
+  def event_found_hq(self) -> str:
+    rng = self.cavern.context.rng['lore', -5]
+    return FOUND_HQ.generate(rng, self._states) % self._vars
 
 # String manipulation methods
 def _capitalize_first(s: str) -> str:
@@ -248,6 +159,37 @@ def _spell_number(n: int) -> str:
   return ' '.join(r)
 
 # Helper methods
+
+def _flooded_kind(cavern: 'Cavern'):
+  lava = 0
+  water = 0
+  total = 0
+  for p in cavern.conquest.planners:
+    if p.fluid_type == Tile.LAVA:
+      lava += 1
+    elif p.fluid_type == Tile.WATER:
+      water += 1
+    total += 1
+  if lava / total > 0.4:
+    return Tile.LAVA
+  elif water / total > 0.4:
+    return Tile.WATER
+  else:
+    return None
+
+def _resources(cavern):
+  def h():
+    for o in cavern.diorama.objectives:
+      if isinstance(o, ResourceObjective):
+        if o.crystals:
+          yield f'{_spell_number(o.crystals)} Energy Crystals'
+        if o.ore:
+          yield f'{_spell_number(o.ore)} Ore'
+        if o.studs:
+          yield f'{_spell_number(o.studs)} Building Studs'
+        return
+  return _join_human(tuple(h()))
+    
 def _spawn_has_erosion(cavern: 'Cavern'):
   spawn = cavern.conquest.spawn
   return (

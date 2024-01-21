@@ -57,8 +57,8 @@ class ThinHallPlanner(BaseHallPlanner):
 
 def bids(stem, conquest):
   if stem.fluid_type is None:
-    yield   (0.1, lambda: ThinHallPlanner(False, stem, Oysters.OPEN))
-    yield   (0.2, lambda: ThinHallPlanner(True, stem, Oysters.FILLED))
+    yield   (0.2, lambda: ThinHallPlanner(False, stem, Oysters.OPEN))
+    yield   (0.1, lambda: ThinHallPlanner(True, stem, Oysters.FILLED))
     if conquest.expected_crystals > (0 +
         + 2     # Power Station
         + 3 + 1 # Support Station (powered)

@@ -11,6 +11,10 @@ from lib.utils.geometry import adjacent
 
 class SimpleSpawnCavePlanner(BaseCavePlanner):
 
+  def __init__(self, stem, oyster, min_crystals):
+    super().__init__(stem, oyster),
+    self.min_crystals = min_crystals
+
   @property
   def inspect_color(self):
     return (0x00, 0xff, 0xff)
@@ -18,6 +22,7 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
   def _get_expected_crystals(self):
     return max(
         super()._get_expected_crystals(),
+        self.min_crystals,
         self.rng['conquest.expected_crystals'].beta_int(min = 2, max = 7))
 
   def _get_monster_spawner(self):
@@ -66,8 +71,11 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
 
 def bids(stem, conquest):
   if stem.fluid_type == None:
-    yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.OPEN))
-    yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.EMPTY))
+    if any(p.fluid_type is None for p in conquest.intersecting(stem)):
+      yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.OPEN, 0))
+      yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.EMPTY, 0))
+    else:
+      yield (0.1, lambda: SimpleSpawnCavePlanner(stem, Oysters.OPEN, 9))
 
 class Oysters:
   OPEN = (

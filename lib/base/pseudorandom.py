@@ -29,6 +29,9 @@ KINDS = (
   'fine.place_entities',
   'monster_spawner',
   'pick_spawn_cave',
+  'place_buildings',
+  'expected_ore',
+  'place_ore',
 )
 
 class Rng(object):
@@ -89,6 +92,11 @@ class Rng(object):
     """A uniformly random choice of one of the given items."""
     c = tuple(choices)
     return c[self._rng.integers(0, len(c))]
+
+  def shuffle(self, choices: Iterable[T]) -> Iterable[T]:
+    result = list(choices)
+    self._rng.shuffle(result)
+    return result
 
   def weighted_choice(self, bids: Iterable[Tuple[float, T]]) -> T:
     """Given tuples of (weight, item), choose an item.

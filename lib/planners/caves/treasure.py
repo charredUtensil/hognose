@@ -7,7 +7,7 @@ from .base import BaseCavePlanner
 from .monster_spawners import MonsterSpawner, RetriggerMode
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Creature, Position, ResourceObjective, Tile
+from lib.plastic import Creature, Position, ResourceObjective, Script, Tile
 
 class TreasureCavePlanner(BaseCavePlanner):
 
@@ -82,6 +82,45 @@ class HoardCavePlanner(TreasureCavePlanner):
               facing=center),
           sleep=True)
 
+  def script(self, diorama, lore):
+    super().script(diorama, lore)
+    # Generate a script that pans to this cave on discovery if collecting all
+    # of the crystals would win the level.
+    # TODO: Need to figure out clashes with lost miner objectives
+    ro = diorama.resource_objective
+    if not ro:
+      return
+    x, y = next(self.pearl.nucleus).pos
+    gfix = 'g_foundHoard_'
+    prefix = f'p{self.id}_foundHoard_'
+    def gen():
+      yield '## Found hoard'
+      if gfix in diorama.script.flags:
+        yield '### (skipping globals)'
+      else:
+        diorama.script.flags.add(gfix)
+        yield f'bool {gfix}wasTriggered=false'
+        msg = Script.escape_string(lore.event_found_hoard)
+        yield f'string {gfix}message="{msg}"'
+      yield f'int {prefix}crystalsAvailable=0'
+      yield f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscovered]'
+      yield f'{prefix}onDiscovered::;'
+      yield f'(({gfix}wasTriggered))return;'
+      yield f'{gfix}wasTriggered=true;'
+      # Need to wait here because the crystals don't spawn instantly.
+      yield 'wait:1;'
+      yield f'{prefix}crystalsAvailable=crystals+Crystal_C;'
+      yield f'(({prefix}crystalsAvailable>={ro.crystals:d}))[{prefix}go][{prefix}noGo];'
+      yield ''
+      yield f'{prefix}go::;'
+      yield f'msg:{gfix}message;'
+      yield f'pan:y@{y:d},x@{x:d};'
+      yield ''
+      yield f'{prefix}noGo::;'
+      yield f'{gfix}wasTriggered=false'
+      yield ''
+    diorama.script.extend(gen())
+
 class NougatCavePlanner(TreasureCavePlanner):
 
   def _get_monster_spawner(self):
@@ -120,22 +159,24 @@ def bids(stem, conquest):
     # Only put treasure caves at dead ends
     return
   pr = stem.pearl_radius
+  fh = any(p.fluid_type is not None for p in conquest.intersecting(stem))
   if stem.fluid_type == Tile.WATER and pr > 3:
     yield (0.5, lambda: NougatCavePlanner(
         stem, Oysters.ISLAND_NOUGAT))
-    if not any(p.fluid_type for p in conquest.intersecting(stem)):
+    if not fh:
       yield (0.5, lambda: HoardCavePlanner(
           stem, Oysters.PENINSULA_HOARD))
   elif stem.fluid_type == Tile.LAVA and pr > 3:
     yield (0.5, lambda: NougatCavePlanner(
         stem, Oysters.LAVA_ISLAND_NOUGAT))
-    if not any(p.fluid_type for p in conquest.intersecting(stem)):
+    if not fh:
       yield (0.5, lambda: HoardCavePlanner(
           stem, Oysters.LAVA_PENINSULA_HOARD))
   elif len(stem.baseplates) > 1:
     yield (1, lambda: NougatCavePlanner(stem, Oysters.OPEN_NOUGAT))
   else:
-    yield (0.5, lambda: HoardCavePlanner(stem, Oysters.OPEN_HOARD))
+    if not fh:
+      yield (0.5, lambda: HoardCavePlanner(stem, Oysters.OPEN_HOARD))
     yield (0.5, lambda: HoardCavePlanner(stem, Oysters.SEALED_HOARD))
 
 class Oysters:

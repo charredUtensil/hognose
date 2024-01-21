@@ -54,7 +54,7 @@ class Context(object):
     # The higher this number is, the more things will happen in the final map.
     self.special_baseplate_count         = 20
     # The ratio of non-spanning connections that become hallways.
-    self.weave_ratio                     = 0.16
+    self.weave_ratio                     = 0.21
 
     # The min/max percentage of the cavern to fill.
     # Generation will fail if the sum of these two is >= 1
@@ -73,7 +73,7 @@ class Context(object):
     # longer rivers. Smaller numbers result in more individual lakes.
     # Does not affect the total water or lava in the cavern.
     self.water_spread                    = 0.75
-    self.lava_spread                     = 0.30
+    self.lava_spread                     = 0.15
 
     # The chance for a cave/hall with lava or erosion to spread erosion to
     # its neighbors.
@@ -91,6 +91,14 @@ class Context(object):
                                            0.50,
                                            1.00,
                                            1.00,
+    )
+
+    # Extra ore per unit of perimeter caves should have
+    # Note this does not include the 4 ore recovered by clearing rubble.
+    self.ore_richness = Curve(
+                                           3.75,
+                                          -0.50,
+                                          -0.25,
     )
 
     # Monsters to spawn per minute per cave

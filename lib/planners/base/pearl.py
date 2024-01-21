@@ -122,6 +122,17 @@ Layer.BRIDGE_ON_LAVA = Layer(
       hard_rock  = Tile.FLOOR,
       solid_rock = Tile.LAVA)
 
+Layer.INVERT_TO_DIRT = Layer(
+      dirt       = Tile.FLOOR,
+      loose_rock = Tile.FLOOR,
+      hard_rock  = Tile.FLOOR,
+      solid_rock = Tile.DIRT)
+Layer.INVERT_TO_LOOSE_ROCK = Layer(
+      dirt       = Tile.FLOOR,
+      loose_rock = Tile.FLOOR,
+      hard_rock  = Tile.FLOOR,
+      solid_rock = Tile.LOOSE_ROCK)
+
 class Oyster(object):
   """A Pearl Factory."""
 

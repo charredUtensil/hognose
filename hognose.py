@@ -17,7 +17,12 @@ def main():
   parser = argparse.ArgumentParser(
     prog=f'hognose',
     description='Procedurally generates caverns for Manic Miners.',
-    usage='hognose [-d] [-o FILENAME] [-s SEED]'
+    usage='hognose [-b] [-d] [-o FILENAME] [-s SEED]'
+  )
+  parser.add_argument(
+    '-b', '--briefing',
+    action=argparse.BooleanOptionalAction,
+    help='Print the briefing after generating.'
   )
   parser.add_argument(
     '-d', '--draw',
@@ -37,9 +42,12 @@ def main():
     version=VERSION)
 
   args = parser.parse_args()
-  if args.draw is None and args.out is None:
+  if args.briefing is None and args.draw is None and args.out is None:
     parser.error(
         'Nothing to do. Specify -d to draw cavern or -o to output to file.')
+  if args.briefing and args.out == '-':
+    parser.error(
+        'Stubbornly refusing to print both briefing and level.dat to stdout.')
 
   inx = None
   if args.draw:
@@ -69,6 +77,8 @@ def main():
       filename = os.path.join(filename, f'{cavern.diorama.level_name}.dat')
     with open(filename, 'w') as f:
       f.write(cavern.serialized)
+  if args.briefing:
+    print(cavern.diorama.briefing)
   print((
     f'Generated {cavern.diorama.level_name} with seed {hex(context.seed)} '
     f'in {(time.time_ns() - start_time) // 1_000_000}ms'),

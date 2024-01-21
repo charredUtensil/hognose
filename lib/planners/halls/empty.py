@@ -11,9 +11,12 @@ def bids(stem, conquest):
   pr = stem.pearl_radius
   if stem.fluid_type == Tile.WATER:
     yield (1, lambda: EmptyHallPlanner(stem, Oysters.RIVER))
+    if pr > 1 and all(
+        p.fluid_type == Tile.WATER for p in conquest.intersecting(stem)):
+      yield (1, lambda: EmptyHallPlanner(stem, Oysters.STREAM))
   elif stem.fluid_type == Tile.LAVA:
     yield (1, lambda: EmptyHallPlanner(stem, Oysters.LAVA_RIVER))
-  elif stem.pearl_radius > 0:
+  elif pr > 0:
     yield (1, lambda: EmptyHallPlanner(stem, Oysters.FILLED))
     yield (1, lambda: EmptyHallPlanner(stem, Oysters.OPEN))
 
@@ -23,6 +26,7 @@ class Oysters:
       .layer(Layer.FLOOR, grow=2)
       .layer(Layer.AT_MOST_LOOSE_ROCK, grow=1)
       .layer(Layer.AT_MOST_HARD_ROCK)
+      .layer(Layer.VOID, grow=1)
   )
   FILLED = (
     Oyster('Filled')
@@ -35,6 +39,13 @@ class Oysters:
       .layer(Layer.WATER, width=2, grow=1)
       .layer(Layer.AT_MOST_HARD_ROCK)
       .layer(Layer.VOID, grow=1)
+  )
+  STREAM = (
+    Oyster('Stream')
+      .layer(Layer.WATER, grow=0.5)
+      .layer(Layer.FLOOR, grow=0.25, shrink=1)
+      .layer(Layer.DIRT_OR_LOOSE_ROCK, grow=1)
+      .layer(Layer.AT_MOST_HARD_ROCK, shrink=1)
   )
   LAVA_RIVER = (
     Oyster('Lava River')

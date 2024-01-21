@@ -4,6 +4,8 @@ from typing import List, Optional, Tuple
 
 import itertools
 import math
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame
 import traceback
 
@@ -78,7 +80,10 @@ PEARL_OUTER_LAYER_COLORS = [
 EROSION_COLOR = Tile.LAVA.inspect_color
 LANDSLIDE_COLOR                         = (0xff, 0x00, 0x00)
 CRYSTAL_COLOR = Tile.CRYSTAL_SEAM.inspect_color
+ORE_COLOR = Tile.ORE_SEAM.inspect_color
+
 BUILDING_COLOR                          = (0xff, 0xff, 0x00)
+BUILDING_LABEL_COLOR                    = (0x44, 0x44, 0x00)
 BUILDING_LABEL_RADIUS = 10
 
 MINER_COLOR                             = (0xff, 0xff, 0x00)
@@ -130,9 +135,9 @@ class Inspector(Logger):
             b,
             BASEPLATE_COLORS[b.kind],
             BASEPLATE_OUTLINE_COLORS[b.kind])
-      for i, b in enumerate(self.cavern.bubbles):
+      for b in self.cavern.bubbles:
         _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
-      for i, b in enumerate(self.cavern.bubbles):
+      for b in self.cavern.bubbles:
         _draw_space_label(frame, b, self.font, BUBBLE_LABEL_COLOR)
       if not self.cavern.conquest:
         for b in self.cavern.baseplates:
@@ -309,6 +314,25 @@ class Inspector(Logger):
         (Relative(0.5), Relative(0.5)),
         (0, 0))
     elif stage not in FADED_TILE_STAGES:
+      # Draw ore
+      for (x, y), ore in self.cavern.diorama.ore.items():
+        if self.cavern.diorama.tiles.get((x, y)) == Tile.ORE_SEAM:
+          ore += 4
+        if ore < 5:
+          frame.draw_circle(
+            ORE_COLOR,
+            (x + 0.25, y + 0.25),
+            ore / 4,
+            1)
+        else:
+          frame.draw_label_for_rect(
+            self.font,
+            f'{ore:d}',
+            ORE_COLOR,
+            (0, 0, 0),
+            (x, y, 1, 1),
+            (0, 0))
+
       # Draw erosions
       for (x, y), event in self.cavern.diorama.erosions.items():
         frame.draw_line(
@@ -338,7 +362,7 @@ class Inspector(Logger):
         if crystals < 5:
           frame.draw_circle(
             CRYSTAL_COLOR,
-            (x + 0.5, y + 0.5),
+            (x + 0.75, y + 0.75),
             crystals / 4,
             1)
         else:
@@ -352,13 +376,29 @@ class Inspector(Logger):
 
       # Draw buildings
       for building in self.cavern.diorama.buildings:
+        rect = (building.x - 0.5, building.y - 0.5, 1, 1)
+        frame.draw_rect(
+            BUILDING_COLOR,
+            rect)
+        frame.draw_rect(
+            Tile.FOUNDATION.inspect_color,
+            rect,
+            2)
+        theta = building.theta
+        frame.draw_line(
+            BUILDING_COLOR,
+            (building.x, building.y),
+            (building.x + math.cos(theta) * 0.5,
+             building.y + math.sin(theta) * 0.5),
+            3)
         frame.draw_label_for_rect(
-          self.font,
-          building.type.inspect_abbrev,
-          BUILDING_COLOR,
-          None,
-          (building.x - 0.5, building.y - 0.5, 1, 1),
-          (0, 0))
+            self.font,
+            building.type.inspect_abbrev,
+            BUILDING_LABEL_COLOR,
+            None,
+            rect,
+            (0, 0),
+            False)
 
       # Draw creatures
       for creature in self.cavern.diorama.creatures:
@@ -413,6 +453,12 @@ class Inspector(Logger):
             None,
             label_rect,
            (1, 0))
+
+    if stage == 'foo':
+      for b in details:
+        _draw_space(frame, b, None, BUBBLE_OUTLINE_COLOR)
+      for b in details:
+        _draw_space_label(frame, b, self.font, BUBBLE_LABEL_COLOR)
 
     # Draw titles
     # Top left: Frame + Stage
