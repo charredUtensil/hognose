@@ -1,4 +1,4 @@
-from typing import Dict, FrozenSet, Iterable, List, Set, Tuple
+from typing import Dict, FrozenSet, Iterable, List, Optional, Set, Tuple
 
 import collections
 import functools
@@ -10,7 +10,7 @@ class Phrase(object):
     self._texts: Tuple[str] = tuple(texts)
     self._after: List['Phrase'] = []
     self._before: List['Phrase'] = []
-    self._tagged_states: Optional[Dict(FrozenSet[str], int)] = None
+    self._tagged_states: Optional[Dict[FrozenSet[str], int]] = None
 
   def __str__(self):
     return f'{self._id}\n'+'\n'.join(_word_wrap(t, 40) for t in self._texts)

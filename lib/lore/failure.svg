@@ -254,13 +254,13 @@
 <polygon fill="black" stroke="black" points="1032.11,-63.54 1041.97,-59.66 1031.85,-56.54 1032.11,-63.54"/>
 </g>
 <!-- 17\n.&#45;&gt;3\nYou&#39;ll do better next time. -->
-<g id="edge22" class="edge">
+<g id="edge23" class="edge">
 <title>17\n.&#45;&gt;3\nYou&#39;ll do better next time.</title>
 <path fill="none" stroke="black" d="M1483.19,-87.46C1490.87,-88.77 1499.74,-90.27 1509.07,-91.86"/>
 <polygon fill="black" stroke="black" points="1508.48,-95.31 1518.93,-93.54 1509.66,-88.41 1508.48,-95.31"/>
 </g>
 <!-- 17\n.&#45;&gt;6\nMission Failed -->
-<g id="edge23" class="edge">
+<g id="edge22" class="edge">
 <title>17\n.&#45;&gt;6\nMission Failed</title>
 <path fill="none" stroke="black" d="M1483.23,-80.93C1494.26,-80.16 1507.25,-79.38 1519,-79 1635.83,-75.24 1665.14,-76.22 1782,-79 1790.2,-79.2 1798.84,-79.5 1807.34,-79.85"/>
 <polygon fill="black" stroke="black" points="1807.45,-83.36 1817.6,-80.3 1807.76,-76.36 1807.45,-83.36"/>

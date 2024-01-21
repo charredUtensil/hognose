@@ -150,7 +150,7 @@ class Building(Entity):
     raise BuildingDoesNotFitException(
       f'{type} with bounds {flu}x{flv} does not fit in area of {bw}x{bh}')
 
-def _bound_foundation(type: 'Building.type') -> Tuple[int, int, int, int]:
+def _bound_foundation(type: 'Building.Type') -> Tuple[int, int, int, int]:
   l = min(x for x, _ in type.foundation_offsets)
   r = max(x for x, _ in type.foundation_offsets) + 1
   t = min(y for _, y in type.foundation_offsets)

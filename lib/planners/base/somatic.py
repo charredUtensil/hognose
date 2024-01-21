@@ -1,5 +1,7 @@
 import typing
-from typing import Dict, Iterable, NamedTuple, Optional, Tuple
+from typing import Dict, Iterable, NamedTuple, Optional, Tuple, TYPE_CHECKING
+if TYPE_CHECKING:
+  from lib.lore import Lore
 
 import abc
 import collections
@@ -73,7 +75,7 @@ class SomaticPlanner(Planner):
     pass
 
   @abc.abstractmethod
-  def script(self, diorama: Diorama):
+  def script(self, diorama: Diorama, lore: 'Lore'):
     pass
 
   @property

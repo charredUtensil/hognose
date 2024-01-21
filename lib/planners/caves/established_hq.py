@@ -89,7 +89,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
           else:
             diorama.tiles[x, y] = Tile.POWER_PATH
 
-  def _get_building_templates(self) -> Iterable[Tuple[Building.Type, int]]:
+  def _get_building_templates(self) -> Iterable[Tuple[Building.Type, int, bool]]:
     rng = self.rng['conquest.expected_crystals']
     crystals = rng.beta_int(a = 1, b = 1.75, min = 3, max = 10)
     if self.has_tool_store:
@@ -112,12 +112,9 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     templates = []
     if self.is_ruin:
       t1_count = rng.uniform_int(1, len(t1))
-      t1s = rng.shuffle(t1)
-      templates.extend(t1s[:t1_count])
       templates.extend(
-          (a, b, True)
-          for (a, b, _)
-          in t1s[t1_count:])
+          (type, level, True if i >= t1_count else is_ruin)
+          for i, (type, level, is_ruin) in enumerate(rng.shuffle(t1)))
     else:
       templates.extend(rng.shuffle(t1))
     templates.extend(rng.shuffle(t2))
@@ -180,7 +177,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
       if (not diorama.tiles.get(info.pos, Tile.SOLID_ROCK).is_wall
           and not info.pos in diorama.discovered):
         return info.pos
-    return None
+    raise Exception('No discovery tile')
 
 def bids(stem, conquest):
   if (stem.fluid_type is None

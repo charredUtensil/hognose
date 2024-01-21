@@ -30,6 +30,8 @@ def _make_pg_found_hq():
           'Now, find those lost Rock Raiders!'
       ) >> pg.states(
           'lost_miners_one', 'lost_miners_together', 'lost_miners_apart'
+      ) >> pg.states(
+          None, 'collect_resources'
       ) |
       pg(
           'Now, collect %(resources)s.'
