@@ -28,6 +28,10 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
   @property
   def inspect_color(self):
     return (0x00, 0xff, 0xff)
+
+  def fine(self, diorama):
+    super().fine(diorama)
+    self.fine_rubble(diorama)
   
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, self.expected_wall_crystals)
@@ -71,7 +75,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
             diorama.buildings.append(building)
           for x, y in building.foundation_tiles:
             diorama.tiles[x, y] = (
-                Tile.RUBBLE_4 if is_rubble else Tile.FOUNDATION)
+                Tile.LANDSLIDE_RUBBLE_4 if is_rubble else Tile.FOUNDATION)
           continue
     if template_queue:
       self.context.logger.log_warning(
@@ -84,10 +88,22 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     for building in buildings:
       for x, y in plot_line(building.foundation_tiles[-1], bp.center, True):
         if diorama.tiles.get((x, y)) == Tile.FLOOR:
-          if self.is_ruin and rng.chance(0.55):
-            diorama.tiles[x, y] = Tile.RUBBLE_4
-          else:
-            diorama.tiles[x, y] = Tile.POWER_PATH
+          diorama.tiles[x, y] = (Tile.LANDSLIDE_RUBBLE_4
+              if self.is_ruin and rng.chance(0.55)
+              else Tile.POWER_PATH)
+  
+  def fine_rubble(self, diorama):
+    if not self.is_ruin:
+      return
+    rng = self.rng['place_buildings']
+    for pt in self._pearl.inner:
+      if diorama.tiles.get(pt.pos, Tile.SOLID_ROCK) == Tile.FLOOR:
+        diorama.tiles[pt.pos] = rng.beta_choice(a = 1, b = 3, choices = (
+            Tile.FLOOR,
+            Tile.LANDSLIDE_RUBBLE_1,
+            Tile.LANDSLIDE_RUBBLE_2,
+            Tile.LANDSLIDE_RUBBLE_3,
+            Tile.LANDSLIDE_RUBBLE_4))
 
   def _get_building_templates(self) -> Iterable[Tuple[Building.Type, int, bool]]:
     rng = self.rng['conquest.expected_crystals']

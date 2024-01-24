@@ -92,7 +92,7 @@ class Lore(object):
     rng = self.cavern.context.rng['lore', -1]
     premise = PREMISES.generate(rng, self._states)
     orders = ORDERS.generate(rng, self._states)
-    return f'{premise}\n{orders}' % self._vars
+    return f'{premise}\n\n{orders}' % self._vars
   
   @functools.cached_property
   def success(self) -> str:

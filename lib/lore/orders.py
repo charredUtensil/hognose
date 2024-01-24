@@ -73,9 +73,16 @@ def _make_pg():
       'collect %(resources)s',
       ) & 'collect_resources'
 
+  we_need_resources = pg(
+      'We need %(resources)s',
+      'you need to collect %(resources)s'
+  )
+
   sendoff = pg(
       'We\'re counting on you!',
       'Good luck out there!')
+  
+  tail = () >> ~sendoff >> pg.end
 
   first_task = pg()
   pg.start >> (
@@ -93,28 +100,36 @@ def _make_pg():
       ) >> find_lost_miners
 
   (build_hq | repair_hq | find_hq) >> and_defend_it
-  find_hq >> and_use_it_to >> (find_lost_miners | collect_resources)
+  find_hq >> and_use_it_to >> find_lost_miners
   defend_hq >> ',' >> explore
 
-  (first_task | find_hq) >> 'and' >> collect_resources
-  and_defend_it >> (
-      '. Then',
-      '. Once you have done that,',
-      ) >> collect_resources
   (
-      find_lost_miners >> '.' |
-      find_lost_miners >> before_monsters_do
-  ) >> (
-      'Once you have done that,',
-      'With them secure,',
-      'Along the way,',
-  ) >> collect_resources
+      and_use_it_to |
+      (first_task | find_hq) >> 'and'
+  ) >> () >> collect_resources
 
-  last_task = pg()
-  (and_defend_it | find_lost_miners | collect_resources) >> '.' >> last_task
-  before_monsters_do >> last_task
-  last_task >> pg.end
-  last_task >> sendoff >> pg.end
+  and_defend_it >> '.' >> (
+      (
+          'Then',
+          'Once you have done that,',
+      ) >> (collect_resources | we_need_resources) |
+      tail
+  )
+
+  find_lost_miners_sentence = find_lost_miners >> (
+      '.' | before_monsters_do
+  ) >> ()
+
+  find_lost_miners_sentence >> (
+      (
+          'Once you have done that,',
+          'With them secure,',
+          'Along the way,',
+      ) >> collect_resources |
+      tail
+  )
+
+  (collect_resources | we_need_resources) >> '.' >> tail
 
   pg.compile()
   return pg
