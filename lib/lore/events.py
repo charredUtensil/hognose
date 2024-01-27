@@ -62,5 +62,23 @@ def _make_pg_found_hq():
   pg.compile()
   return pg
 
+def _make_pg_found_lost_miners():
+  pg = PhraseGraph()
+
+  pg.start >> pg('You found one of our missing Rock Raiders!') >> pg.end
+
+  pg.complete()
+  return pg
+
+def _make_pg_found_all_lost_miners():
+  pg = PhraseGraph()
+
+  pg.start >> pg('You found all!') >> pg.end
+
+  pg.complete()
+  return pg
+
 FOUND_HOARD = _make_pg_found_hoard()
 FOUND_HQ = _make_pg_found_hq()
+FOUND_LOST_MINERS = _make_pg_found_lost_miners()
+FOUND_ALL_LOST_MINERS = _make_pg_found_all_lost_miners()

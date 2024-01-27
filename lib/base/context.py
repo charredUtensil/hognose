@@ -36,7 +36,9 @@ class Context(object):
 
     # Does this cave have monsters?
     self.has_monsters = rng.chance(0.75)
-
+    
+    # Aim for the level to be approximately this size. There will be some
+    # deviation, but this helps produce a mix of smaller and larger caverns.
     self.size = rng.uniform_int(min=50, max=80)
 
     # Each time a bubble is generated, it may be at most this percent of the
@@ -116,7 +118,7 @@ class Context(object):
     )
     
     # The chance any arbitrary cave will have a recharge seam.
-    # The spawn cave will always get one additional recharge seam.
+    # Some caves (including the spawn cave) ignore this and always have one.
     self.recharge_seam_chance = {
       Biome.ROCK                         : 0.07,
       Biome.ICE                          : 0.13,

@@ -7,7 +7,7 @@ from .base import BaseCavePlanner
 from .monster_spawners import MonsterSpawner, RetriggerMode
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Creature, Position, ResourceObjective, Script, Tile
+from lib.plastic import Creature, Position, Script, Tile
 
 class TreasureCavePlanner(BaseCavePlanner):
 
@@ -19,14 +19,11 @@ class TreasureCavePlanner(BaseCavePlanner):
     return math.floor(super()._get_expected_crystals()
        * self.rng['conquest.expected_crystals'].beta(min = 1, max = 4))
   
-  @property
-  def objectives(self):
+  def adjure(self, adjurator):
     crystals = self.expected_crystals
     crystals -= (crystals % 5)
     if crystals >= 15:
-      return [ResourceObjective(crystals=crystals)]
-    else:
-      return []
+      adjurator.collect_crystals(crystals)
 
 class HoardCavePlanner(TreasureCavePlanner):
 
@@ -91,12 +88,12 @@ class HoardCavePlanner(TreasureCavePlanner):
     if not ro:
       return
     x, y = next(self.pearl.nucleus).pos
-    gfix = 'g_foundHoard_'
-    prefix = f'p{self.id}_foundHoard_'
+    gfix = 'foundHoard_g_'
+    prefix = f'foundHoard_p{self.id}_'
     def gen():
-      yield '## Found hoard'
+      yield '# Found hoard'
       if gfix in diorama.script.flags:
-        yield '### (skipping globals)'
+        yield '# (skipping globals)'
       else:
         diorama.script.flags.add(gfix)
         yield f'bool {gfix}wasTriggered=false'

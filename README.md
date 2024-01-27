@@ -70,6 +70,7 @@ generating consistent caverns between versions.
 0x65a20857 - A large water lake in a lava cavern
 0x65a72422 - A large lava lake in an ice cavern
 0x65aa0e8b - Somewhat balanced level where erosion is a problem
+0x65b48a5f - All possible objective types at the same time
 
 ## Were any of these Qs actually FA'ed?
 

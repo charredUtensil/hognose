@@ -12,7 +12,8 @@ import math
 from .pearl import Oyster, Pearl
 from .planner import Planner
 from lib.base import Rng
-from lib.plastic import Diorama, Erosion, Landslide, Objective, Tile
+from lib.holistics import Adjurator
+from lib.plastic import Diorama, Erosion, Landslide, Tile
 
 class SomaticPlanner(Planner):
 
@@ -78,9 +79,8 @@ class SomaticPlanner(Planner):
   def script(self, diorama: Diorama, lore: 'Lore'):
     pass
 
-  @property
-  def objectives(self) -> Iterable[Objective]:
-    return []
+  def adjure(self, adjurator: Adjurator):
+    pass
 
   def place_landslides(
       self,

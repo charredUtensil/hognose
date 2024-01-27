@@ -14,7 +14,7 @@ from .premises import PREMISES
 
 from lib.base import Biome
 from lib.planners.caves import EstablishedHQCavePlanner, LostMinersCavePlanner, TreasureCavePlanner
-from lib.plastic import FindMinerObjective, ResourceObjective, Tile
+from lib.plastic import Tile
 
 class Lore(object):
   def __init__(self, cavern: 'Cavern'):
@@ -29,16 +29,12 @@ class Lore(object):
       if flooded_kind == Tile.LAVA:
         yield 'flooded_lava'
 
-      lost_miners_count = sum(
-          1 for o in self.cavern.diorama.objectives
-          if isinstance(o, FindMinerObjective))
+      adjurator = self.cavern.adjurator
+      lost_miners_count = adjurator.lost_miners
       if lost_miners_count:
-        lost_miner_caves_count = sum(
-            1 for p in self.cavern.conquest.planners
-            if isinstance(p, LostMinersCavePlanner))
         if lost_miners_count == 1:
           yield 'lost_miners_one'
-        elif lost_miner_caves_count == 1:
+        elif adjurator.lost_miner_caves == 1:
           yield 'lost_miners_together'
         else:
           yield 'lost_miners_apart'
@@ -116,6 +112,11 @@ class Lore(object):
     rng = self.cavern.context.rng['lore', -5]
     return FOUND_HQ.generate(rng, self._states) % self._vars
 
+  @functools.cached_property
+  def event_found_all_lost_miners(self) -> str:
+    rng = self.cavern.context.rng['lore', -6]
+    return FOUND_ALL_LOST_MINERS.generate(rng, self._states) % self._vars
+
 # String manipulation methods
 def _capitalize_first(s: str) -> str:
   return s[0].upper() + s[1:] if s else s
@@ -177,17 +178,15 @@ def _flooded_kind(cavern: 'Cavern'):
   else:
     return None
 
-def _resources(cavern):
+def _resources(cavern: 'Cavern'):
   def h():
-    for o in cavern.diorama.objectives:
-      if isinstance(o, ResourceObjective):
-        if o.crystals:
-          yield f'{_spell_number(o.crystals)} Energy Crystals'
-        if o.ore:
-          yield f'{_spell_number(o.ore)} Ore'
-        if o.studs:
-          yield f'{_spell_number(o.studs)} Building Studs'
-        return
+    adjurator = cavern.adjurator
+    if adjurator.crystals:
+      yield f'{_spell_number(adjurator.crystals)} Energy Crystals'
+    if adjurator.ore:
+      yield f'{_spell_number(adjurator.ore)} Ore'
+    if adjurator.studs:
+      yield f'{_spell_number(adjurator.studs)} Building Studs'
   return _join_human(tuple(h()))
     
 def _spawn_has_erosion(cavern: 'Cavern'):

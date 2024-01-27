@@ -15,7 +15,7 @@ MINOR    = 6
 #   some crystals are in slightly different places, or landslides happen more
 #   or less frequently, or there are small variations in the shape of rooms
 #   i.e. there are three monsters now instead of four.
-REVISION = 3
+REVISION = 4
 
 # Suffix indicating the type of build.
 #   no suffix: stable
