@@ -1,7 +1,7 @@
 from typing import FrozenSet
 
 from lib.lore.conclusions import SUCCESS, FAILURE
-from lib.lore.events import FOUND_HOARD, FOUND_HQ
+from lib.lore.events import FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS, FOUND_ALL_LOST_MINERS
 from lib.lore.orders import ORDERS
 from lib.lore.phrases import PhraseGraph
 from lib.lore.premises import PREMISES
@@ -18,6 +18,7 @@ STATE_COMBOS = (
   (None, 'has_monsters'),
   (None, 'spawn_is_ruin', 'spawn_is_hq', 'find_hq'),
   (None, 'treasure_one', 'treasure_many'),
+  ('found_miners_one', 'found_miners_many'),
   ('end',),
 )
 
@@ -52,8 +53,14 @@ class TestLore(unittest.TestCase):
   def test_comprehensive_failure(self):
     self._test_comprehensive(FAILURE)
 
-  def test_event_find_hoard(self):
+  def test_event_found_hoard(self):
     self._test_comprehensive(FOUND_HOARD)
 
-  def test_event_find_hq(self):
+  def test_event_found_hq(self):
     self._test_comprehensive(FOUND_HQ)
+
+  def test_event_found_lost_miners(self):
+    self._test_comprehensive(FOUND_LOST_MINERS)
+
+  def test_event_found_all_lost_miners(self):
+    self._test_comprehensive(FOUND_ALL_LOST_MINERS)

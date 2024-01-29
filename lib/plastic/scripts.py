@@ -10,11 +10,11 @@ class Script(object):
     self._lines: List[str] = []
     self.flags: Set[str] = set()
 
-  def append(self, part: str):
-    self._lines.append(part)
+  def append(self, line: str):
+    self._lines.append(line)
 
-  def extend(self, parts: Iterable[str]):
-    self._lines.extend(parts)
+  def extend(self, lines: Iterable[str]):
+    self._lines.extend(lines)
 
   def __len__(self):
     return len(self._lines)

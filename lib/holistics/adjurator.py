@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 import math
 
 from lib.base import Context
-from lib.plastic import Diorama, Objective, ResourceObjective, VariableObjective
+from lib.plastic import Diorama, Objective, ResourceObjective, Script, VariableObjective
 
 MinersInfo = NamedTuple('MinersInfo', pos=Tuple[int, int], miners_count=int, caves_count=int)
 HqInfo = NamedTuple('HqInfo', pos=Tuple[int, int], description=str)
@@ -15,8 +15,9 @@ PREFIX = 'adjurator_'
 class Adjurator(object):
 
   VAR_FOUND_HQ = f'{PREFIX}foundHq'
+  VAR_FOUND_ALL_LOST_MINERS = f'{PREFIX}foundAllLostMiners'
   VAR_LOST_MINERS_COUNT = f'{PREFIX}lostMiners'
-  VAR_FOUND_ALL_LOST_MINERS_MESSAGE = f'{PREFIX}foundAllLostMinersMessage'
+  ON_FOUND_ALL_LOST_MINERS = f'{PREFIX}onFoundAllLostMiners'
 
   def __init__(self, context: Context):
     self._context = context
@@ -84,7 +85,7 @@ class Adjurator(object):
           self._hq.description)
     if self._miners:
       yield VariableObjective(
-          f'{Adjurator.VAR_LOST_MINERS_COUNT}<=0',
+          f'{Adjurator.VAR_FOUND_ALL_LOST_MINERS}>0',
           self._find_miners_message)
     if self._crystals or self._ore or self._studs:
       yield ResourceObjective(
@@ -96,7 +97,7 @@ class Adjurator(object):
     if not self._miners:
       # If the objectives aren't sufficient, pick a reasonable crystal goal.
       self._crystals = math.floor(
-          diorama.total_crystals * self._context.crystal_goal_ratio)
+          diorama.crystal_yield * self._context.crystal_goal_ratio)
       self._crystals -= (self._crystals % 5)
     diorama.objectives.extend(self._objectives())
 
@@ -106,8 +107,18 @@ class Adjurator(object):
       yield '# Adjurator (Mission Objectives)'
       yield '# =============================='
       if self._hq:
+        yield '# Objective: Find HQ'
         yield f'int {Adjurator.VAR_FOUND_HQ}=0'
       if self._miners:
+        yield '# Objective: Find lost miners'
+        yield f'int {Adjurator.VAR_FOUND_ALL_LOST_MINERS}=0'
         yield f'int {Adjurator.VAR_LOST_MINERS_COUNT}={self.lost_miners:d}'
+        msg = Script.escape_string(lore.event_found_all_lost_miners)
+        yield f'int {PREFIX}foundAllLostMinersMessage="{msg}"'
+        yield f'{Adjurator.ON_FOUND_ALL_LOST_MINERS}::;'
+        yield f'msg:{PREFIX}foundAllLostMinersMessage;'
+        yield f'wait:3;'
+        yield f'{Adjurator.VAR_FOUND_ALL_LOST_MINERS}=1;'
+        yield ''
       yield ''
     diorama.script.extend(h())

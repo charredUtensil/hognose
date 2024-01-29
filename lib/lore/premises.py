@@ -169,7 +169,7 @@ def _make_pg():
           'we\'re counting on you to find them!',
           'we don\'t know how long they\'ll last out there.',
           )
-  ) >> ~pg.states('spawn_has_erosion')
+  ) >> ~pg.states('spawn_has_erosion') >> ()
 
   hq_destroyed = pg(
       'Recent seismic activity has damaged our Rock Raider HQ',
@@ -256,7 +256,7 @@ def _make_pg():
 
   they_are_trapped >> (', and', '.') >> find_them
 
-  find_them >> pg.end
+  find_them >> (reassurance | pg.end)
 
   empty_hq_destroyed = (
       hq_destroyed_but_evacuated |

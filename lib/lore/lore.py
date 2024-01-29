@@ -8,7 +8,7 @@ import functools
 import math
 
 from .conclusions import SUCCESS, FAILURE
-from .events import FOUND_HOARD, FOUND_HQ
+from .events import FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS, FOUND_ALL_LOST_MINERS
 from .orders import ORDERS
 from .premises import PREMISES
 
@@ -19,7 +19,9 @@ from lib.plastic import Tile
 class Lore(object):
   def __init__(self, cavern: 'Cavern'):
     self.cavern = cavern
+    adjurator = self.cavern.adjurator
 
+    lost_miners_count = adjurator.lost_miners
     resources = _resources(cavern)
 
     def states():
@@ -29,8 +31,6 @@ class Lore(object):
       if flooded_kind == Tile.LAVA:
         yield 'flooded_lava'
 
-      adjurator = self.cavern.adjurator
-      lost_miners_count = adjurator.lost_miners
       if lost_miners_count:
         if lost_miners_count == 1:
           yield 'lost_miners_one'
@@ -68,6 +68,7 @@ class Lore(object):
 
     self._states = frozenset(states())
     self._vars = {
+      'lost_miners_count': _spell_number(lost_miners_count),
       'monster_type': {
           Biome.ROCK: 'rock',
           Biome.ICE: 'ice',
@@ -116,6 +117,13 @@ class Lore(object):
   def event_found_all_lost_miners(self) -> str:
     rng = self.cavern.context.rng['lore', -6]
     return FOUND_ALL_LOST_MINERS.generate(rng, self._states) % self._vars
+
+  def event_found_lost_miners(self, rng, lost_miners_found: int) -> str:
+    states = self._states | frozenset((
+        'found_miners_one' if lost_miners_found == 1 else 'found_miners_many',))
+    v = {'found_miners_count': _spell_number(lost_miners_found)}
+    v.update(self._vars)
+    return FOUND_LOST_MINERS.generate(rng['lore'], states) % v
 
 # String manipulation methods
 def _capitalize_first(s: str) -> str:

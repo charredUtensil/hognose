@@ -65,17 +65,48 @@ def _make_pg_found_hq():
 def _make_pg_found_lost_miners():
   pg = PhraseGraph()
 
-  pg.start >> pg('You found one of our missing Rock Raiders!') >> pg.end
+  pg.start >> (
+      pg(
+          'Look! It\'s one of the lost Rock Radiers!',
+          'You found a lost Rock Raider!',
+          'You found one of the lost Rock Raiders!',
+      ) & 'found_miners_one' |
+      pg(
+          'Look at that! %(found_miners_count)s of the lost Rock Raiders are '
+          'here, safely together.',
+          'That\'s %(found_miners_count)s Rock Raiders found!',
+          'You found %(found_miners_count)s of them here!'
+      ) & 'found_miners_many'
+  ) >> () >> ~pg(
+      'Keep going!',
+      'Keep searching, Cadet.',
+  ) >> () >> ~pg(
+      'We need to find all %(lost_miners_count)s before we can leave.',
+  ) >> pg.end
 
-  pg.complete()
+  pg.compile()
   return pg
 
 def _make_pg_found_all_lost_miners():
   pg = PhraseGraph()
 
-  pg.start >> pg('You found all!') >> pg.end
+  pg.start >> (
+      pg(
+          'Look! It\'s the lost Rock Raider!'
+          'You found the missing Rock Raider!'
+      ) & 'lost_miners_one' | 
+      pg(
+          'And that makes %(lost_miners_count)s Rock Raiders found!'
+          'You found all %(lost_miners_count)s Rock Raiders!',
+          'That\'s all %(lost_miners_count)s Rock Raiders found!'
+      ) >> pg.states('lost_miners_together', 'lost_miners_apart')
+  ) >> () >> ~(
+      pg(
+          'Now, collect %(resources)s.'
+      ) & 'collect_resources'
+  ) >> pg.end
 
-  pg.complete()
+  pg.compile()
   return pg
 
 FOUND_HOARD = _make_pg_found_hoard()

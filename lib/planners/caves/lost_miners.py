@@ -40,19 +40,24 @@ class LostMinersCavePlanner(BaseCavePlanner):
     super().script(diorama, lore)
     prefix = f'foundMiners_p{self.id}_'
     x, y = self.miners_tile
-    msg = Script.escape_string('ss')#lore.event_found_miners)
+    miners_found_count = len(self._miners)
+    msg = Script.escape_string(
+        lore.event_found_lost_miners(self.rng, miners_found_count))
     global_count = Adjurator.VAR_LOST_MINERS_COUNT
-    diorama.script.extend((
-        '# Objective: Find lost miners',
-        f'string {prefix}discoverMessage="{msg}"',
-        f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscover]',
-        f'{prefix}onDiscover::;',
-        f'msg:{prefix}discoverMessage;',
-        f'pan:y@{y:d},x@{x:d};',
-        'wait:1;',
-        f'{global_count}={global_count}-{len(self._miners)};',
-        '',
-    ))
+    on_found_all = Adjurator.ON_FOUND_ALL_LOST_MINERS
+    def h():
+      yield '# Objective: Find lost miners'
+      yield f'string {prefix}discoverMessage="{msg}"'
+      yield f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscover]'
+      yield f'{prefix}onDiscover::;'
+      yield f'pan:y@{y:d},x@{x:d};'
+      yield f'{global_count}={global_count}-{miners_found_count};'
+      yield f'(({global_count}>0))[{prefix}incomplete][{on_found_all}];'
+      yield ''
+      yield f'{prefix}incomplete::;'
+      yield f'msg:{prefix}discoverMessage;'
+      yield ''
+    diorama.script.extend(h())
 
 def bids(stem, conquest):
   if stem.fluid_type is None and conquest.remaining <= 3:
