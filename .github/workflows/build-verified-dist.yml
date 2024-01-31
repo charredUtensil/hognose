@@ -17,9 +17,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.12
-      - run: pip install -r requirements_dev.txt pyinstaller
-      - run: pyinstaller hognose.py
-      - run: ./dist/hognose/hognose
+      - name: Pip
+        run: pip install -r requirements.txt pyinstaller
+      - name: Package executable
+        run: pyinstaller hognose.py
+      - name: Test executable
+        run: ./dist/hognose/hognose
       - name: Upload executable
         uses: actions/upload-artifact@v2
         with:
