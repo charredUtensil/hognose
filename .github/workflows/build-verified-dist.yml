@@ -22,7 +22,7 @@ jobs:
       - name: Package executable
         run: pyinstaller hognose.py
       - name: Test executable
-        run: ./dist/hognose/hognose
+        run: ./dist/hognose/hognose -v
       - name: Upload executable
         uses: actions/upload-artifact@v2
         with:
