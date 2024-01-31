@@ -17,37 +17,47 @@ def _objectives(pg):
 
   objs = (find_lost_miners | get_resources)
   find_lost_miners >> 'and' >> get_resources
-  return objs >> '.'
+  return objs
 
 _COMMENDATIONS = (
     'Well done!',
     'Good work!',
     'Outstanding!',
     'I knew you could do it, Cadet!',
+    'You\'re very good at this, Cadet!',
+    'Your efforts have been outstanding!',
     'We were right to count on you, Cadet!',)
 
 def _make_pg_success():
   pg = PhraseGraph()
 
-  opening = (
-      pg(
-          'Wow!',
-          *_COMMENDATIONS
-      ) & 'commend' |
-      pg(
-          'Those %(monster_type)s monsters were no match for you!'
-      ) & 'has_monsters'
-  )
-  opening = (pg.start >> opening | pg.start) >> ()
+  opening_commendation = pg(
+      'Wow!',
+      *_COMMENDATIONS
+  ) & 'commend'
+  
+  opening_monsters = pg(
+      'Those %(monster_type)s monsters were no match for you!',
+      'You had nothing to fear from those %(monster_type)s monsters!'
+  ) & 'has_monsters'
 
   commend = pg(
       'Keep up the good work, Cadet!',
+      'You make this look rather easy, Cadet!',
       *_COMMENDATIONS
   ) & 'commend'
 
+  despite_the_odds = pg(
+      'Despite the odds,',
+      'In the face of danger,',
+      'Even with the odds against you,',
+  )
+
+  you = pg('you')
+
   able_to = pg(
-      'You managed to',
-      'You were able to')
+      'managed to',
+      'were able to')
 
   mission_complete = pg(
       'Mission Complete!'
@@ -93,16 +103,34 @@ def _make_pg_success():
       'got all %(resources)s'
       ) & 'collect_resources'
 
-  you = pg('you')
+  while_facing_danger = (
+      pg(
+          'despite that horde of %(monster_type)s monsters!',
+      ) & 'has_monsters'
+  )
 
-  tail = pg('\n') >> (
+  tail = pg('\n\n') >> (
       commend >> mission_complete |
       mission_complete
-  ) >> pg.states(None, 'has_monsters') >> pg.end
+  ) >> ~pg.states(
+      'has_monsters'
+  ) >> ~pg.states(
+      'spawn_has_erosion'
+  ) >> pg.end
 
   objectives = _objectives(pg)
-  opening >> able_to >> objectives >> tail
-  opening >> you >> (
+
+  pg.start >> (opening_commendation | opening_monsters)
+  opening_monsters >> (despite_the_odds | you)
+  (
+      pg.start |
+      opening_commendation
+  ) >> () >> ~(
+    pg.states('has_monsters', 'spawn_has_erosion') >> despite_the_odds
+  ) >> you
+
+  you >> able_to >> objectives >> () >> (while_facing_danger | pg('.')) >> tail
+  you >> (
       repaired_hq | found_hq
   ) >> (
       pg() | pg(',') >> found_lost_miners
@@ -118,27 +146,29 @@ def _make_pg_failure():
   pg = PhraseGraph()
 
   opening = pg(
-      'Oh, dear.')
+      'Oh, dear.',
+  )
 
   console = pg(
-      'You\'ll do better next time.'
-      ) & 'console'
+      'Chin up, Cadet!',
+      'You must succeed, Cadet!',
+      'You\'ll do better next time.',
+  ) & 'console'
 
   unable_to = pg(
       'You didn\'t',
       'You couldn\'t',
+      'You were unable to',
       'We were counting on you to',
-      )
+  )
 
   mission_failed = pg(
-      '\nMission Failed')
+      '\n\nMission Failed')
 
   pg.start >> opening
   (pg.start | opening) >> unable_to
   
-  unable_to >> _objectives(pg) >> (console | mission_failed)
-  
-  console >> mission_failed >> pg.end
+  unable_to >> _objectives(pg) >> pg('.') >> ~console >> mission_failed >> pg.end
 
   pg.compile()
   return pg

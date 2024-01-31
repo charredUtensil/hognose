@@ -1,7 +1,8 @@
-from typing import Dict, FrozenSet, Iterable, List, Optional, Set, Tuple
+from typing import Dict, FrozenSet, Iterable, List, Optional, Set, Tuple, Union
 
 import collections
 import functools
+import sys
 
 class Phrase(object):
 
@@ -11,9 +12,14 @@ class Phrase(object):
     self._after: List['Phrase'] = []
     self._before: List['Phrase'] = []
     self._tagged_states: Optional[Dict[FrozenSet[str], int]] = None
+    self._is_reachable = False
+
+  @property
+  def _can_reach_end(self):
+    return any('end' in ts for ts in (self._tagged_states or ()))
 
   def __str__(self):
-    return f'{self._id}\n'+'\n'.join(_word_wrap(t, 40) for t in self._texts)
+    return f'{self._id}\n'+'\n'.join(_word_wrap(t.replace('\n', '\u2424'), 40) for t in self._texts)
 
   def __repr__(self):
     return f'{self._id}[%s]' % '/'.join(t[:10] for t in self._texts)
@@ -37,9 +43,10 @@ class PhraseGraph(object):
     self._phrases = []
     self._states = set()
     s = (self._condition('start'),)
-    self.start = PgBuilder(self, s, s)
+    self.start = PgBuilder(self, (), s)
     self._end = self._condition('end')
-    self.end = PgBuilder(self, (self._end,), (self._end,))
+    self.end = PgBuilder(self, (self._end,), ())
+    self.void = PgBuilder(self, (), ())
 
   def __call__(self, *args) -> 'PgBuilder':
     ph = (self._phrase(*args),)
@@ -67,8 +74,7 @@ class PhraseGraph(object):
     def mknode(p):
       n = pydot.Node(
           str(p),
-          shape='rectangle' if p._texts else 'none',
-          fontcolor=_graph_node_color(p))
+          **_graph_node_attrs(p))
       return n
     nodes = [mknode(p) for p in self._phrases]
     for n in nodes:
@@ -79,7 +85,7 @@ class PhraseGraph(object):
           yield pydot.Edge(
               nodes[p._id],
               nodes[after._id],
-              color=_graph_edge_color(p, after))
+              **_graph_edge_attrs(p, after))
     for e in edges():
       dot.add_edge(e)
     dot.write_svg(filename)
@@ -108,6 +114,14 @@ class PhraseGraph(object):
       for pb in p._before:
         if not any(pab._tagged_states is None for pab in pb._after):
           queue.add(pb)
+    
+    queue.add(self._phrases[0])
+    while queue:
+      p = queue.pop()
+      p._is_reachable = True
+      for after in p._after:
+        if after not in queue and not after._is_reachable:
+          queue.add(after)
 
   def generate(self, rng, states: FrozenSet[str]):
     states = (states & self._states) | frozenset(('start', 'end'))
@@ -142,56 +156,89 @@ class PgBuilder(object):
       self,
       pg: PhraseGraph,
       heads: Tuple[Phrase],
-      tails: Tuple[Phrase]):
+      tails: Tuple[Phrase],
+      bypass: bool = False):
     self._pg = pg
     self._heads = heads
     self._tails = tails
+    self._bypass = bypass
 
   def __repr__(self):
-    return f'PgBuilder {repr(self._heads)}>>{repr(self._tails)}'
+    def j(ids):
+      if len(ids) == 1:
+        return f'{ids[0]:d}'
+      return f'({"|".join(f"{id:d}" for id in ids)})'
+    return (
+        'PgBuilder '
+        f'{"~(" if bypass else ""}'
+        f'{j(self._heads)}>>{j(self._tails)}'
+        f'{")" if bypass else ""}')
 
-  def __and__(self, state) -> 'PgBuilder':
+  def _coerce(self, other: Union[str, Tuple[str], 'PgBuilder']
+      ) -> 'PgBuilder':
+    if isinstance(other, PgBuilder):
+      return other
+    ph = (self._pg._phrase(other) if isinstance(other, str)
+        else self._pg._phrase(*other)),
+    return PgBuilder(self._pg, ph, ph)
+    
+  def __and__(self, state: str) -> 'PgBuilder':
     ph = self._pg._condition(state)
     for t in self._tails:
       t._join(ph)
     return PgBuilder(self._pg, self._heads, (ph,))
     
-  def __or__(self, other: 'PgBuilder') -> 'PgBuilder':
+  def __or__(self, other) -> 'PgBuilder':
+    other = self._coerce(other)
     return PgBuilder(
         self._pg,
         tuple(set(self._heads + other._heads)),
-        tuple(set(self._tails + other._tails)))
+        tuple(set(self._tails + other._tails)),
+        self._bypass or other._bypass)
+
+  def __ror__(self, other) -> 'PgBuilder':
+    return self._coerce(other) | self
+
+  def __invert__(self) -> 'PgBuilder':
+    return PgBuilder(self._pg, self._heads, self._tails, bypass = True)
 
   def __rshift__(self, other) -> 'PgBuilder':
-    if isinstance(other, PgBuilder):
-      for t in self._tails:
-        for h in other._heads:
-          t._join(h)
-      return PgBuilder(self._pg, self._heads, other._tails)
-    else:
-      ph = (self._pg._phrase(other) if isinstance(other, str)
-          else self._pg._phrase(*other))
-      for t in self._tails:
-        t._join(ph)
-      return PgBuilder(self._pg, self._heads, (ph,))
+    other = self._coerce(other)
+    for t in self._tails:
+      for h in other._heads:
+        t._join(h)
+    return PgBuilder(
+        self._pg,
+        self._heads + other._heads if self._bypass else self._heads,
+        self._tails + other._tails if other._bypass else other._tails,
+        self._bypass and other._bypass)
+  
+  def __rrshift__(self, other) -> 'PgBuilder':
+    return self._coerce(other) >> self
 
-def _graph_node_color(p):
-  if not any('end' in ts for ts in (p._tagged_states or ())):
-    return 'red'
+def _graph_node_attrs(p):
+  if not (p._is_reachable and p._can_reach_end):
+    return {
+        'color': 'red',
+        'fontcolor': 'red',
+        'shape': 'rectangle',
+        'style': 'dotted'}
   if p._id <= 1:
-    return 'green'
+    return {'fontcolor': 'green', 'color': 'green', 'shape': 'circle'}
   if isinstance(p, Condition):
-    return 'blue'
-  return 'black'
+    return {'fontcolor': 'blue', 'shape': 'none'}
+  if not p._texts:
+    return {'shape': 'none'}
+  return {'shape': 'rectangle'}
 
-def _graph_edge_color(p1, p2):
-  if not any('end' in ts for ts in (p2._tagged_states or ())):
-    return 'red'
+def _graph_edge_attrs(p1, p2):
+  if not (p2._is_reachable and p2._can_reach_end):
+    return {'color': 'red', 'style': 'dotted'}
   if p1._id <= 1 or p2._id <= 1:
-    return 'green'
+    return {'color': 'green', 'style': 'dashed'}
   if isinstance(p1, Condition) or isinstance(p2, Condition):
-    return 'blue'
-  return 'black'
+    return {'color': 'blue'}
+  return {}
 
 def _join_phrase_texts(texts):
   capitalize_next = True
