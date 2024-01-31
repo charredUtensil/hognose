@@ -14,15 +14,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install Python
-      - uses: actions/setup-python@v2
+        uses: actions/setup-python@v2
         with:
           python-version: 3.12
       - run: pip install -r requirements_dev.txt pyinstaller
       - run: pyinstaller hognose.py
-      - name: Check executable
       - run: ./dist/hognose/hognose
       - name: Upload executable
-      - uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           path: dist/*
       - name: Verify build
