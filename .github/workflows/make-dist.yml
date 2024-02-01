@@ -17,8 +17,8 @@ jobs:
       - run: pyinstaller --onefile hognose.py
       - name: Extract Version
         id: get_version
-        run: echo "version=$(./dist/* -v)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(./dist/hognose -v)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: hognose-${{ steps.get_version.outputs.version }}-${{ matrix.os }} 
-          path: dist/hognose
+          path: dist/*
