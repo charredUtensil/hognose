@@ -42,8 +42,8 @@ class PhraseGraph(object):
   def __init__(self):
     self._phrases = []
     self._states = set()
-    s = (self._condition('start'),)
-    self.start = PgBuilder(self, (), s)
+    self._start = self._condition('start')
+    self.start = PgBuilder(self, (), (self._start,))
     self._end = self._condition('end')
     self.end = PgBuilder(self, (self._end,), ())
     self.void = PgBuilder(self, (), ())
@@ -155,8 +155,8 @@ class PgBuilder(object):
   def __init__(
       self,
       pg: PhraseGraph,
-      heads: Tuple[Phrase],
-      tails: Tuple[Phrase],
+      heads: Tuple[Phrase, ...],
+      tails: Tuple[Phrase, ...],
       bypass: bool = False):
     self._pg = pg
     self._heads = heads
@@ -170,11 +170,11 @@ class PgBuilder(object):
       return f'({"|".join(f"{id:d}" for id in ids)})'
     return (
         'PgBuilder '
-        f'{"~(" if bypass else ""}'
+        f'{"~(" if self._bypass else ""}'
         f'{j(self._heads)}>>{j(self._tails)}'
-        f'{")" if bypass else ""}')
+        f'{")" if self._bypass else ""}')
 
-  def _coerce(self, other: Union[str, Tuple[str], 'PgBuilder']
+  def _coerce(self, other: Union[str, Tuple[str, ...], 'PgBuilder']
       ) -> 'PgBuilder':
     if isinstance(other, PgBuilder):
       return other
