@@ -1,3 +1,4 @@
+from parameterized import parameterized
 from typing import FrozenSet
 
 from lib.lore.conclusions import SUCCESS, FAILURE
@@ -12,7 +13,12 @@ STATE_COMBOS = (
   ('start',),
   (None, 'commend', 'console'),
   (None, 'flooded_water', 'flooded_lava'),
-  ('collect_resources', 'lost_miners_one', 'lost_miners_together', 'lost_miners_apart'),
+  (
+      'collect_resources',
+      'lost_miners_one',
+      'lost_miners_together',
+      'lost_miners_apart'
+  ),
   (None, 'collect_resources'),
   (None, 'spawn_has_erosion'),
   (None, 'has_monsters'),
@@ -21,39 +27,31 @@ STATE_COMBOS = (
   ('end',),
 )
 
-def _all_possible_states(pg: PhraseGraph, states: FrozenSet[str], i: int):
-  if i >= len(STATE_COMBOS):
-    yield states
-  else:
-    for s in STATE_COMBOS[i]:
-      if s and s in pg._states:
-        yield from _all_possible_states(pg, states | frozenset((s,)), i + 1)
-      else:
-        yield from _all_possible_states(pg, states, i + 1)
+def _all_possible_states(pg: PhraseGraph) -> FrozenSet[FrozenSet[str]]:
+  result: FrozenSet[FrozenSet[str]] = frozenset((frozenset(),))
+  for choices in STATE_COMBOS:
+    append = frozenset(
+        (frozenset((s,)) if s and s in pg._states else frozenset())
+        for s in choices)
+    def h():
+      for r in result:
+        for a in append:
+          yield r | a
+    result = frozenset(h())
+  return result
 
 class TestLore(unittest.TestCase):
-  # TODO: This should use parameterized instead
-
-  def _test_comprehensive(self, pg):
-    for states in _all_possible_states(pg, frozenset(), 0):
+  
+  @parameterized.expand((
+      ('premises', PREMISES),
+      ('orders', ORDERS),
+      ('success', SUCCESS),
+      ('failure', FAILURE),
+      ('foundHoard', FOUND_HOARD),
+      ('foundHq', FOUND_HQ),
+  ))
+  def test_loreIsComprehensive(self, _, pg):
+    for states in _all_possible_states(pg):
       self.assertTrue(
         states in pg._phrases[0]._tagged_states,
         f'Phrase graph has no value for {repr(states)}')
-
-  def test_comprehensive_premises(self):
-    self._test_comprehensive(PREMISES)
-
-  def test_comprehensive_orders(self):
-    self._test_comprehensive(ORDERS)
-
-  def test_comprehensive_success(self):
-    self._test_comprehensive(SUCCESS)
-
-  def test_comprehensive_failure(self):
-    self._test_comprehensive(FAILURE)
-
-  def test_event_find_hoard(self):
-    self._test_comprehensive(FOUND_HOARD)
-
-  def test_event_find_hq(self):
-    self._test_comprehensive(FOUND_HQ)
