@@ -4,12 +4,13 @@ import argparse
 import sys
 import unittest
 
-from tests import *
+from tests import *  # pylint: disable=wildcard-import, unused-wildcard-import
 from tests.base import SerializedCavernTest
+
 
 def main():
   parser = argparse.ArgumentParser(
-    prog=f'test',
+    prog='test',
     description='Run and update tests.',
     usage='test [-u]'
   )
@@ -26,8 +27,10 @@ def main():
 
   args, unknown = parser.parse_known_args()
   if args.update_resources:
-    SerializedCavernTest.update_resources
+    SerializedCavernTest.update_resources = True
 
-  unittest.main(argv=([sys.argv[0]] + unknown))
+  unittest.main(argv=[sys.argv[0]] + unknown)
 
-main()
+
+if __name__ == '__main__':
+  main()

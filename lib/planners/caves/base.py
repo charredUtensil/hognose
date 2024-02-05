@@ -24,13 +24,13 @@ class BaseCavePlanner(SomaticPlanner):
     return self._get_expected_ore()
 
   def _get_expected_crystals(self):
-    area = sum(bp.area() for bp in self.baseplates)
+    area = sum(bp.area for bp in self.baseplates)
     mean = math.sqrt(area) * self._stem.crystal_richness
     return self.rng['conquest.expected_crystals'].beta_int(
         a = 5, b = 2, min = 0, max = mean * 1.25)
 
   def _get_expected_ore(self):
-    area = sum(bp.area() for bp in self.baseplates)
+    area = sum(bp.area for bp in self.baseplates)
     mean = math.sqrt(area) * self._stem.ore_richness
     return self.rng['expected_ore'].beta_int(
         a = 5, b = 2, min = 0, max = mean * 1.25)
@@ -95,7 +95,7 @@ class BaseCavePlanner(SomaticPlanner):
 
   def fine_landslides(self, diorama: Diorama):
     if self.rng['fine.place_landslides'].chance(self.context.cave_landslide_chance):
-      freq = self.context.cave_landslide_freq * sum(math.sqrt(bp.area()) for bp in self.baseplates)
+      freq = self.context.cave_landslide_freq * sum(math.sqrt(bp.area) for bp in self.baseplates)
       self.place_landslides(diorama, freq)
 
   def fine_place_entities(self, diorama: Diorama):

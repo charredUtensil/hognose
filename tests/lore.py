@@ -1,5 +1,7 @@
-from parameterized import parameterized
 from typing import FrozenSet
+
+import unittest
+from parameterized import parameterized
 
 from lib.lore.conclusions import SUCCESS, FAILURE
 from lib.lore.events import FOUND_HOARD, FOUND_HQ
@@ -7,7 +9,10 @@ from lib.lore.orders import ORDERS
 from lib.lore.phrases import PhraseGraph
 from lib.lore.premises import PREMISES
 
-import unittest
+# TODO(charredutensil): PhraseGraph should be split into a builder pattern and
+# its private methods should be public.
+# pylint: disable=protected-access
+
 
 STATE_COMBOS = (
   ('start',),
@@ -27,21 +32,26 @@ STATE_COMBOS = (
   ('end',),
 )
 
+
 def _all_possible_states(pg: PhraseGraph) -> FrozenSet[FrozenSet[str]]:
   result: FrozenSet[FrozenSet[str]] = frozenset((frozenset(),))
   for choices in STATE_COMBOS:
     append = frozenset(
         (frozenset((s,)) if s and s in pg._states else frozenset())
         for s in choices)
+
     def h():
       for r in result:
-        for a in append:
+        for a in append: # pylint: disable=cell-var-from-loop
           yield r | a
     result = frozenset(h())
   return result
 
+
 class TestLore(unittest.TestCase):
-  
+  """Tests that lib.lore is in a valid state."""
+  # pylint: disable=missing-function-docstring,invalid-name
+
   @parameterized.expand((
       ('premises', PREMISES),
       ('orders', ORDERS),

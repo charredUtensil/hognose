@@ -1,37 +1,19 @@
+"""Base class for a single rectangle in the map area."""
+
 from typing import Tuple
 
 import abc
-import math
-import random
 
 from lib.base import ProceduralThing
 
-class Space(ProceduralThing, abc.ABC):
 
+class Space(ProceduralThing):
+  """Base class for a single rectangle in the map area."""
+
+  @property
   def area(self):
     return self.width * self.height
-    
-#
-  #@property
-  #@abc.abstractmethod
-  #def left(self) -> float:
-  #  pass
-#
-  #@property
-  #@abc.abstractmethod
-  #def top(self) -> float:
-  #  pass
-#
-  #@property
-  #@abc.abstractmethod
-  #def right(self) -> float:
-  #  pass
-#
-  #@property
-  #@abc.abstractmethod
-  #def bottom(self) -> float:
-  #  pass
-#
+
   @property
   @abc.abstractmethod
   def width(self) -> float:

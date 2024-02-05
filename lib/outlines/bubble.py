@@ -1,14 +1,17 @@
-from typing import Iterable, List
+from lib.outlines.space import Space
 
-import itertools
-import math
-
-from .space import Space
-from lib.base import Context
 
 class Bubble(Space):
+  """An abstract Space that can be cut and modified."""
 
-  def __init__(self, id: int, context, left: int, top: int, right: int, bottom: int):
+  def __init__(
+          self,
+          id: int,
+          context,
+          left: int,
+          top: int,
+          right: int,
+          bottom: int):
     super().__init__(id, context)
     self.left = left
     self.top = top
@@ -21,7 +24,7 @@ class Bubble(Space):
       f'[{self.left:4d},{self.top:4d}] '
       f'{self.width:2d}x{self.height:2d}'
     )
-  
+
   @property
   def width(self):
     return self.right - self.left

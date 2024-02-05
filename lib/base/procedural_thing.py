@@ -1,13 +1,14 @@
-from typing import Literal
+import abc
 
-from .context import Context
-from .pseudorandom import KINDS, Rng
+from lib.base.context import Context
 
-class ProceduralThing(object):
 
-  def __init__(self, id: int, context: Context):
-    self._id = id
-    self._context = context
+class ProceduralThing(abc.ABC):
+  """Base class for classes that use RNG."""
+
+  def __init__(self, id, context):
+    self._id: int = id
+    self._context: Context = context
     self.rng = BoundDiceBox(self)
 
   @property
@@ -18,7 +19,10 @@ class ProceduralThing(object):
   def context(self) -> Context:
     return self._context
 
-class BoundDiceBox(object):
+
+class BoundDiceBox():
+  """A binding of DiceBox that uses the ID from this ProceduralThing."""
+
   def __init__(self, thing: ProceduralThing):
     self._thing = thing
 

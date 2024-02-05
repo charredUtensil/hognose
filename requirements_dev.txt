@@ -1,4 +1,6 @@
 -r requirements.txt
-pydot>=1.4.2
-pytype>=2023.10.5
+autopep8>=2.0.4
 parameterized>=0.9.0
+pydot>=1.4.2
+pylint>=3.0.3
+pytype>=2023.10.5

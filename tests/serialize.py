@@ -1,32 +1,37 @@
 from typing import Dict, Tuple, TypeVar
 
+from lib.plastic import (
+    Building, Creature, Diorama, Facing, Miner, Position, Tile)
+from lib.base import Context
+from tests.base import SerializedCavernTest
+
 T = TypeVar('T')
 
-from .base import SerializedCavernTest
-
-from lib.base import Context
-from lib.plastic import Building, Creature, Diorama, Facing, Miner, Position, Tile
 
 def fill(
-    t: Dict[Tuple[int, int], T],
-    left: int,
-    top: int,
-    width: int, 
-    height: int,
-    value: T):
+        t: Dict[Tuple[int, int], T],
+        left: int,
+        top: int,
+        width: int,
+        height: int,
+        value: T):
+  """Fills the given rectangle in t with the given value."""
   for x in range(left, left + width):
     for y in range(top, top + height):
       t[x, y] = value
 
 class TestSerialize(SerializedCavernTest):
+  """Tests that some handcrafted Dioramas serialize to the correct strings."""
+  # pylint: disable=missing-function-docstring,invalid-name
+
   def test_serializesDiorama_mvp(self):
     d = Diorama(Context('0', None))
 
     fill(d.crystals, 0, -3, 3, 3, 3)
-    fill(d.tiles,    0, -2, 3, 1, Tile.HARD_ROCK)
-    fill(d.tiles,    0, -2, 3, 1, Tile.LOOSE_ROCK)
-    fill(d.tiles,    0, -1, 3, 1, Tile.DIRT)
-    fill(d.tiles,    0,  0, 3, 2, Tile.FLOOR)
+    fill(d.tiles, 0, -2, 3, 1, Tile.HARD_ROCK)
+    fill(d.tiles, 0, -2, 3, 1, Tile.LOOSE_ROCK)
+    fill(d.tiles, 0, -1, 3, 1, Tile.DIRT)
+    fill(d.tiles, 0, 0, 3, 2, Tile.FLOOR)
     d.tiles[2, 1] = Tile.POWER_PATH
 
     origin = (0, 1)
@@ -36,10 +41,10 @@ class TestSerialize(SerializedCavernTest):
     d.open_cave_flags.add(origin)
     for pos in tool_store.foundation_tiles:
       d.tiles[pos] = Tile.FOUNDATION
-    
+
     d.discover()
     d.bounds = (-2, -4, 7, 7)
-    
+
     self.assertDioramaMatches(d, 'serialize/mvp')
 
   def test_serializesDiorama_buildingZoo(self):
@@ -55,7 +60,7 @@ class TestSerialize(SerializedCavernTest):
       for pos in b.foundation_tiles:
         d.tiles[pos] = Tile.FOUNDATION
       d.buildings.append(b)
-    
+
     b(Building.Type.TOOL_STORE, (2, 0), Facing.SOUTH)
     b(Building.Type.TOOL_STORE, (0, 2), Facing.EAST)
     b(Building.Type.TOOL_STORE, (4, 2), Facing.WEST)
@@ -85,7 +90,8 @@ class TestSerialize(SerializedCavernTest):
 
     b(Building.Type.TOOL_STORE, (0, 10), Facing.SOUTH, essential=True)
     b(Building.Type.TOOL_STORE, (2, 10), Facing.SOUTH, teleport_at_start=True)
-    b(Building.Type.TOOL_STORE, (4, 10), Facing.SOUTH, essential=True, teleport_at_start=True)
+    b(Building.Type.TOOL_STORE, (4, 10), Facing.SOUTH,
+      essential=True, teleport_at_start=True)
     b(Building.Type.TOOL_STORE, (6, 10), Facing.SOUTH,
       level=3, essential=True, teleport_at_start=True)
 
@@ -105,7 +111,9 @@ class TestSerialize(SerializedCavernTest):
     d.miner(Position.at_center_of_tile((2, 0), facing=miners_facing), level=3)
     d.miner(Position.at_center_of_tile((3, 0), facing=miners_facing), level=4)
     d.miner(Position.at_center_of_tile((4, 0), facing=miners_facing), level=5)
-    d.miner(Position.at_center_of_tile((0, 1), facing=miners_facing), essential=True)
+    d.miner(
+        Position.at_center_of_tile(
+            (0, 1), facing=miners_facing), essential=True)
     d.miner(
         Position.at_center_of_tile((2, 1), facing=miners_facing),
         unique=Miner.Unique.OFFICER)
@@ -167,5 +175,5 @@ class TestSerialize(SerializedCavernTest):
     d.creature(
       Creature.Type.BAT,
       Position.at_center_of_tile((0, 5), Facing.NORTH))
-    
+
     self.assertDioramaMatches(d, 'serialize/entity_zoo')
