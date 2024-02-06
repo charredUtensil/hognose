@@ -152,7 +152,7 @@ class Cavern(object):
     """Choose the largest lots to become special."""
     for baseplate in sorted(
         self.baseplates,
-        key=Baseplate.area,
+        key=lambda bp: bp.area,
         reverse=True)[:self.context.special_baseplate_count]:
       baseplate.kind = Baseplate.SPECIAL
 
