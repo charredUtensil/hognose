@@ -49,7 +49,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     if self.is_ruin:
       freq = (
         3 * self.context.cave_landslide_freq
-        * sum(math.sqrt(bp.area()) for bp in self.baseplates))
+        * sum(math.sqrt(bp.area) for bp in self.baseplates))
       self.place_landslides(diorama, freq)
     else:
       super().fine_landslides(diorama)

@@ -3,24 +3,27 @@ from typing import Dict, Iterable, List, Literal, Set, Tuple
 import math
 import operator
 
-from .baseplate import Baseplate
 from lib.base import Context, ProceduralThing
+from lib.outlines.baseplate import Baseplate
 from lib.utils.geometry import plot_line
 
+
 class Path(ProceduralThing):
+  """A path through a series of Baseplates."""
   AMBIGUOUS = 'ambiguous'
-  EXCLUDED  = 'excluded'
-  SPANNING  = 'spanning'
+  EXCLUDED = 'excluded'
+  SPANNING = 'spanning'
   AUXILIARY = 'auxiliary'
 
-  def __init__(self, id: int, context: Context, baseplates: Iterable[Baseplate]):
+  def __init__(self, id: int, context: Context,
+               baseplates: Iterable[Baseplate]):
     super().__init__(id, context)
     self.kind: Literal[
       Path.AMBIGUOUS,
       Path.EXCLUDED,
       Path.SPANNING,
       Path.AUXILIARY
-      ] = Path.AMBIGUOUS
+    ] = Path.AMBIGUOUS
     self.baseplates = tuple(baseplates)
 
   @property
@@ -35,14 +38,16 @@ class Path(ProceduralThing):
     return 'Path {self.kind}: ' + '>'.join(str(b.id) for b in self.baseplates)
 
   def bat_distance(self) -> float:
+    """The distance directly from the origin to destination."""
     x1, y1 = self.origin.center
     x2, y2 = self.destination.center
     dx = x1 - x2
     dy = y1 - y2
-    return math.sqrt(dx*dx + dy*dy)
+    return math.sqrt(dx * dx + dy * dy)
 
   @staticmethod
-  def minimum_spanning_tree(paths):
+  def minimum_spanning_tree(paths: Iterable['Path']):
+    """Assigns the SPANNING kind to an MST of the given paths."""
     next_cluster = 0
     clusters = {}
     for path in sorted(paths, key=Path.bat_distance):
@@ -55,11 +60,10 @@ class Path(ProceduralThing):
           if destination_cluster == origin_cluster:
             # This would create a cycle. Skip it.
             continue
-          else:
-            # This connects two existing clusters. Unite them.
-            for k, v in tuple(clusters.items()):
-              if v == destination_cluster:
-                clusters[k] = origin_cluster
+          # This connects two existing clusters. Unite them.
+          for k, v in tuple(clusters.items()):
+            if v == destination_cluster:
+              clusters[k] = origin_cluster
         else:
           # Destination is not yet clustered. Add it to the origin's cluster.
           clusters[destination] = clusters[origin]
@@ -76,6 +80,7 @@ class Path(ProceduralThing):
 
   @staticmethod
   def bore(paths: List['Path'], baseplates: List[Baseplate]):
+    """Adds baseplates to paths that intersect them."""
     baseplate_index: Dict[Tuple[int, int], Baseplate] = {}
     for bp in baseplates:
       for x in range(bp.left, bp.right):
@@ -105,7 +110,8 @@ class Path(ProceduralThing):
       path.baseplates = tuple(gen_path_plates(path))
 
   @staticmethod
-  def weave(context, paths):
+  def weave(context: Context, paths: Iterable['Path']):  # pylint: disable=too-many-branches,too-many-locals
+    """Converts AMBIGUOUS paths to AUXILIARY or EXCLUDED."""
     # Compute the absolute angles of spanning paths at each baseplate.
     angles: Dict[int, Set[float]] = {}
     for p in paths:
@@ -113,7 +119,7 @@ class Path(ProceduralThing):
         _make_halls(p.baseplates)
         for a, b in (
             (p.baseplates[0], p.baseplates[1]),
-            (p.baseplates[-1], p.baseplates[-2])):
+                (p.baseplates[-1], p.baseplates[-2])):
           if a.id not in angles:
             angles[a.id] = set()
           ax, ay = a.center
@@ -125,11 +131,13 @@ class Path(ProceduralThing):
     # path and a spanning path.
     def relative_angles(p):
       for a, b in (
-          (p.baseplates[ 0], p.baseplates[ 1]),
-          (p.baseplates[-1], p.baseplates[-2])):
+          (p.baseplates[0], p.baseplates[1]),
+              (p.baseplates[-1], p.baseplates[-2])):
         ax, ay = a.center
         bx, by = b.center
         theta = math.atan2(by - ay, bx - ax)
+
+        # pylint: disable=cell-var-from-loop
         def h():
           for span_theta in angles[a.id]:
             delta = abs(theta - span_theta)
@@ -139,7 +147,7 @@ class Path(ProceduralThing):
             else:
               yield delta
         yield min(h())
-    
+
     # Exclude any path we explicitly don't want.
     r_squared = context.size * context.size / 4
     for p in paths:
@@ -172,6 +180,7 @@ class Path(ProceduralThing):
       else:
         p.kind = Path.EXCLUDED
     yield
+
 
 def _make_halls(baseplates):
   for bp in baseplates:

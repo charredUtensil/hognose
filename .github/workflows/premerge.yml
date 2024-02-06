@@ -1,0 +1,21 @@
+name: premerge
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    strategy:
+      fail-fast: false
+    name: Run pre-merge checks
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch origin main --depth 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - run: pip install -r requirements_dev.txt
+      - name: Run Tests
+        run: python test.py
+      - name: Run Lint
+        run: pylint --rcfile .pylintrc $(git diff --name-only HEAD origin/main | grep '\.py$')
+      - name: Run PyType
+        run: pytype .

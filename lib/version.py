@@ -20,7 +20,7 @@ REVISION = 4
 # Suffix indicating the type of build.
 #   no suffix: stable
 #   x: experimental
-SUFFIX   = 'x'
+SUFFIX   = ''
 
 VERSION_INFO = (MAJOR, MINOR, REVISION)
 VERSION = f'{MAJOR:d}.{MINOR:02d}.{REVISION:02d}{SUFFIX}'

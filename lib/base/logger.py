@@ -1,13 +1,15 @@
-from typing import Any, Tuple, TYPE_CHECKING
-
-if TYPE_CHECKING:
-  from lib import Cavern
+from typing import Any, TYPE_CHECKING
 
 import abc
 import sys
 import traceback
 
+if TYPE_CHECKING:
+  from lib import Cavern
+
+
 class Logger(abc.ABC):
+  """A basic logger."""
 
   def __init__(self):
     self._walks = []

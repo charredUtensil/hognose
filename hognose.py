@@ -3,7 +3,6 @@
 import argparse
 import os.path
 import sys
-import traceback
 import time
 
 from lib import Cavern
@@ -13,9 +12,10 @@ from lib.version import VERSION_INFO, VERSION
 __version_info__ = VERSION_INFO
 __version__ = VERSION
 
+
 def main():
   parser = argparse.ArgumentParser(
-    prog=f'hognose',
+    prog='hognose',
     description='Procedurally generates caverns for Manic Miners.',
     usage='hognose [-b] [-d] [-o FILENAME] [-s SEED]'
   )
@@ -51,12 +51,12 @@ def main():
 
   inx = None
   if args.draw:
-    from inspector import Inspector
+    from inspector import Inspector # pylint: disable=import-outside-toplevel
     inx = Inspector()
 
   context = Context(
-    seed = args.seed,
-    logger = inx)
+    seed=args.seed,
+    logger=inx)
   cavern = Cavern(context)
   if inx:
     inx.cavern = cavern
@@ -64,7 +64,7 @@ def main():
   start_time = time.time_ns()
   try:
     cavern.generate()
-  except Exception as e:
+  except Exception: # pylint: disable=broad-exception-caught
     print(
         f'Failed to generate cave {hex(context.seed)}',
         file=sys.stderr)
@@ -75,7 +75,7 @@ def main():
     filename = args.out
     if os.path.isdir(filename):
       filename = os.path.join(filename, f'{cavern.diorama.level_name}.dat')
-    with open(filename, 'w') as f:
+    with open(filename, 'w', encoding='utf-8') as f:
       f.write(cavern.serialized)
   if args.briefing:
     print(cavern.diorama.briefing)
@@ -85,6 +85,7 @@ def main():
     file=sys.stderr)
   if inx:
     inx.wait()
+
 
 if __name__ == '__main__':
   main()

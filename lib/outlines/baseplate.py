@@ -1,41 +1,37 @@
 from typing import Literal
 
-import enum
-import math
+import functools
 
-from .bubble import Bubble
-from .space import Space
+from lib.outlines.bubble import Bubble
+from lib.outlines.space import Space
 
-from lib.base import ProceduralThing
 
 class Baseplate(Space):
+  """A rectangular space that we can build on."""
+
   AMBIGUOUS = 'ambiguous'
-  EXCLUDED  = 'excluded'
-  SPECIAL   = 'special'
-  HALL      = 'hall'
+  EXCLUDED = 'excluded'
+  SPECIAL = 'special'
+  HALL = 'hall'
 
   def __init__(self, bubble: Bubble, context):
     super().__init__(bubble.id, context)
-    self._left   = round(bubble.left)
-    self._top    = round(bubble.top)
-    self._right  = round(bubble.right)
+    self._left = round(bubble.left)
+    self._top = round(bubble.top)
+    self._right = round(bubble.right)
     self._bottom = round(bubble.bottom)
-    self._width  = self._right - self._left
-    self._height = self._bottom - self._top
-    self._x      = self._left + self._width / 2
-    self._y      = self._top + self._height / 2
     self.kind: Literal[
       Baseplate.AMBIGUOUS,
       Baseplate.EXCLUDED,
       Baseplate.SPECIAL,
       Baseplate.HALL
-      ]          = Baseplate.AMBIGUOUS
+    ] = Baseplate.AMBIGUOUS
 
   def __repr__(self):
     return (
       f'Baseplate {self.kind} {self.id:3d}: '
-      f'[{self._left:4d},{self._top:4d}] '
-      f'{self._width:2d}x{self._height:2d}'
+      f'[{self.left:4d},{self.top:4d}] '
+      f'{self.width:2d}x{self.height:2d}'
     )
 
   @property
@@ -53,28 +49,31 @@ class Baseplate(Space):
   @property
   def bottom(self) -> int:
     return self._bottom
-  
-  @property
+
+  @functools.cached_property
   def width(self) -> int:
-    return self._width
+    return self._right - self._left
 
-  @property
+  @functools.cached_property
   def height(self) -> int:
-    return self._height
+    return self._bottom - self._top
 
-  @property
+  @functools.cached_property
   def center(self):
-    return self._x, self._y
+    return (self.left + self.width / 2, self.top + self.height / 2)
 
   def is_mergeable(self, other: 'Baseplate'):
+    """Returns whether these Baseplates can be combined into one big Cave."""
     for a, b in ((self, other), (other, self)):
       for ua, ub, va1, va2, vb1, vb2 in (
-        (a._right, b._left, a._top, a._bottom, b._top, b._bottom),
-        (a._bottom, b._top, a._left, a._right, b._left, b._right)):
-        if ua == ub and min(va2, vb2) - max(va1, vb1) > max(va2 - va1, vb2 - vb1) / 2:
+          (a.right, b.left, a.top, a.bottom, b.top, b.bottom),
+              (a.bottom, b.top, a.left, a.right, b.left, b.right)):
+        if (ua == ub
+            and (min(va2, vb2) - max(va1, vb1)
+                 > max(va2 - va1, vb2 - vb1) / 2)):
           return True
     return False
 
-  @property
+  @functools.cached_property
   def pearl_radius(self):
     return min(self.width, self.height) // 2

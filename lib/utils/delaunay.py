@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 # TODO(charredutensil):
 # This is extremely ugly and bad. Find a way to "tag" points instead.
 def slorp(rooms):
