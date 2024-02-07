@@ -120,10 +120,18 @@ class Diorama(object):
     return None
 
   @property
-  def total_crystals(self) -> int:
+  def crystal_yield(self) -> int:
     return (
       sum(self._crystals.values())
-      + sum(4 for t in self._tiles.values() if t == Tile.CRYSTAL_SEAM)
+      + sum(t.crystal_yield for t in self._tiles.values())
+      + sum(b.type.crystals for b in self._buildings)
+    )
+
+  @property
+  def ore_yield(self) -> int:
+    return (
+      sum(self._ore.values())
+      + sum(t.ore_yield for t in self._tiles.values())
     )
 
   def discover(self):

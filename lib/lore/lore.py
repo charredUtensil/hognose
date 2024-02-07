@@ -8,19 +8,21 @@ import functools
 import math
 
 from .conclusions import SUCCESS, FAILURE
-from .events import FOUND_HOARD, FOUND_HQ
+from .events import FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS, FOUND_ALL_LOST_MINERS
 from .orders import ORDERS
 from .premises import PREMISES
 
 from lib.base import Biome
 from lib.planners.caves import EstablishedHQCavePlanner, LostMinersCavePlanner, TreasureCavePlanner
-from lib.plastic import FindMinerObjective, ResourceObjective, Tile
+from lib.plastic import Tile
 
 class Lore(object):
   def __init__(self, cavern: 'Cavern'):
     self.cavern = cavern
+    adjurator = self.cavern.adjurator
 
-    resources = _resources(cavern)
+    lost_miners_count = adjurator.lost_miners
+    resources, resource_names = _resources(cavern)
 
     def states():
       flooded_kind = _flooded_kind(self.cavern)
@@ -29,16 +31,10 @@ class Lore(object):
       if flooded_kind == Tile.LAVA:
         yield 'flooded_lava'
 
-      lost_miners_count = sum(
-          1 for o in self.cavern.diorama.objectives
-          if isinstance(o, FindMinerObjective))
       if lost_miners_count:
-        lost_miner_caves_count = sum(
-            1 for p in self.cavern.conquest.planners
-            if isinstance(p, LostMinersCavePlanner))
         if lost_miners_count == 1:
           yield 'lost_miners_one'
-        elif lost_miner_caves_count == 1:
+        elif adjurator.lost_miner_caves == 1:
           yield 'lost_miners_together'
         else:
           yield 'lost_miners_apart'
@@ -72,12 +68,15 @@ class Lore(object):
 
     self._states = frozenset(states())
     self._vars = {
-      'monster_type': {
-          Biome.ROCK: 'rock',
-          Biome.ICE: 'ice',
-          Biome.LAVA: 'lava',
-      }[self.cavern.context.biome],
-      'resources': resources}
+        'lost_miners_count': _spell_number(lost_miners_count),
+        'monster_type': {
+            Biome.ROCK: 'rock',
+            Biome.ICE: 'ice',
+            Biome.LAVA: 'lava',
+        }[self.cavern.context.biome],
+        'resources': resources,
+        'resource_names': resource_names,
+    }
 
   @functools.cached_property
   def level_name(self) -> str:
@@ -115,6 +114,18 @@ class Lore(object):
   def event_found_hq(self) -> str:
     rng = self.cavern.context.rng['lore', -5]
     return FOUND_HQ.generate(rng, self._states) % self._vars
+
+  @functools.cached_property
+  def event_found_all_lost_miners(self) -> str:
+    rng = self.cavern.context.rng['lore', -6]
+    return FOUND_ALL_LOST_MINERS.generate(rng, self._states) % self._vars
+
+  def event_found_lost_miners(self, rng, lost_miners_found: int) -> str:
+    states = self._states | frozenset((
+        'found_miners_one' if lost_miners_found == 1 else 'found_miners_many',))
+    v = {'found_miners_count': _spell_number(lost_miners_found)}
+    v.update(self._vars)
+    return FOUND_LOST_MINERS.generate(rng['lore'], states) % v
 
 # String manipulation methods
 def _capitalize_first(s: str) -> str:
@@ -177,18 +188,17 @@ def _flooded_kind(cavern: 'Cavern'):
   else:
     return None
 
-def _resources(cavern):
+def _resources(cavern: 'Cavern'):
   def h():
-    for o in cavern.diorama.objectives:
-      if isinstance(o, ResourceObjective):
-        if o.crystals:
-          yield f'{_spell_number(o.crystals)} Energy Crystals'
-        if o.ore:
-          yield f'{_spell_number(o.ore)} Ore'
-        if o.studs:
-          yield f'{_spell_number(o.studs)} Building Studs'
-        return
-  return _join_human(tuple(h()))
+    adjurator = cavern.adjurator
+    if adjurator.crystals:
+      yield _spell_number(adjurator.crystals), 'Energy Crystals'
+    if adjurator.ore:
+      yield _spell_number(adjurator.ore), 'Ore'
+    if adjurator.studs:
+      yield _spell_number(adjurator.studs), 'Building Studs'
+  ck, k = zip(*tuple((f'{count} {kind}', kind) for count, kind in h()))
+  return _join_human(tuple(ck)), _join_human(tuple(k))
     
 def _spawn_has_erosion(cavern: 'Cavern'):
   spawn = cavern.conquest.spawn

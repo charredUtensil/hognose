@@ -166,8 +166,8 @@ class PgBuilder(object):
   def __repr__(self):
     def j(ids):
       if len(ids) == 1:
-        return f'{ids[0]:d}'
-      return f'({"|".join(f"{id:d}" for id in ids)})'
+        return str(ids[0])
+      return f'({"|".join(str(id) for id in ids)})'
     return (
         'PgBuilder '
         f'{"~(" if self._bypass else ""}'

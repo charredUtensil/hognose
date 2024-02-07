@@ -10,28 +10,10 @@ class Objective(abc.ABC):
   def serialize(self) -> str:
     pass
 
-  @staticmethod
-  def uniq(objectives: Iterable['Objective']) -> Iterable['Objective']:
-    crystals = 0
-    ore = 0
-    studs = 0
-    for o in objectives:
-      if isinstance(o, ResourceObjective):
-        crystals = max(crystals, o.crystals)
-        ore = max(ore, o.ore)
-        studs = max(studs, o.studs)
-      else:
-        yield o
-    if crystals or ore or studs:
-      yield ResourceObjective(crystals, ore, studs)
-
-class FindMinerObjective(Objective):
-
-  def __init__(self, miner: Miner):
-    self.miner = miner
-
-  def serialize(self):
-    return f'findminer:{self.miner.id:d}'
+  @property
+  @abc.abstractmethod
+  def description(self) -> str:
+    pass
 
 class ResourceObjective(Objective):
 
@@ -40,13 +22,29 @@ class ResourceObjective(Objective):
     self.ore = ore
     self.studs = studs
 
+  @property
+  def description(self):
+    def h():
+      if self.crystals:
+        yield f'{self.crystals:d} EC'
+      if self.ore:
+        yield f'{self.ore:d} Ore'
+      if self.studs:
+        yield f'{self.studs:d} Studs'
+    return f'Collect {" ".join(h())}'
+
   def serialize(self):
     return f'resources: {self.crystals:d},{self.ore:d},{self.studs:d}'
 
 class VariableObjective(Objective):
 
-  def __init__(self, part:str):
-    self.part = part
+  def __init__(self, condition, description):
+    self._condition: str = condition
+    self._description: str = description
+
+  @property
+  def description(self):
+    return self._description
 
   def serialize(self):
-    return f'variable:{self.part}'
+    return f'variable:{self._condition}/{self._description}'

@@ -4,8 +4,9 @@ import math
 
 from .base import BaseCavePlanner
 from lib.base import Biome
+from lib.holistics import Adjurator
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Diorama, Facing, Position, Script, Tile, VariableObjective
+from lib.plastic import Building, Diorama, Facing, Position, Script, Tile
 from lib.utils.geometry import plot_line
 
 class EstablishedHQCavePlanner(BaseCavePlanner):
@@ -15,6 +16,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     self.is_spawn = is_spawn
     self.has_tool_store = has_tool_store
     self.is_ruin = is_ruin
+    self._discover_tile: Optional[Tuple[int, int]] = None
 
   def _get_expected_crystals(self):
     self.expected_wall_crystals = super()._get_expected_crystals()
@@ -24,6 +26,12 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
         for bt, _, ir
         in self.building_templates
         if not ir))
+
+  def _get_monster_spawner(self):
+    spawner = super()._get_monster_spawner()
+    spawner.min_initial_cooldown = 30
+    spawner.max_initial_cooldown = 120
+    return spawner
     
   @property
   def inspect_color(self):
@@ -32,6 +40,10 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
   def fine(self, diorama):
     super().fine(diorama)
     self.fine_rubble(diorama)
+    for info in self.pearl.inner:
+      if (not diorama.tiles.get(info.pos, Tile.SOLID_ROCK).is_wall
+          and not info.pos in diorama.discovered):
+        self._discover_tile = info.pos
   
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, self.expected_wall_crystals)
@@ -56,27 +68,38 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     assert self.building_templates is not None
     template_queue = []
     template_queue.extend(self.building_templates)
+    # Buildings in the cave, whether they actually exist or are just rubble.
     buildings = []
-    for pt in self.pearl.inner:
-      if pt.layer < 2:
-        continue
-      if template_queue:
-        type, level, is_rubble = template_queue[0]
-        building = self._make_building(
-            diorama,
-            rng,
-            type,
-            pt,
-            level)
-        if building:
-          template_queue.pop(0)
-          buildings.append(building)
-          if not is_rubble:
-            diorama.buildings.append(building)
-          for x, y in building.foundation_tiles:
-            diorama.tiles[x, y] = (
-                Tile.LANDSLIDE_RUBBLE_4 if is_rubble else Tile.FOUNDATION)
+    # Shuffle each layer of the pearl.
+    def pq():
+      q = []
+      layer = 1
+      for pt in self.pearl.inner:
+        if pt.layer < 2:
           continue
+        if pt.layer > layer:
+          yield from rng.shuffle(q)
+          q.clear()
+          layer = pt.layer
+        q.append(pt)
+      yield from rng.shuffle(q)
+    # Iterate through queue pf possible positions, roughly from inside out, and
+    # queue of building templates in a predetermined order of importance.
+    for pt in pq():
+      if not template_queue:
+        break
+      type, level, is_rubble = template_queue[0]
+      building = self._make_building(
+          diorama, rng, type, pt, level)
+      if building:
+        template_queue.pop(0)
+        buildings.append(building)
+        if not is_rubble:
+          diorama.buildings.append(building)
+        for x, y in building.foundation_tiles:
+          diorama.tiles[x, y] = (
+              Tile.LANDSLIDE_RUBBLE_4 if is_rubble else Tile.FOUNDATION)
+        continue
     if template_queue:
       self.context.logger.log_warning(
           f'failed to place remaining {len(template_queue)} buildings')
@@ -110,6 +133,8 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     crystals = rng.beta_int(a = 1, b = 1.75, min = 3, max = 10)
     if self.has_tool_store:
       yield (Building.Type.TOOL_STORE, 2, False)
+    elif self.is_ruin:
+      yield (Building.Type.TOOL_STORE, 1, True)
 
     t1 = (
         (Building.Type.TELEPORT_PAD, 2, False),
@@ -159,41 +184,30 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
             return b
     return None
 
-  @property
-  def objectives(self):
+  def adjure(self, adjurator):
     if not self.is_spawn:
-      yield VariableObjective(
-          f'p{self.id}obj_found>0/Find the lost Rock Raider HQ')
+      adjurator.find_hq(self._discover_tile, 'Find the lost Rock Raider HQ')
 
   def script(self, diorama, lore):
     super().script(diorama, lore)
     if self.is_spawn:
       return
-    prefix = f'p{self.id}obj_'
-    x, y = self._discovery_tile(diorama)
+    prefix = f'foundHq_p{self.id}_'
+    x, y = self._discover_tile
     bp = max(self.baseplates, key=lambda b: b.pearl_radius)
     cx, cy = bp.center
     msg = Script.escape_string(lore.event_found_hq)
     diorama.script.extend((
-        '## Objective: Find the lost Rock Raider HQ',
+        '# Objective: Find the lost Rock Raider HQ',
         f'string {prefix}discoverMessage="{msg}"',
-        f'int {prefix}found=0',
         f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscover]',
         f'{prefix}onDiscover::;',
         f'msg:{prefix}discoverMessage;',
         f'pan:y@{math.floor(cy):d},x@{math.floor(cx):d};',
         'wait:1;',
-        f'{prefix}found=1;',
+        f'{Adjurator.VAR_FOUND_HQ}=1;',
         '',
     ))
-
-
-  def _discovery_tile(self, diorama: Diorama) -> Tuple[int, int]:
-    for info in self.pearl.inner:
-      if (not diorama.tiles.get(info.pos, Tile.SOLID_ROCK).is_wall
-          and not info.pos in diorama.discovered):
-        return info.pos
-    raise Exception('No discovery tile')
 
 def bids(stem, conquest):
   if (stem.fluid_type is None

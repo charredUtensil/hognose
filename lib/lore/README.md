@@ -27,6 +27,13 @@ Spaces will be added automatically before Phrases that do not start with punctua
 ## Found HQ (event)
 ![found_hq](/lib/lore/found_hq.svg)
 
+## Found Lost Miners (event)
+(This only triggers if there are still more miners to find)
+![found_lost_miners](/lib/lore/found_lost_miners.svg)
+
+## Found All Lost Miners (event)
+![found_all_lost_miners](/lib/lore/found_all_lost_miners.svg)
+
 # Syntax
 
 Initialize the premise graph with `pg = PhraseGraph()`.

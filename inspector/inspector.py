@@ -14,7 +14,7 @@ from lib import Cavern
 from lib.base import Logger
 from lib.outlines import Bubble, Baseplate, Path
 from lib.planners import StemPlanner, SomaticPlanner
-from lib.plastic import FindMinerObjective, ResourceObjective, Tile
+from lib.plastic import Tile
 
 TITLE_COLOR                            = (0x00, 0xff, 0x22)
 LOG_DETAILS_COLOR                      = (0xff, 0xff, 0xff)
@@ -56,12 +56,12 @@ PATH_COLORS = {
 }
 
 PLANNER_FLUID_COLORS = {
-    None: Tile.FLOOR.inspect_color,
-    Tile.WATER: Tile.WATER.inspect_color,
-    Tile.LAVA: Tile.LAVA.inspect_color,
+    None                        : Tile.FLOOR.inspect_color,
+    Tile.WATER                  : Tile.WATER.inspect_color,
+    Tile.LAVA                   : Tile.LAVA.inspect_color,
 }
-PLANNER_BORDER_COLOR = Tile.DIRT.inspect_color
-PLANNER_ERODES_BORDER_COLOR = Tile.LAVA.inspect_color
+PLANNER_BORDER_COLOR            = Tile.DIRT.inspect_color
+PLANNER_ERODES_BORDER_COLOR     = Tile.LAVA.inspect_color
 PLANNER_TEXT_COLOR                     = (0xff, 0xff, 0xff)
 
 PEARL_INNER_LAYER_COLORS = [
@@ -77,10 +77,10 @@ PEARL_OUTER_LAYER_COLORS = [
                                          (0x99, 0x99, 0x20),
 ]
 
-EROSION_COLOR = Tile.LAVA.inspect_color
+EROSION_COLOR                   = Tile.LAVA.inspect_color
 LANDSLIDE_COLOR                         = (0xff, 0x00, 0x00)
-CRYSTAL_COLOR = Tile.CRYSTAL_SEAM.inspect_color
-ORE_COLOR = Tile.ORE_SEAM.inspect_color
+CRYSTAL_COLOR                   = Tile.CRYSTAL_SEAM.inspect_color
+ORE_COLOR                       = Tile.ORE_SEAM.inspect_color
 
 BUILDING_COLOR                          = (0xff, 0xff, 0x00)
 BUILDING_LABEL_COLOR                    = (0x44, 0x44, 0x00)
@@ -88,6 +88,7 @@ BUILDING_LABEL_RADIUS = 10
 
 MINER_COLOR                             = (0xff, 0xff, 0x00)
 CREATURE_COLOR                          = (0xff, 0x00, 0x00)
+OBJECTIVE_COLOR                         = (0x00, 0xff, 0xff)
 
 SCRIPT_TRIGGER_COLOR                    = (0xff, 0xff, 0x00)
 SCRIPT_SECONDARY_TRIGGER_COLOR          = (0xff, 0x7f, 0x00)
@@ -110,8 +111,8 @@ class Inspector(Logger):
     self.offset_y = 0
     self.font = pygame.font.SysFont('monospace', 10, bold=True)
     self.font_med = pygame.font.SysFont('trebuchetms', 16, bold=True)
-    self.font_title = pygame.font.SysFont('trebuchetms', 24, bold=True)
-    self.font_monospace = pygame.font.SysFont('monospace', 16)
+    self.font_big = pygame.font.SysFont('trebuchetms', 24, bold=True)
+    self.font_big_mono = pygame.font.SysFont('monospace', 24, bold=True)
     self.warnings = []
 
   def log_stage(self, stage, index, total_stages, details):
@@ -146,7 +147,8 @@ class Inspector(Logger):
             _draw_space_label(
                 frame,
                 b,
-                self.font,BASEPLATE_LABEL_COLORS[b.kind])
+                self.font,
+                BASEPLATE_LABEL_COLORS[b.kind])
 
     # Draw paths
     if not self.cavern.conquest:
@@ -424,15 +426,14 @@ class Inspector(Logger):
             (miner.x, miner.y),
             (miner.x + math.cos(theta), miner.y + math.sin(theta)))
 
-    if stage == 'adjure' or stage not in FADED_TILE_STAGES:
+    if stage == 'adjure':
       # Draw objectives that have map positions
-      for objective in self.cavern.diorama.objectives:
-        if isinstance(objective, FindMinerObjective):
-          frame.draw_circle(
-              MINER_COLOR,
-              (objective.miner.x, objective.miner.y),
-              2,
-              2)
+      for x, y in self.cavern.adjurator.positions:
+        frame.draw_circle(
+            OBJECTIVE_COLOR,
+            (x + 0.5, y + 0.5),
+            5,
+            2)
 
     # Label height and width
     if stage == 'fence':
@@ -440,14 +441,14 @@ class Inspector(Logger):
         left, top, width, height = self.cavern.diorama.bounds
         label_rect = (left, top, width, height)
         frame.draw_label_for_rect(
-            self.font_title,
+            self.font_big,
             str(width),
             TITLE_COLOR,
             None,
             label_rect,
             (0, -1))
         frame.draw_label_for_rect(
-            self.font_title,
+            self.font_big,
             str(height),
             TITLE_COLOR,
             None,
@@ -463,14 +464,14 @@ class Inspector(Logger):
     # Draw titles
     # Top left: Frame + Stage
     frame.draw_text(
-        self.font_title,
+        self.font_big,
         f'{len(self.frames):d} {stage}',
         TITLE_COLOR,
         (Relative(0), Relative(0)),
         (1, 1))
     # Top right: Name or Seed
     frame.draw_text(
-        self.font_title,
+        self.font_big,
         self.cavern.diorama.level_name or f'seed: {hex(self.cavern.context.seed)}',
         TITLE_COLOR,
         (Relative(1), Relative(0)),
@@ -479,37 +480,48 @@ class Inspector(Logger):
     if stage == 'init':
       message = str(self.cavern.context)
       frame.draw_text(
-          self.font_monospace,
+          self.font_big_mono,
+          message,
+          TITLE_COLOR,
+          (Relative(0), Relative(1)),
+          (1, -1))
+    elif self.cavern.diorama.objectives:
+      message = '\n'.join(o.description for o in self.cavern.diorama.objectives)
+      frame.draw_text(
+          self.font_med,
           message,
           TITLE_COLOR,
           (Relative(0), Relative(1)),
           (1, -1))
     elif self.cavern.conquest:
-      total_crystals = (
-        self.cavern.diorama.total_crystals or
+      crystals = (
+        self.cavern.diorama.crystal_yield or
         sum(p.expected_crystals for p in self.cavern.conquest.somatic_planners)
       )
-      if total_crystals > 0:
-        goal_crystals = sum((
-            o.crystals for o in self.cavern.diorama.objectives
-            if isinstance(o, ResourceObjective)), 0)
-        if goal_crystals:
-          message = f'Collect {goal_crystals:d}/{total_crystals:d} EC'
-        else:
-          message = f'{total_crystals:d} EC'
-        frame.draw_text(
-            self.font_title,
-            message,
-            TITLE_COLOR,
-            (Relative(0), Relative(1)),
-            (1, -1))
+      ore = self.cavern.diorama.ore_yield
+      frame.draw_text(
+          self.font_big_mono,
+          f'{crystals:5d} EC\n{ore:5d} Ore',
+          TITLE_COLOR,
+          (Relative(0), Relative(1)),
+          (1, -1))
 
-    # Draw the log details
+    # Draw the logged details
     if details:
-      position = None
       frame.draw_text(
           self.font_med,
           str(details),
+          LOG_DETAILS_COLOR,
+          (Relative(0.5), Relative(1)),
+          (0, -1))
+    elif stage == 'serialize':
+      message = (
+          f'{len(self.cavern.diorama.script):d} script lines\n'
+          f'Total file size: {len(self.cavern.serialized)//1024:d}kB'
+      )
+      frame.draw_text(
+          self.font_med,
+          message,
           LOG_DETAILS_COLOR,
           (Relative(0.5), Relative(1)),
           (0, -1))
@@ -567,7 +579,7 @@ class Inspector(Logger):
     frame = Frame()
     frame.fill(BSOD_BG_COLOR)
     frame.draw_text(
-      self.font_title,
+      self.font_big,
       f'{type(e).__name__} in {hex(self.cavern.context.seed)}',
       BSOD_FG_COLOR,
       (Relative(0), Relative(0.25)),

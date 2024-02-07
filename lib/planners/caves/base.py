@@ -102,7 +102,11 @@ class BaseCavePlanner(SomaticPlanner):
     pass
 
   def script(self, diorama: Diorama, lore: 'Lore'):
-    diorama.script.append(f'# {self}')
+    header = str(self)
+    diorama.script.extend((
+        f'# {"=" * len(header)}',
+        f'# {header}',
+        f'# {"=" * len(header)}'))
     self.script_place_monster_spawns(diorama)
 
   def script_place_monster_spawns(self, diorama: Diorama):

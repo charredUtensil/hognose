@@ -62,7 +62,8 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
       facing = Facing.WEST
     else:
       facing = Facing.EAST
-    tool_store = Building.at_tile(Building.Type.TOOL_STORE, a, facing)
+    tool_store = Building.at_tile(
+        Building.Type.TOOL_STORE, a, facing, teleport_at_start=True)
     diorama.buildings.append(tool_store)
     diorama.open_cave_flags.add(a)
     diorama.camera_position = camera_position = copy.copy(tool_store.position)

@@ -118,7 +118,7 @@ class Context():
     )
 
     # The chance any arbitrary cave will have a recharge seam.
-    # The spawn cave will always get one additional recharge seam.
+    # Some caves (including the spawn cave) ignore this and always have one.
     self.recharge_seam_chance = {
       Biome.ROCK: 0.07,
       Biome.ICE: 0.13,

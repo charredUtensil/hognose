@@ -9,11 +9,11 @@ import time
 import typing
 
 from lib.base import NotHaltingError
-from lib.holistics import adjure, patch
+from lib.holistics import Adjurator, patch
 from lib.lore import Lore
 from lib.outlines import Path, Space, Bubble, Baseplate, Partition
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
-from lib.plastic import Diorama, Objective, ResourceObjective, serialize, Tile
+from lib.plastic import Diorama, serialize, Tile
 from lib.utils.delaunay import slorp
 
 class Cavern(object):
@@ -28,6 +28,7 @@ class Cavern(object):
     self.conquest:    Optional[Conquest] = None
     self._diorama:    Diorama = Diorama(context)
     self._serialized: Optional[str] = None
+    self.adjurator:   Optional[Adjurator] = None
     self._lore:       Optional[Lore] = None
 
   @property
@@ -216,7 +217,10 @@ class Cavern(object):
 
   def _adjure(self):
     """Figure out objectives for the level."""
-    adjure(self)
+    self.adjurator = Adjurator(self.context)
+    for planner in self.conquest.somatic_planners:
+      planner.adjure(self.adjurator)
+    self.adjurator.write(self.diorama)
 
   def _enscribe(self):
     """Generate copy for briefings, etc..."""
@@ -228,6 +232,7 @@ class Cavern(object):
 
   def _script(self):
     """Write scripts."""
+    self.adjurator.script(self.diorama, self._lore)
     for planner in self.conquest.somatic_planners:
       planner.script(self.diorama, self._lore)
 

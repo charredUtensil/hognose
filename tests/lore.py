@@ -4,7 +4,7 @@ import unittest
 from parameterized import parameterized
 
 from lib.lore.conclusions import SUCCESS, FAILURE
-from lib.lore.events import FOUND_HOARD, FOUND_HQ
+from lib.lore.events import FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS, FOUND_ALL_LOST_MINERS
 from lib.lore.orders import ORDERS
 from lib.lore.phrases import PhraseGraph
 from lib.lore.premises import PREMISES
@@ -29,6 +29,7 @@ STATE_COMBOS = (
   (None, 'has_monsters'),
   (None, 'spawn_is_ruin', 'spawn_is_hq', 'find_hq'),
   (None, 'treasure_one', 'treasure_many'),
+  ('found_miners_one', 'found_miners_many'),
   ('end',),
 )
 
@@ -59,6 +60,8 @@ class TestLore(unittest.TestCase):
       ('failure', FAILURE),
       ('foundHoard', FOUND_HOARD),
       ('foundHq', FOUND_HQ),
+      ('foundLostMiners', FOUND_LOST_MINERS),
+      ('foundAllLostMiners', FOUND_ALL_LOST_MINERS),
   ))
   def test_loreIsComprehensive(self, _, pg):
     for states in _all_possible_states(pg):
