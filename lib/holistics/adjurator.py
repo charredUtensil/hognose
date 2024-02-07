@@ -114,7 +114,7 @@ class Adjurator(object):
         yield f'int {Adjurator.VAR_FOUND_ALL_LOST_MINERS}=0'
         yield f'int {Adjurator.VAR_LOST_MINERS_COUNT}={self.lost_miners:d}'
         msg = Script.escape_string(lore.event_found_all_lost_miners)
-        yield f'int {PREFIX}foundAllLostMinersMessage="{msg}"'
+        yield f'string {PREFIX}foundAllLostMinersMessage="{msg}"'
         yield f'{Adjurator.ON_FOUND_ALL_LOST_MINERS}::;'
         yield f'msg:{PREFIX}foundAllLostMinersMessage;'
         yield f'wait:3;'

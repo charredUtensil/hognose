@@ -22,7 +22,7 @@ class Lore(object):
     adjurator = self.cavern.adjurator
 
     lost_miners_count = adjurator.lost_miners
-    resources = _resources(cavern)
+    resources, resource_names = _resources(cavern)
 
     def states():
       flooded_kind = _flooded_kind(self.cavern)
@@ -68,13 +68,15 @@ class Lore(object):
 
     self._states = frozenset(states())
     self._vars = {
-      'lost_miners_count': _spell_number(lost_miners_count),
-      'monster_type': {
-          Biome.ROCK: 'rock',
-          Biome.ICE: 'ice',
-          Biome.LAVA: 'lava',
-      }[self.cavern.context.biome],
-      'resources': resources}
+        'lost_miners_count': _spell_number(lost_miners_count),
+        'monster_type': {
+            Biome.ROCK: 'rock',
+            Biome.ICE: 'ice',
+            Biome.LAVA: 'lava',
+        }[self.cavern.context.biome],
+        'resources': resources,
+        'resource_names': resource_names,
+    }
 
   @functools.cached_property
   def level_name(self) -> str:
@@ -190,12 +192,13 @@ def _resources(cavern: 'Cavern'):
   def h():
     adjurator = cavern.adjurator
     if adjurator.crystals:
-      yield f'{_spell_number(adjurator.crystals)} Energy Crystals'
+      yield _spell_number(adjurator.crystals), 'Energy Crystals'
     if adjurator.ore:
-      yield f'{_spell_number(adjurator.ore)} Ore'
+      yield _spell_number(adjurator.ore), 'Ore'
     if adjurator.studs:
-      yield f'{_spell_number(adjurator.studs)} Building Studs'
-  return _join_human(tuple(h()))
+      yield _spell_number(adjurator.studs), 'Building Studs'
+  ck, k = zip(*tuple((f'{count} {kind}', kind) for count, kind in h()))
+  return _join_human(tuple(ck)), _join_human(tuple(k))
     
 def _spawn_has_erosion(cavern: 'Cavern'):
   spawn = cavern.conquest.spawn

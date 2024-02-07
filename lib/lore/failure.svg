@@ -131,7 +131,7 @@
 <text text-anchor="middle" x="585.8" y="-54.3" font-family="Times,serif" font-size="14.00">find the lost Rock Raider</text>
 </g>
 <!-- 7&#45;&gt;8\nfind the lost Rock Raider -->
-<g id="edge10" class="edge">
+<g id="edge9" class="edge">
 <title>7&#45;&gt;8\nfind the lost Rock Raider</title>
 <path fill="none" stroke="black" d="M470.39,-65.5C478.67,-65.5 488.31,-65.5 498.43,-65.5"/>
 <polygon fill="black" stroke="black" points="498.67,-69 508.67,-65.5 498.67,-62 498.67,-69"/>
@@ -144,7 +144,7 @@
 <text text-anchor="middle" x="585.8" y="-110.3" font-family="Times,serif" font-size="14.00">find the lost Rock Raiders</text>
 </g>
 <!-- 7&#45;&gt;10\nfind the lost Rock Raiders -->
-<g id="edge9" class="edge">
+<g id="edge10" class="edge">
 <title>7&#45;&gt;10\nfind the lost Rock Raiders</title>
 <path fill="none" stroke="black" d="M470.34,-77.83C481.35,-82.89 494.36,-88.68 506.3,-93.5 510.76,-95.3 515.39,-97.1 520.06,-98.88"/>
 <polygon fill="black" stroke="black" points="519.09,-102.26 529.68,-102.48 521.54,-95.7 519.09,-102.26"/>

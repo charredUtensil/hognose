@@ -26,6 +26,12 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
         for bt, _, ir
         in self.building_templates
         if not ir))
+
+  def _get_monster_spawner(self):
+    spawner = super()._get_monster_spawner()
+    spawner.min_initial_cooldown = 30
+    spawner.max_initial_cooldown = 120
+    return spawner
     
   @property
   def inspect_color(self):
