@@ -197,8 +197,10 @@ def _resources(cavern: 'Cavern'):
       yield _spell_number(adjurator.ore), 'Ore'
     if adjurator.studs:
       yield _spell_number(adjurator.studs), 'Building Studs'
-  ck, k = zip(*tuple((f'{count} {kind}', kind) for count, kind in h()))
-  return _join_human(tuple(ck)), _join_human(tuple(k))
+  r = tuple(h())
+  return (
+      _join_human(tuple(f'{c} {k}' for c, k in r)),
+      _join_human(tuple(k for c, k in r)))
     
 def _spawn_has_erosion(cavern: 'Cavern'):
   spawn = cavern.conquest.spawn
