@@ -14,54 +14,58 @@ def _make_pg():
       'and make sure it is heavily defended',
       ) & 'has_monsters'
 
-  explore = pg(
-      'explore the cavern'
-  )
-
   get_to_safety = pg(
-      'move to a safer cavern',
       'get your Rock Raiders to safety',
       'make sure your Rock Raiders are safe',
-      ) & 'spawn_has_erosion'
+  ) & 'spawn_has_erosion'
 
-  find_lost_miners = pg() >> (
-      pg(
-          'find the lost Rock Raider',
-          'locate the missing Rock Raider'
-          ) & 'lost_miners_one' |
-      pg(
-          'find the cavern with the lost Rock Raiders',
-          'locate the missing group of Rock Raiders',
-          ) & 'lost_miners_together' |
-      pg(
-          'find the lost Rock Raiders',
-          'locate the missing Rock Raiders',
-          ) & 'lost_miners_apart'
-      ) >> ()
+  move_hq = pg(
+      'move to a safer cavern',
+      'find a more suitable location',
+  ) >> pg.states('spawn_has_erosion') >> pg.states('spawn_is_ruin')
+
+  find_lost_miners = pg(
+      'find',
+      'locate',
+      'search the cavern for'
+  ) >> (
+      pg('the', 'that') >> pg(
+          'lost Rock Raider',
+          'missing Rock Raider'
+      ) & 'lost_miners_one' |
+      pg('the', 'that') >> pg(
+          'cavern with the lost Rock Raiders',
+          'missing group of Rock Raiders',
+      ) & 'lost_miners_together' |
+      pg('the', 'those') >> pg(
+          'lost Rock Raiders',
+          'missing Rock Raiders',
+      ) & 'lost_miners_apart'
+  ) >> ()
 
   before_monsters_do = pg(
       'before the %(monster_type)s monsters do!',
-      ) & 'has_monsters'
+  ) & 'has_monsters'
 
-  defend_hq = pg(
-      'defend the Rock Radier HQ',
-      'build up your defenses',
-      'arm your Rock Raiders',
-      ) & 'has_monsters'
+  defend = (
+      pg.start >> 'defend the Rock Radier HQ' |
+      (
+          'build up your defenses',
+          'arm your Rock Raiders',
+      )
+  ) & 'has_monsters'
 
   repair_hq = pg(
       'clean up this mess',
       'get the Rock Raider HQ back in operation',
-      ) & 'spawn_is_ruins'
+      ) & 'spawn_is_ruin'
 
   find_hq = pg(
       'reach the Rock Raider HQ',
       'locate the base',
       ) & 'find_hq'
 
-  and_use_it_to = pg(
-      'and use it to',
-      ', and from there you can')
+  and_use_it_to = pg('and use it to')
 
   asap = pg(
       'as soon as possible',
@@ -69,67 +73,65 @@ def _make_pg():
   )
 
   collect_resources = pg(
-      'continue our mining operation by collecting %(resources)s',
       'collect %(resources)s',
-      ) & 'collect_resources'
+      'continue our mining operation by collecting %(resources)s',
+  )
+
+  continue_mining = pg(
+      'continue mining operations',
+      'explore the cavern',
+      'resume our mining operation',
+      'search the cavern',
+  )
 
   we_need_resources = pg(
-      'We need %(resources)s',
+      'we need %(resources)s',
       'you need to collect %(resources)s'
   )
 
   sendoff = pg(
+      'Best of luck!',
+      'Good luck out there!',
       'We\'re counting on you!',
-      'Good luck out there!')
+  )
   
   tail = () >> ~sendoff >> pg.end
 
-  first_task = pg()
-  pg.start >> (
-      explore | build_hq | repair_hq | defend_hq |
-      get_to_safety) >> first_task
-  (repair_hq | get_to_safety) >> asap >> first_task
+  and_endgame = pg()
+  endgame = pg()
 
-  pg.start >> find_hq
+  pg.start >> (
+      build_hq | get_to_safety | move_hq | find_lost_miners | repair_hq |
+      find_hq | defend)
+
+  (build_hq | defend) >> and_endgame
+  asap_and_endgame = () >> ~asap >> and_endgame
+  (repair_hq | find_hq) >> asap_and_endgame
+  (get_to_safety | move_hq) >> () >> (
+      ',' >> defend | asap_and_endgame
+  )
   get_to_safety >> ',' >> (build_hq | find_hq)
 
-  pg.start >> find_lost_miners
-  first_task >> (
-      ', then',
-      'and',
-      ) >> find_lost_miners
-
   (build_hq | repair_hq | find_hq) >> and_defend_it
-  find_hq >> and_use_it_to >> find_lost_miners
-  defend_hq >> ',' >> explore
+  find_hq >> and_use_it_to >> endgame
 
   (
-      and_use_it_to |
-      (first_task | find_hq) >> 'and'
-  ) >> () >> collect_resources
-
-  and_defend_it >> '.' >> (
+      and_defend_it |
+      endgame >> continue_mining
+  ) >> '.' >> we_need_resources
+  and_endgame >> 'and' >> endgame
+  endgame >> (find_lost_miners | collect_resources)
+  find_lost_miners >> (before_monsters_do | '.') >> () >> (
+      tail |
       (
-          'Then',
-          'Once you have done that,',
-      ) >> (collect_resources | we_need_resources) |
-      tail
+          'Once you\'ve found them,',
+          'With them safe,',
+          'When they are safe,',
+      ) >> (collect_resources | we_need_resources)
   )
-
-  find_lost_miners_sentence = find_lost_miners >> (
-      '.' | before_monsters_do
-  ) >> ()
-
-  find_lost_miners_sentence >> (
-      (
-          'Once you have done that,',
-          'With them secure,',
-          'Along the way,',
-      ) >> collect_resources |
-      tail
-  )
-
-  (collect_resources | we_need_resources) >> '.' >> tail
+  (
+      collect_resources | we_need_resources
+  ) >> pg.states('collect_resources') >> '.' >> tail
 
   pg.compile()
   return pg

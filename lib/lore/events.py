@@ -136,14 +136,14 @@ def _make_pg_found_all_lost_miners():
 
   pg.start >> (
       pg(
-          'Look! It\'s the lost Rock Raider!'
-          'You found the missing Rock Raider!'
+          'Look! It\'s the lost Rock Raider!',
+          'You found the missing Rock Raider!',
       ) & 'lost_miners_one' | 
       pg(
-          'And that makes %(lost_miners_count)s Rock Raiders found!'
+          'And that makes %(lost_miners_count)s Rock Raiders found!',
           'You found all %(lost_miners_count)s Rock Raiders!',
-          'That\'s all %(lost_miners_count)s Rock Raiders found!'
-      ) >> pg.states('lost_miners_together', 'lost_miners_apart')
+          'That\'s all %(lost_miners_count)s Rock Raiders found!',
+      ) # No need to check condition here. This isn't used without lost miners.
   ) >> () >> ~(
       pg(
           'Now, collect %(resources)s.'
