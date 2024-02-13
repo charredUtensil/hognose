@@ -51,7 +51,7 @@
 <text text-anchor="middle" x="734.8" y="-186.8" font-family="Times,serif" font-size="14.00">Get this back to your base.</text>
 </g>
 <!-- 2\nWow! This ought to do it!\nYou&#39;ve found quite the haul here.\nOur intel was accurate. Look at all\nthose Energy Crystals!&#45;&gt;3\nNow, transport these Energy Crystals\nback to your base.\nBring this to your base to complete our\nmission!\nGet this back to your base. -->
-<g id="edge4" class="edge">
+<g id="edge2" class="edge">
 <title>2\nWow! This ought to do it!\nYou&#39;ve found quite the haul here.\nOur intel was accurate. Look at all\nthose Energy Crystals!&#45;&gt;3\nNow, transport these Energy Crystals\nback to your base.\nBring this to your base to complete our\nmission!\nGet this back to your base.</title>
 <path fill="none" stroke="black" d="M311.15,-199.55C323.18,-203.29 335.41,-206.57 347.3,-209 433.44,-226.6 532.52,-231.17 608.79,-231.44"/>
 <polygon fill="black" stroke="black" points="608.92,-234.94 618.93,-231.45 608.93,-227.94 608.92,-234.94"/>
@@ -67,7 +67,7 @@
 <text text-anchor="middle" x="465.3" y="-124.3" font-family="Times,serif" font-size="14.00">found and complete our mission!</text>
 </g>
 <!-- 2\nWow! This ought to do it!\nYou&#39;ve found quite the haul here.\nOur intel was accurate. Look at all\nthose Energy Crystals!&#45;&gt;4\nWith this, we have enough to complete\nour mission!\nCollect all the Energy Crystals you&#39;ve\nfound and complete our mission! -->
-<g id="edge3" class="edge">
+<g id="edge4" class="edge">
 <title>2\nWow! This ought to do it!\nYou&#39;ve found quite the haul here.\nOur intel was accurate. Look at all\nthose Energy Crystals!&#45;&gt;4\nWith this, we have enough to complete\nour mission!\nCollect all the Energy Crystals you&#39;ve\nfound and complete our mission!</title>
 <path fill="none" stroke="black" d="M311.55,-158C320.7,-158 330.04,-158 339.36,-158"/>
 <polygon fill="black" stroke="black" points="339.46,-161.5 349.46,-158 339.46,-154.5 339.46,-161.5"/>
@@ -84,7 +84,7 @@
 <text text-anchor="middle" x="465.3" y="-7.8" font-family="Times,serif" font-size="14.00">monsters.</text>
 </g>
 <!-- 2\nWow! This ought to do it!\nYou&#39;ve found quite the haul here.\nOur intel was accurate. Look at all\nthose Energy Crystals!&#45;&gt;6\nI hope we can collect these without\nattracting too much attention.\nBe careful, Cadet! This is surely enough\nto attract those %(monster_type)s\nmonsters. -->
-<g id="edge2" class="edge">
+<g id="edge3" class="edge">
 <title>2\nWow! This ought to do it!\nYou&#39;ve found quite the haul here.\nOur intel was accurate. Look at all\nthose Energy Crystals!&#45;&gt;6\nI hope we can collect these without\nattracting too much attention.\nBe careful, Cadet! This is surely enough\nto attract those %(monster_type)s\nmonsters.</title>
 <path fill="none" stroke="black" d="M306.43,-116.48C317.42,-111.78 328.74,-106.94 340.02,-102.12"/>
 <polygon fill="black" stroke="black" points="341.66,-105.23 349.48,-98.08 338.91,-98.79 341.66,-105.23"/>

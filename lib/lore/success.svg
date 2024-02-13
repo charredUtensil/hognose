@@ -31,7 +31,7 @@
 <text text-anchor="middle" x="232.3" y="-7.8" font-family="Times,serif" font-size="14.00">We were right to count on you, Cadet!</text>
 </g>
 <!-- 0\n[start]&#45;&gt;2\nWow!\nWell done!\nGood work!\nOutstanding!\nI knew you could do it, Cadet!\nYou&#39;re very good at this, Cadet!\nYour efforts have been outstanding!\nWe were right to count on you, Cadet! -->
-<g id="edge2" class="edge">
+<g id="edge1" class="edge">
 <title>0\n[start]&#45;&gt;2\nWow!\nWell done!\nGood work!\nOutstanding!\nI knew you could do it, Cadet!\nYou&#39;re very good at this, Cadet!\nYour efforts have been outstanding!\nWe were right to count on you, Cadet!</title>
 <path fill="none" stroke="green" stroke-dasharray="5,2" d="M65.79,-156.09C78.18,-149.76 93.41,-141.98 109.57,-133.72"/>
 <polygon fill="green" stroke="green" points="111.32,-136.75 118.63,-129.09 108.13,-130.52 111.32,-136.75"/>
@@ -47,7 +47,7 @@
 <text text-anchor="middle" x="232.3" y="-207.8" font-family="Times,serif" font-size="14.00">%(monster_type)s monsters!</text>
 </g>
 <!-- 0\n[start]&#45;&gt;4\nThose %(monster_type)s monsters were no\nmatch for you!\nYou had nothing to fear from those\n%(monster_type)s monsters! -->
-<g id="edge1" class="edge">
+<g id="edge2" class="edge">
 <title>0\n[start]&#45;&gt;4\nThose %(monster_type)s monsters were no\nmatch for you!\nYou had nothing to fear from those\n%(monster_type)s monsters!</title>
 <path fill="none" stroke="green" stroke-dasharray="5,2" d="M67.52,-182.9C78.52,-186.84 91.59,-191.52 105.5,-196.49"/>
 <polygon fill="green" stroke="green" points="104.64,-199.9 115.24,-199.98 107,-193.31 104.64,-199.9"/>
@@ -197,7 +197,7 @@
 <text text-anchor="middle" x="1177.8" y="-133.8" font-family="Times,serif" font-size="14.00">restored our mining operations</text>
 </g>
 <!-- 9\nyou&#45;&gt;12\nrepaired the Rock Raider HQ\nrestored our mining operations -->
-<g id="edge14" class="edge">
+<g id="edge13" class="edge">
 <title>9\nyou&#45;&gt;12\nrepaired the Rock Raider HQ\nrestored our mining operations</title>
 <path fill="none" stroke="black" d="M1049.34,-174.92C1056.95,-173.58 1065.78,-172.03 1075.16,-170.38"/>
 <polygon fill="black" stroke="black" points="1075.87,-173.81 1085.11,-168.63 1074.65,-166.91 1075.87,-173.81"/>
@@ -210,7 +210,7 @@
 <text text-anchor="middle" x="1177.8" y="-77.3" font-family="Times,serif" font-size="14.00">found the base</text>
 </g>
 <!-- 9\nyou&#45;&gt;14\nfound the base -->
-<g id="edge13" class="edge">
+<g id="edge14" class="edge">
 <title>9\nyou&#45;&gt;14\nfound the base</title>
 <path fill="none" stroke="black" d="M1038.24,-160.25C1049.77,-146.58 1066.83,-128.73 1085.3,-117.5 1095.75,-111.14 1107.74,-106.05 1119.52,-102.01"/>
 <polygon fill="black" stroke="black" points="1120.87,-105.25 1129.33,-98.87 1118.74,-98.59 1120.87,-105.25"/>
@@ -232,7 +232,7 @@
 <text text-anchor="middle" x="1592.3" y="-333.8" font-family="Times,serif" font-size="14.00">37</text>
 </g>
 <!-- 10\nmanaged to\nwere able to&#45;&gt;37 -->
-<g id="edge16" class="edge">
+<g id="edge17" class="edge">
 <title>10\nmanaged to\nwere able to&#45;&gt;37</title>
 <path fill="none" stroke="black" d="M1525.22,-289.15C1536.03,-297.06 1547.8,-305.67 1558.37,-313.41"/>
 <polygon fill="black" stroke="black" points="1556.41,-316.31 1566.55,-319.39 1560.54,-310.66 1556.41,-316.31"/>
@@ -246,7 +246,7 @@
 <text text-anchor="middle" x="2321.3" y="-292.8" font-family="Times,serif" font-size="14.00">get the %(resources)s we needed</text>
 </g>
 <!-- 10\nmanaged to\nwere able to&#45;&gt;44\ncollect all %(resources)s\nget the %(resources)s we needed -->
-<g id="edge17" class="edge">
+<g id="edge16" class="edge">
 <title>10\nmanaged to\nwere able to&#45;&gt;44\ncollect all %(resources)s\nget the %(resources)s we needed</title>
 <path fill="none" stroke="black" d="M1529.63,-262.5C1579.73,-262.5 1667.26,-262.5 1742.3,-262.5 1742.3,-262.5 1742.3,-262.5 2071.3,-262.5 2120.96,-262.5 2175.17,-272 2220.29,-282.64"/>
 <polygon fill="black" stroke="black" points="2219.53,-286.05 2230.07,-284.99 2221.17,-279.25 2219.53,-286.05"/>
@@ -647,7 +647,7 @@
 <text text-anchor="middle" x="1743.3" y="-396.3" font-family="Times,serif" font-size="14.00">find the lost Rock Raider</text>
 </g>
 <!-- 37&#45;&gt;38\nfind the lost Rock Raider -->
-<g id="edge55" class="edge">
+<g id="edge54" class="edge">
 <title>37&#45;&gt;38\nfind the lost Rock Raider</title>
 <path fill="none" stroke="black" d="M1619.59,-349.85C1639.74,-359.32 1668.14,-372.66 1692.54,-384.12"/>
 <polygon fill="black" stroke="black" points="1691.13,-387.33 1701.67,-388.41 1694.11,-380.99 1691.13,-387.33"/>
@@ -660,7 +660,7 @@
 <text text-anchor="middle" x="1743.3" y="-326.3" font-family="Times,serif" font-size="14.00">find the lost Rock Raiders</text>
 </g>
 <!-- 37&#45;&gt;40\nfind the lost Rock Raiders -->
-<g id="edge54" class="edge">
+<g id="edge55" class="edge">
 <title>37&#45;&gt;40\nfind the lost Rock Raiders</title>
 <path fill="none" stroke="black" d="M1619.59,-337.5C1629.32,-337.5 1640.96,-337.5 1653.15,-337.5"/>
 <polygon fill="black" stroke="black" points="1653.49,-341 1663.49,-337.5 1653.49,-334 1653.49,-341"/>
@@ -815,7 +815,7 @@
 <polygon fill="blue" stroke="blue" points="758.13,-186.22 768.02,-182.42 757.92,-179.23 758.13,-186.22"/>
 </g>
 <!-- 50&#45;&gt;32\ndespite that horde of %(monster_type)s\nmonsters! -->
-<g id="edge72" class="edge">
+<g id="edge73" class="edge">
 <title>50&#45;&gt;32\ndespite that horde of %(monster_type)s\nmonsters!</title>
 <path fill="none" stroke="black" d="M2764.46,-319.5C2782.21,-319.5 2807.12,-319.5 2833.21,-319.5"/>
 <polygon fill="black" stroke="black" points="2833.25,-323 2843.25,-319.5 2833.25,-316 2833.25,-323"/>
@@ -828,7 +828,7 @@
 <text text-anchor="middle" x="3162.3" y="-252.3" font-family="Times,serif" font-size="14.00">.</text>
 </g>
 <!-- 50&#45;&gt;51\n. -->
-<g id="edge73" class="edge">
+<g id="edge72" class="edge">
 <title>50&#45;&gt;51\n.</title>
 <path fill="none" stroke="black" d="M2764.55,-308.66C2785.49,-300.53 2815.77,-289.9 2843.3,-284.5 2943.94,-264.74 3065.57,-262.59 3125.02,-262.9"/>
 <polygon fill="black" stroke="black" points="3125.01,-266.4 3135.04,-262.98 3125.06,-259.4 3125.01,-266.4"/>

@@ -26,7 +26,7 @@
 <text text-anchor="middle" x="236.8" y="-153.8" font-family="Times,serif" font-size="14.00">You found one of the lost Rock Raiders!</text>
 </g>
 <!-- 0\n[start]&#45;&gt;2\nLook! It&#39;s one of the lost Rock Radiers!\nYou found a lost Rock Raider!\nYou found one of the lost Rock Raiders! -->
-<g id="edge2" class="edge">
+<g id="edge1" class="edge">
 <title>0\n[start]&#45;&gt;2\nLook! It&#39;s one of the lost Rock Radiers!\nYou found a lost Rock Raider!\nYou found one of the lost Rock Raiders!</title>
 <path fill="none" stroke="green" stroke-dasharray="5,2" d="M68.25,-131.45C79.88,-134.82 93.79,-138.85 108.55,-143.13"/>
 <polygon fill="green" stroke="green" points="107.78,-146.55 118.36,-145.97 109.73,-139.82 107.78,-146.55"/>
@@ -45,7 +45,7 @@
 <text text-anchor="middle" x="236.8" y="-7.8" font-family="Times,serif" font-size="14.00">here!</text>
 </g>
 <!-- 0\n[start]&#45;&gt;4\nLook at that! %(found_miners_count)s of\nthe lost Rock Raiders are here, safely\ntogether.\nThat&#39;s %(found_miners_count)s Rock\nRaiders found!\nYou found %(found_miners_count)s of them\nhere! -->
-<g id="edge1" class="edge">
+<g id="edge2" class="edge">
 <title>0\n[start]&#45;&gt;4\nLook at that! %(found_miners_count)s of\nthe lost Rock Raiders are here, safely\ntogether.\nThat&#39;s %(found_miners_count)s Rock\nRaiders found!\nYou found %(found_miners_count)s of them\nhere!</title>
 <path fill="none" stroke="green" stroke-dasharray="5,2" d="M68.25,-112.55C76.39,-110.19 85.65,-107.51 95.54,-104.65"/>
 <polygon fill="green" stroke="green" points="96.56,-107.99 105.19,-101.85 94.61,-101.27 96.56,-107.99"/>

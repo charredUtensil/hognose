@@ -94,7 +94,7 @@ def _make_pg():
       ) >> pg.states('lost_miners_together', 'lost_miners_apart') |
       pg(
           'One Rock Raider is missing',
-          'Everyone else was able to teleport back to the L.M.S. Explorer, ',
+          'Everyone else was able to teleport back to the L.M.S. Explorer',
           'but one of our Rock Raiders is still missing'
       ) & 'lost_miners_one'
   )
