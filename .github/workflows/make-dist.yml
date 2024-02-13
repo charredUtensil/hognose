@@ -15,10 +15,21 @@ jobs:
           python-version: 3.11
       - run: pip install -r requirements.txt pyinstaller
       - run: pyinstaller --onefile hognose.py
-      - name: Extract Version
+      - name: Extract version
         id: get_version
         run: echo "version=$(./dist/hognose* -v)" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v4
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: hognose-${{ steps.get_version.outputs.version }}-${{ matrix.os }} 
+          name: hognose-${{ steps.get_version.outputs.version }}-${{ runner.os }} 
           path: dist/hognose*
+      # Generate a pack of levels and ship with each release
+      - name: Generate level pack
+        if: matrix.os == 'ubuntu-latest'
+        run: mkdir dist/levelpak; ./dist/hognose* -c 256 -o dist/levelpak -s 19991100
+      - name: Upload level pack
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hognose-${{ steps.get_version.outputs.version }}-levelpak
+          path: dist/levelpak

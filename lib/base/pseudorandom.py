@@ -1,6 +1,6 @@
 """Base module for prng."""
 
-from typing import Dict, Iterable, Optional, Tuple, TypeVar
+from typing import Dict, Iterable, Optional, Tuple, TypeVar, Union
 
 import hashlib
 import math
@@ -162,6 +162,8 @@ class DiceBox():
   """
 
   def __init__(self, seed: int):
+    if seed not in range(0, MAX_SEED):
+      raise ValueError(f'Seed {seed:x} is not between 0 and {MAX_SEED:x}')
     main_rng = np.random.default_rng(seed)
     self._seeds = {
         kind: main_rng.integers(0, MAX_SEED)
@@ -175,41 +177,3 @@ class DiceBox():
       seed = (self._seeds[index[0]] + index[1] * 1999) % MAX_SEED
       self._rng[index] = Rng(np.random.default_rng(seed))
     return self._rng[index]
-
-
-def coerce_seed(seed: Optional[str]) -> int:
-  """
-  Coerces the given string into a number that is an acceptable seed.
-
-  This tries very hard to accept anything vaguely matching output from Hognose
-  to produce the same seed, but will just accept arbitrary phrases, much like
-  Minecraft does (did?).
-  """
-  # No seed: Use seconds since epoch
-  if seed is None:
-    return int(time.time()) % MAX_SEED
-
-  # Seed that looks like a hex number: use that as seed
-  m = re.match(
-    r'\A\s*(0x)?'
-    r'(?P<seed>[0-9a-fA-F]{1,8})'
-    r'\s*\Z', seed)
-  if m:
-    r = int(m.group('seed'), 16)
-    if r < MAX_SEED:
-      return r
-
-  # Seed that looks like a level name: extract seed
-  m = re.match(
-      r'\A\s*((HN-?)?[KEA])?'
-      r'(?P<a>[0-9a-fA-F]{3})-?'
-      r'(?P<b>[0-9a-fA-F]{5})\s*\Z', seed)
-  if m:
-    r = int(f'{m.group("a")}{m.group("b")}', 16)
-    if r < MAX_SEED:
-      return r
-
-  # Anything else: Take bits from the MD5 hash of the given phrase
-  md5 = hashlib.md5()
-  md5.update(seed.encode('utf-8'))
-  return int(md5.hexdigest()[:8], 16) % MAX_SEED

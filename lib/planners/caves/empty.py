@@ -8,7 +8,7 @@ from lib.plastic import Creature, Tile
 class EmptyCavePlanner(BaseCavePlanner):
   @property
   def inspect_color(self):
-    return (0xff, 0xff, 0xff)
+    return Tile.DIRT.inspect_color
     
 def bids(stem, conquest):
   if stem.fluid_type is None:

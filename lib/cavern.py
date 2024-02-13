@@ -16,12 +16,17 @@ from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
 from lib.plastic import Diorama, serialize, Tile
 from lib.utils.delaunay import slorp
 
+V_DONE = 1
+V_MAJOR = 2
+V_MINOR = 3
+
 class Cavern(object):
   def __init__(self, context):
     # Context object, which contains value tweaks and RNG
     self.context = context
 
     # Actual content data, which steps will fill in
+    self.stage:       str = 'init'
     self.bubbles:     List[Bubble] = []
     self.baseplates:  List[Baseplate] = []
     self.paths:       List[Path] = []
@@ -117,37 +122,33 @@ class Cavern(object):
       ('serialize',    self._serialize),
     )
     try:
-      self.context.logger.log_stage(
-          'init', 0, len(stages), None)
+      self._log_state(V_MINOR)
       for i, (stage, fn) in enumerate(stages):
+        self.stage = stage
         r = fn()
-        if r:
-          # THIS LINE IS IMPORTANT!
-          # Need to iterate through r even if there is no logger
-          for details in r:
-            self.context.logger.log_stage(
-                stage, i, len(stages), details)
-        else:
-          self.context.logger.log_stage(
-              stage, i, len(stages), None)
-      self.context.logger.log_stage(
-          'done', len(stages), len(stages), None)
+        self.context.logger.log_progress(i / (len(stages) - 1))
+      self.stage = 'done'
+      self._log_state(V_DONE)
     except Exception as e:
-      self.context.logger.log_exception(e)
+      self.context.logger.log_progress(1)
+      self.context.logger.log_exception(self, e)
       raise
 
   def is_done(self) -> bool:
     return self._serialized is not None
+
+  def _log_state(self, verbosity, details=None):
+    self.context.logger.log_state(self, verbosity, details)
 
   def _partition(self):
     """Randomly place randomly sized rectangular bubbles near the center."""
     partition = Partition(self.context)
     self.bubbles = partition.bubbles
     self.baseplates = partition.baseplates
-    yield
+    self._log_state(V_MINOR)
     while partition.bubbles:
       partition.step()
-      yield
+      self._log_state(V_MINOR)
  
   def _discriminate(self):
     """Choose the largest lots to become special."""
@@ -156,6 +157,7 @@ class Cavern(object):
         key=lambda bp: bp.area,
         reverse=True)[:self.context.special_baseplate_count]:
       baseplate.kind = Baseplate.SPECIAL
+    self._log_state(V_MINOR)
 
   def _triangulate(self):
     """Generate halls between the special lots."""
@@ -164,56 +166,71 @@ class Cavern(object):
       Path(next(c), self.context, (b1, b2))
       for (b1, b2) in slorp(
           tuple(s for s in self.baseplates if s.kind == Baseplate.SPECIAL))]
+    self._log_state(V_MINOR)
   
   def _span(self):
     """Find the minimum spanning tree between baseplates."""
     Path.minimum_spanning_tree(self.paths)
+    self._log_state(V_MAJOR)
 
   def _bore(self):
     """Add unused baseplates to paths they intersect."""
     Path.bore(self.paths, self.baseplates)
+    self._log_state(V_MINOR)
 
   def _weave(self):
     """Randomly choose some non-spanning graph edges to keep."""
-    yield from Path.weave(self.context, self.paths)
+    for _ in Path.weave(self.context, self.paths):
+      self._log_state(V_MINOR)
 
   def _cull(self):
     for bp in self.baseplates:
       if bp.kind == Baseplate.AMBIGUOUS:
         bp.kind = Baseplate.EXCLUDED
+    self._log_state(V_MAJOR)
 
   def _negotiate(self):
     """Give baseplates to planners."""
     self.conquest = Conquest(
         self.context,
         StemPlanner.from_outlines(self.context, self.paths, self.baseplates))
+    self._log_state(V_MINOR)
 
   def _flood(self):
     """Put water and lava in some planners."""
     self.conquest.flood()
+    self._log_state(V_MAJOR)
   
   def _conquest(self):
     """Move outward from spawn and decide how to specialize planners."""
-    yield from self.conquest.conquest()
+    last = None
+    for planner in self.conquest.conquest():
+      self._log_state(V_MINOR, last)
+      last = planner
+    self._log_state(V_MAJOR, last)
 
   def _rough(self):
     """Do a rough draft of tile placement that may be overwritten."""
-    for planner in self.conquest.somatic_planners:
+    for i, planner in enumerate(self.conquest.somatic_planners):
       planner.rough(self.diorama.tiles)
-      yield planner
+      self._log_state(V_MINOR, planner)
+    self._log_state(V_MAJOR)
 
   def _patch(self):
     """Fix walls that would immediately collapse on load."""
     patch(self.diorama.tiles)
+    self._log_state(V_MAJOR)
 
   def _fine(self):
     """Put anything else in the level the planners want to have."""
     for planner in self.conquest.somatic_planners:
       planner.fine(self.diorama)
+    self._log_state(V_MAJOR)
 
   def _discover(self):
     """Make discovered caverns visible at start."""
     self.diorama.discover()
+    self._log_state(V_MINOR)
 
   def _adjure(self):
     """Figure out objectives for the level."""
@@ -221,6 +238,7 @@ class Cavern(object):
     for planner in self.conquest.somatic_planners:
       planner.adjure(self.adjurator)
     self.adjurator.write(self.diorama)
+    self._log_state(V_MINOR)
 
   def _enscribe(self):
     """Generate copy for briefings, etc..."""
@@ -229,12 +247,14 @@ class Cavern(object):
     self.diorama.briefing_success = self._lore.success
     self.diorama.briefing_failure = self._lore.failure
     self.diorama.level_name       = self._lore.level_name
+    self._log_state(V_MINOR)
 
   def _script(self):
     """Write scripts."""
     self.adjurator.script(self.diorama, self._lore)
     for planner in self.conquest.somatic_planners:
       planner.script(self.diorama, self._lore)
+    self._log_state(V_MINOR)
 
   def _fence(self):
     """Compute the final bounds of the level."""
@@ -251,7 +271,9 @@ class Cavern(object):
       top -= (width - height) // 2
       height = width
     self.diorama.bounds = (left, top, width, height)
+    self._log_state(V_MINOR)
 
   def _serialize(self):
     """Dump everything to a string."""
     self._serialized = self.diorama.serialize()
+    self._log_state(V_MINOR)

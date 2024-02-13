@@ -3,7 +3,7 @@ from typing import NamedTuple, Optional
 import enum
 
 from lib.base.logger import Logger
-from lib.base.pseudorandom import DiceBox, coerce_seed
+from lib.base.pseudorandom import DiceBox
 
 
 class Biome(enum.Enum):
@@ -28,11 +28,11 @@ class Context():
 
   def __init__(
       self,
-      seed: str,
+      seed,
       logger: Optional[Logger]
   ):
-    self.logger = logger or Logger()
-    self.seed = coerce_seed(seed)
+    self.logger: Logger = logger or Logger()
+    self.seed: int = seed
     self._rng = DiceBox(self.seed)
     rng = self._rng['init', -1]
 

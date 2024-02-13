@@ -25,7 +25,7 @@ class TestSerialize(SerializedCavernTest):
   # pylint: disable=missing-function-docstring,invalid-name
 
   def test_serializesDiorama_mvp(self):
-    d = Diorama(Context('0', None))
+    d = Diorama(Context(0, None))
 
     fill(d.crystals, 0, -3, 3, 3, 3)
     fill(d.tiles, 0, -2, 3, 1, Tile.HARD_ROCK)
@@ -48,7 +48,7 @@ class TestSerialize(SerializedCavernTest):
     self.assertDioramaMatches(d, 'serialize/mvp')
 
   def test_serializesDiorama_buildingZoo(self):
-    d = Diorama(Context('0', None))
+    d = Diorama(Context(0, None))
     d.open_cave_flags.add((0, 0))
     size = 12
     fill(d.tiles, 0, 0, size, size, Tile.FLOOR)
@@ -98,7 +98,7 @@ class TestSerialize(SerializedCavernTest):
     self.assertDioramaMatches(d, 'serialize/building_zoo')
 
   def test_serializesDiorama_entityZoo(self):
-    d = Diorama(Context('0', None))
+    d = Diorama(Context(0, None))
     d.open_cave_flags.add((0, 0))
     size = 12
     fill(d.tiles, 0, 0, size, size, Tile.FLOOR)
