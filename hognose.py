@@ -10,7 +10,7 @@ import threading
 import time
 
 from lib import Cavern
-from lib.base import Context, MultiCavernLogger, MAX_SEED
+from lib.base import Context, Logger, MultiCavernLogger, MAX_SEED
 from lib.version import VERSION_INFO, VERSION
 
 __version_info__ = VERSION_INFO
@@ -112,12 +112,13 @@ def main():
   if args.draw:
     from inspector import Inspector # pylint: disable=import-outside-toplevel
     inx = Inspector(len(args.draw))
+  logger = (inx or Logger())
 
   def run():
     for i, seed in enumerate(seeds):
-      context = Context(
+      context = Context.generate(
           seed=seed,
-          logger=MultiCavernLogger(inx, i, len(seeds)))
+          logger=MultiCavernLogger(logger, i, len(seeds)))
       cavern = Cavern(context)
       start_time = time.time_ns()
       try:
