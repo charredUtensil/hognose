@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, Tuple, TypeVar
+from typing import NamedTuple, Tuple, TypeVar
 
 import dataclasses
 import enum
@@ -26,7 +26,7 @@ Curve = NamedTuple(
 
 
 @dataclasses.dataclass(frozen=True)
-class Context():
+class Context(): # pylint: disable=too-many-instance-attributes
   """A collection of constants used in level generation."""
   logger: Logger
   seed: int
@@ -119,12 +119,12 @@ class Context():
 
   @classmethod
   def coerce_overrides(cls, overrides):
-    types = {f.name: f.type for f in dataclasses.fields(cls)}
+    #types = {f.name: f.type for f in dataclasses.fields(cls)}
 
     def h():
       for k, v in overrides.items():
         yield k, v
-    r = {k: v for k, v in h()}
+    return {h()}
 
   @classmethod
   def generate(cls, logger: Logger, seed: int, **overrides):

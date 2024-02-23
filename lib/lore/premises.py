@@ -1,6 +1,6 @@
-from typing import Iterable
-
-from .phrases import PhraseGraph
+from lib.lore.phrases import PhraseGraph
+# Pylint doesn't like the PhraseGraph api's use of >>
+# pylint: disable=expression-not-assigned,pointless-statement,too-many-locals
 
 
 def _make_pg():
@@ -224,7 +224,8 @@ def _make_pg():
   ) & 'spawn_has_erosion'
 
   has_monsters_texts = (
-      'the tunnels here are full of large creatures that threaten our operations',
+      'the tunnels here are full of large creatures that threaten our '
+      'operations',
       'we are picking up signs of large creatures in the area',
       'this cavern is inhabited by nests of %(monster_type)s monsters',
       'we have reason to believe there are dozens of %(monster_type)s '

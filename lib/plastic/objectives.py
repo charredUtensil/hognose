@@ -1,8 +1,4 @@
-from typing import Iterable
-
 import abc
-
-from .miners import Miner
 
 
 class Objective(abc.ABC):

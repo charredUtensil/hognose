@@ -1,11 +1,10 @@
-from collections.abc import Callable
 from typing import Tuple
 
 import math
 import enum
 
-from .entities import Entity
-from .position import Position
+from lib.plastic.entities import Entity
+from lib.plastic.position import Position
 from lib.base import Biome
 
 

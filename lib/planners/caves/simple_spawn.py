@@ -1,19 +1,17 @@
-import collections
 import copy
 import itertools
 import math
 
 from lib.planners.caves.base import BaseCavePlanner
-from lib.planners.caves.monster_spawners import MonsterSpawner
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Creature, Facing, Position, Tile
+from lib.plastic import Building, Facing, Tile
 from lib.utils.geometry import adjacent
 
 
 class SimpleSpawnCavePlanner(BaseCavePlanner):
 
   def __init__(self, stem, oyster, min_crystals):
-    super().__init__(stem, oyster),
+    super().__init__(stem, oyster)
     self.min_crystals = min_crystals
 
   @property
@@ -68,7 +66,7 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
         Building.Type.TOOL_STORE, a, facing, teleport_at_start=True)
     diorama.buildings.append(tool_store)
     diorama.open_cave_flags.add(a)
-    diorama.camera_position = camera_position = copy.copy(tool_store.position)
+    diorama.camera_position = copy.copy(tool_store.position)
     diorama.camera_position.rp = math.pi / 4
     diorama.camera_position.ry += math.pi * 0.75
 

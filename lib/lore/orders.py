@@ -1,6 +1,6 @@
-from typing import Iterable
-
-from .phrases import PhraseGraph
+from lib.lore.phrases import PhraseGraph
+# Pylint doesn't like the PhraseGraph api's use of >>
+# pylint: disable=expression-not-assigned,pointless-statement,too-many-locals
 
 
 def _make_pg():

@@ -1,13 +1,12 @@
-from typing import Iterable, Literal, Tuple
+from typing import Iterable, Tuple
 
 import copy
 import enum
 import itertools
 import math
 
-from .entities import Entity
-from .position import Facing, Position
-
+from lib.plastic.entities import Entity
+from lib.plastic.position import Facing, Position
 from lib.utils import geometry
 
 # There are five unique "footprints" for buildings available.
@@ -113,7 +112,7 @@ class Building(Entity):
         type, position, foundation_tiles, level, essential, teleport_at_start)
 
   @classmethod
-  def fit_in_bounds(
+  def fit_in_bounds( # pylint: disable=too-many-locals
       cls,
       type: 'Building.type',
       bounds: Tuple[int, int, int, int],

@@ -1,23 +1,23 @@
-from typing import Iterable, Optional, Sequence, Tuple, TYPE_CHECKING
+from typing import Sequence, Tuple, TYPE_CHECKING
+
+import functools
+import math
+
+from lib.lore.conclusions import SUCCESS, FAILURE
+from lib.lore.events import (
+    FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS, FOUND_ALL_LOST_MINERS)
+from lib.lore.orders import ORDERS
+from lib.lore.premises import PREMISES
+
+from lib.base import Biome
+from lib.planners.caves import EstablishedHQCavePlanner, TreasureCavePlanner
+from lib.plastic import Tile
 
 if TYPE_CHECKING:
   from lib import Cavern
 
-import collections
-import functools
-import math
 
-from .conclusions import SUCCESS, FAILURE
-from .events import FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS, FOUND_ALL_LOST_MINERS
-from .orders import ORDERS
-from .premises import PREMISES
-
-from lib.base import Biome
-from lib.planners.caves import EstablishedHQCavePlanner, LostMinersCavePlanner, TreasureCavePlanner
-from lib.plastic import Tile
-
-
-class Lore(object):
+class Lore():
   def __init__(self, cavern: 'Cavern'):
     self.cavern = cavern
     adjurator = self.cavern.adjurator
@@ -25,7 +25,7 @@ class Lore(object):
     lost_miners_count = adjurator.lost_miners
     resources, resource_names = _resources(cavern)
 
-    def states():
+    def states(): # pylint: disable=too-many-branches
       flooded_kind = _flooded_kind(self.cavern)
       if flooded_kind == Tile.WATER:
         yield 'flooded_water'
@@ -191,10 +191,9 @@ def _flooded_kind(cavern: 'Cavern'):
     total += 1
   if lava / total > 0.4:
     return Tile.LAVA
-  elif water / total > 0.4:
+  if water / total > 0.4:
     return Tile.WATER
-  else:
-    return None
+  return None
 
 
 def _resources(cavern: 'Cavern'):

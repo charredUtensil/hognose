@@ -1,8 +1,5 @@
 from typing import Optional, TYPE_CHECKING
-if TYPE_CHECKING:
-  from lib.lore import Lore
 
-import abc
 import collections
 import functools
 import itertools
@@ -13,6 +10,8 @@ from lib.planners.base import SomaticPlanner
 from lib.plastic import Creature, Diorama, ScriptFragment, Tile
 from lib.utils.geometry import plot_line
 
+if TYPE_CHECKING:
+  from lib.lore import Lore
 
 class BaseCavePlanner(SomaticPlanner):
 
@@ -145,7 +144,8 @@ class BaseCavePlanner(SomaticPlanner):
       pearl_info.pos
       for pearl_info
       in self.pearl.inner
-      if tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
+      if tiles.get(pearl_info.pos) in (
+          Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       for _ in range(count):
         x, y = rng.uniform_choice(t)
@@ -185,6 +185,7 @@ class BaseCavePlanner(SomaticPlanner):
             f'Failed to place {resource_name} in #{self.id}')
 
   def place_recharge_seam(self, diorama):
+    # pylint: disable=too-many-nested-blocks
     def placements():
       for pearl_info in self.pearl.outer:
         x, y = pearl_info.pos

@@ -1,15 +1,12 @@
-from typing import Dict, Iterable, Optional, Tuple
-
-import itertools
-import math
+from typing import Iterable, Optional, Tuple
 
 from lib.plastic import BasicTile, Tile
 
 
-class Layer(object):
+class Layer():
   """Rules for replacing tiles in a single layer of a Pearl."""
 
-  def __init__(
+  def __init__( # pylint: disable=too-many-arguments
       self,
       floor: Optional[BasicTile] = None,
       dirt: Optional[BasicTile] = None,
@@ -28,29 +25,27 @@ class Layer(object):
         Tile.LAVA: lava,
     }
 
-  @classmethod
-  def _always(cls, tile: BasicTile):
-    return cls(
-        floor=tile,
-        dirt=tile,
-        loose_rock=tile,
-        hard_rock=tile,
-        solid_rock=tile,
-        water=tile,
-        lava=tile)
-
 
 # VOID: No effect whatsoever
 Layer.VOID = Layer()
 
 # ALWAYS_*: Ignores existing tile
-Layer.ALWAYS_FLOOR = Layer._always(Tile.FLOOR)
-Layer.ALWAYS_DIRT = Layer._always(Tile.DIRT)
-Layer.ALWAYS_LOOSE_ROCK = Layer._always(Tile.LOOSE_ROCK)
-Layer.ALWAYS_HARD_ROCK = Layer._always(Tile.HARD_ROCK)
-Layer.ALWAYS_SOLID_ROCK = Layer._always(Tile.SOLID_ROCK)
-Layer.ALWAYS_WATER = Layer._always(Tile.WATER)
-Layer.ALWAYS_LAVA = Layer._always(Tile.LAVA)
+def _always(tile: BasicTile):
+  return Layer(
+      floor=tile,
+      dirt=tile,
+      loose_rock=tile,
+      hard_rock=tile,
+      solid_rock=tile,
+      water=tile,
+      lava=tile)
+Layer.ALWAYS_FLOOR = _always(Tile.FLOOR)
+Layer.ALWAYS_DIRT = _always(Tile.DIRT)
+Layer.ALWAYS_LOOSE_ROCK = _always(Tile.LOOSE_ROCK)
+Layer.ALWAYS_HARD_ROCK = _always(Tile.HARD_ROCK)
+Layer.ALWAYS_SOLID_ROCK = _always(Tile.SOLID_ROCK)
+Layer.ALWAYS_WATER = _always(Tile.WATER)
+Layer.ALWAYS_LAVA = _always(Tile.LAVA)
 
 # AT_MOST_*: Replaces only if the existing tile is harder rock
 Layer.AT_MOST_DIRT = Layer(
@@ -137,7 +132,7 @@ Layer.INVERT_TO_LOOSE_ROCK = Layer(
     solid_rock=Tile.LOOSE_ROCK)
 
 
-class Oyster(object):
+class Oyster():
   """A Pearl Factory."""
 
   def __init__(self, name: str):
@@ -164,7 +159,8 @@ class Oyster(object):
     shrink_factor = 0
     if radius < self._width and self._shrink:
       # For the shrink case,
-      # r = (w0 * (1 - s0 * sf)) + (w1 * (1 - s1 * sf)) + ... + (wn * (1 - sn * sf))
+      # r = (w0 * (1 - s0 * sf)) + (w1 * (1 - s1 * sf)) + ...
+      #     + (wn * (1 - sn * sf))
 
       # Solve for sf
       # r = w0 - w0 * s0 * sf + w1 - w1 * s1 * sf + ... + wn - wn * sn * sf
@@ -194,14 +190,14 @@ class Oyster(object):
     return Pearl(radius, h())
 
 
-class PearlTile(object):
+class PearlTile():
   def __init__(self, pos, layer, sequence):
     self.pos: Tuple[int, int] = pos
     self.layer: int = layer
     self.sequence: int = sequence
 
 
-class Pearl(object):
+class Pearl():
   """An object describing the tiles used in a Planner."""
 
   def __init__(self, radius: int, layers: Iterable[Layer]):

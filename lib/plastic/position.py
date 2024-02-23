@@ -13,19 +13,18 @@ class Facing(enum.Enum):
   WEST = math.pi
 
 
-FACING_TYPE = Union[float, Facing, Tuple[float, float]]
+CoercesToFacing = Union[float, Facing, Tuple[float, float]]
 
 
-def _coerce_facing(pos: Tuple[float, float], facing: FACING_TYPE):
+def _coerce_facing(pos: Tuple[float, float], facing: CoercesToFacing):
   if isinstance(facing, Facing):
     return facing.value
-  elif isinstance(facing, float):
+  if isinstance(facing, float):
     return facing
-  else:
-    return math.atan2(facing[1] - pos[1], facing[0] - pos[0])
+  return math.atan2(facing[1] - pos[1], facing[0] - pos[0])
 
 
-class Position(object):
+class Position(): # pylint: disable=too-many-instance-attributes
   ENTITY_SCALE = 300
 
   def __init__(self, translation, rotation, scale=(1, 1, 1)):
@@ -40,7 +39,7 @@ class Position(object):
         (self.sx, self.sy, self.sz))
 
   @classmethod
-  def at_center_of_tile(cls, pos: Tuple[int, int], facing: FACING_TYPE = 0):
+  def at_center_of_tile(cls, pos: Tuple[int, int], facing: CoercesToFacing = 0):
     x, y = pos
     x += 0.5
     y += 0.5
@@ -51,7 +50,7 @@ class Position(object):
       cls,
       rng: Rng,
       pos: Tuple[int, int],
-      facing: Optional[FACING_TYPE] = None):
+      facing: Optional[CoercesToFacing] = None):
     x, y = pos
     px = rng.uniform(x, x + 1)
     py = rng.uniform(y, y + 1)

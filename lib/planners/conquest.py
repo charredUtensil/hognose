@@ -1,8 +1,7 @@
 from collections.abc import Callable
 import typing
-from typing import Dict, Iterable, List, Optional, Set, Tuple, TYPE_CHECKING
+from typing import Dict, Iterable, List, Optional, Set, Tuple
 
-import collections
 import math
 
 from lib.base import Curve, ProceduralThing
@@ -134,6 +133,7 @@ class Conquest(ProceduralThing):
     # Differentiate all items in queue
     for i, stem in enumerate(queue):
       def curved(curve: Curve) -> float:
+        # pylint: disable = cell-var-from-loop
         return (curve.base
                 + curve.hops * stem.hops_to_spawn / queue[-1].hops_to_spawn
                 + curve.completion * i / self.total)
@@ -154,7 +154,7 @@ class Conquest(ProceduralThing):
                   ) -> Tuple[StemPlanner, Callable[[], SomaticPlanner]]:
     def bids():
       for planner in planners:
-        if planner._kind == StemPlanner.CAVE:
+        if planner._kind == StemPlanner.CAVE: # pylint: disable=protected-access
           for bidder in SPAWN_BIDDERS:
             for weight, fn in bidder(planner, self):
               yield weight, (planner, fn)
@@ -162,7 +162,7 @@ class Conquest(ProceduralThing):
 
   def _differentiate(self, planner: StemPlanner) -> SomaticPlanner:
     bidders = None
-    if planner._kind == StemPlanner.CAVE:
+    if planner._kind == StemPlanner.CAVE: # pylint: disable=protected-access
       bidders = CAVE_BIDDERS
     else:
       bidders = HALL_BIDDERS

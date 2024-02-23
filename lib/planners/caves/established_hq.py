@@ -3,10 +3,10 @@ from typing import Iterable, Optional, Tuple
 import math
 
 from lib.planners.caves.base import BaseCavePlanner
-from lib.base import Biome
 from lib.holistics import Adjurator
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Diorama, Facing, Position, Script, ScriptFragment, Tile
+from lib.plastic import (
+    Building, Facing, Position, Script, ScriptFragment, Tile)
 from lib.utils.geometry import plot_line
 
 
@@ -20,6 +20,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     self._discover_tile: Optional[Tuple[int, int]] = None
 
   def _get_expected_crystals(self):
+    # pylint: disable=attribute-defined-outside-init
     self.expected_wall_crystals = super()._get_expected_crystals()
     self.building_templates = tuple(self._get_building_templates())
     return (self.expected_wall_crystals + sum(
@@ -92,7 +93,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
         break
       type, level, is_rubble = template_queue[0]
       building = self._make_building(
-          diorama, rng, type, pt, level)
+          diorama, type, pt, level)
       if building:
         template_queue.pop(0)
         buildings.append(building)
@@ -173,7 +174,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
         yield type, level, True
 
   def _make_building(
-      self, diorama, rng, type, pt, level) -> Optional[Building]:
+      self, diorama, type, pt, level) -> Optional[Building]:
     for facing, ox, oy in (
         (Facing.NORTH, 0, -1),
         (Facing.EAST, 1, 0),
@@ -195,7 +196,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
 
   def script(self, diorama, lore):
     if self.is_spawn:
-      return
+      return None
     prefix = f'foundHq_p{self.id}_'
     x, y = self._discover_tile
     bp = max(self.baseplates, key=lambda b: b.pearl_radius)
@@ -227,6 +228,7 @@ def bids(stem, conquest):
 
 
 def spawn_bids(stem, conquest):
+  del conquest
   if stem.fluid_type is None and stem.pearl_radius > 5:
     yield (0.25, lambda: EstablishedHQCavePlanner(
         stem, Oysters.DEFAULT, True, True, is_ruin=False))

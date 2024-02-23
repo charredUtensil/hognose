@@ -1,19 +1,14 @@
 from collections.abc import Callable
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Set
+from typing import Iterable, List, Optional, Tuple
 
-import collections
 import itertools
-import math
-import random
-import time
-import typing
 
-from lib.base import NotHaltingError
+from lib.base import GenerationError
 from lib.holistics import Adjurator, patch
 from lib.lore import Lore
-from lib.outlines import Path, Space, Bubble, Baseplate, Partition
-from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
-from lib.plastic import Diorama, serialize, ScriptFragment, Tile
+from lib.outlines import Path, Bubble, Baseplate, Partition
+from lib.planners import Conquest, Planner, StemPlanner
+from lib.plastic import Diorama, ScriptFragment
 from lib.utils.delaunay import slorp
 
 V_DONE = 1
@@ -22,7 +17,7 @@ V_MINOR = 3
 V_VERBOSE = 4
 
 
-class Cavern(object):
+class Cavern(): # pylint: disable=too-many-instance-attributes
   def __init__(self, context):
     # Context object, which contains value tweaks and RNG
     self.context = context
@@ -127,13 +122,14 @@ class Cavern(object):
       self._log_state(V_MINOR)
       for i, (stage, fn) in enumerate(stages):
         self.stage = stage
-        r = fn()
+        fn()
         self.context.logger.log_progress(i / (len(stages) - 1))
       self.stage = 'done'
       self._log_state(V_DONE)
     except Exception as e:
       self.context.logger.log_progress(1)
       self.context.logger.log_exception(self, e)
+      raise GenerationError() from e
 
   def is_done(self) -> bool:
     return self._serialized is not None
@@ -212,7 +208,7 @@ class Cavern(object):
 
   def _rough(self):
     """Do a rough draft of tile placement that may be overwritten."""
-    for i, planner in enumerate(self.conquest.somatic_planners):
+    for planner in self.conquest.somatic_planners:
       planner.rough(self.diorama.tiles)
       self._log_state(V_MINOR, planner)
     self._log_state(V_MAJOR)

@@ -1,9 +1,7 @@
-import math
-
 from .position import Position
 
 
-class Entity(object):
+class Entity():
   def __init__(self, position: Position):
     self.position = position
 

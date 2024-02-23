@@ -1,12 +1,8 @@
-from typing import Dict, List, Optional, Tuple, Type, Set
-
-from collections.abc import Callable
+from typing import Dict, List, Optional, Tuple, Set
 
 import collections
 import itertools
 import math
-import random
-import time
 
 from .building import Building
 from .creatures import Creature
@@ -19,7 +15,7 @@ from .scripts import Script
 from .tile import Tile
 
 
-class Diorama(object):
+class Diorama(): # pylint: disable=too-many-instance-attributes
   def __init__(self, context):
     self.context = context
 

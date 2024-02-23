@@ -1,7 +1,6 @@
 import itertools
 
 from lib.planners.base import SomaticPlanner
-from lib.plastic import Tile
 from lib.utils.geometry import plot_line
 
 

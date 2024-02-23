@@ -1,4 +1,6 @@
-from .phrases import PhraseGraph
+from lib.lore.phrases import PhraseGraph
+# Pylint doesn't like the PhraseGraph api's use of >>
+# pylint: disable=expression-not-assigned,pointless-statement,too-many-locals
 
 
 def _objectives(pg):
@@ -16,7 +18,7 @@ def _objectives(pg):
       'get the %(resources)s we needed'
   ) & 'collect_resources'
 
-  objs = (find_lost_miners | get_resources)
+  objs = find_lost_miners | get_resources
   find_lost_miners >> 'and' >> get_resources
   return objs
 

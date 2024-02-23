@@ -1,11 +1,8 @@
 """Base module for prng."""
 
-from typing import Dict, Iterable, Optional, Tuple, TypeVar, Union
+from typing import Dict, Iterable, Tuple, TypeVar
 
-import hashlib
 import math
-import re
-import time
 
 import numpy as np
 
@@ -122,7 +119,9 @@ class Rng():
     return c[self._rng.integers(0, len(c))]
 
   def beta_choice(self, choices: Iterable[T], a: float = 5, b: float = 5) -> T:
-    """Returns a random item from the given choices using a beta distribution."""
+    """
+    Returns a random item from the given choices using a beta distribution.
+    """
     c = tuple(choices)
     return c[math.floor(self._rng.beta(a, b) * len(c))]
 

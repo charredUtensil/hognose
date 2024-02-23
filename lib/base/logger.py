@@ -10,9 +10,6 @@ if TYPE_CHECKING:
 class Logger():
   """A basic logger."""
 
-  def __init__(self):
-    self._walks = []
-
   def log_progress(self, progress: float):
     pass
 
@@ -24,6 +21,7 @@ class Logger():
 
   def log_exception(self, cavern: 'Cavern', e: Exception):
     print(
+        f'Error in cavern with seed {cavern.seed:08x}: ' +
         ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
         file=sys.stderr)
 

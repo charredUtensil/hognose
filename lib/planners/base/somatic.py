@@ -1,20 +1,16 @@
 import typing
-from typing import Dict, Iterable, NamedTuple, Optional, Tuple, TYPE_CHECKING
-if TYPE_CHECKING:
-  from lib.lore import Lore
+from typing import Dict, Iterable, Optional, Tuple, TYPE_CHECKING
 
 import abc
-import collections
 import functools
-import itertools
-import math
 
-from .pearl import Oyster, Pearl
-from .planner import Planner
-from lib.base import Rng
+from lib.planners.base.pearl import Oyster, Pearl
+from lib.planners.base.planner import Planner
 from lib.holistics import Adjurator
 from lib.plastic import Diorama, Erosion, Landslide, ScriptFragment, Tile
 
+if TYPE_CHECKING:
+  from lib.lore import Lore
 
 class SomaticPlanner(Planner):
 
@@ -66,6 +62,7 @@ class SomaticPlanner(Planner):
     self._pearl = self.oyster.create(self.pearl_radius)
     self.build_pearl()
     for pt in self._pearl.inner:
+      # pylint:disable=protected-access
       if pt.layer < len(self._pearl._layers):
         replace = tiles.get(pt.pos, Tile.SOLID_ROCK)
         place = self._pearl._layers[pt.layer]._data[replace]
@@ -126,6 +123,7 @@ class SomaticPlanner(Planner):
     pass
 
   def build_pearl(self):
+    # pylint: disable=too-many-locals
     rng = self.rng['rough.pearl']
     nucleus = self.make_nucleus()
     last_layer = []
@@ -167,6 +165,7 @@ class SomaticPlanner(Planner):
         )
 
         def is_enclosed():
+          # pylint: disable=cell-var-from-loop
           for nx, ny, _, _ in next_points:
             if (nx, ny) not in self._pearl:
               continue

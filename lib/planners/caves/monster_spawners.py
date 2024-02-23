@@ -8,7 +8,7 @@ from lib.planners.base import SomaticPlanner
 from lib.plastic import Creature, Diorama, ScriptFragment, Tile
 
 
-class ScriptInfo(object):
+class ScriptInfo():
 
   def __init__(
       self,
@@ -38,9 +38,9 @@ class RetriggerMode(enum.Enum):
   AUTOMATIC = (STATE_COOLDOWN,)
 
 
-class MonsterSpawner(object):
+class MonsterSpawner(): # pylint: disable=too-many-instance-attributes
 
-  def __init__(
+  def __init__( # pylint: disable=too-many-arguments
       self,
       planner: SomaticPlanner,
       creature_type: Creature.Type,
@@ -67,9 +67,9 @@ class MonsterSpawner(object):
     self.script_info: Optional[ScriptInfo] = None
 
   def __str__(self):
-    return (
-        f'{self.wave_size:d}x{str(self.creature_type).split(".")[-1]}'
-        f'/{(self.min_cooldown + self.max_cooldown)/2:.0f}s')
+    creature_type = str(self.creature_type).rsplit('.', maxsplit=1)[-1]
+    avg_cooldown = (self.min_cooldown + self.max_cooldown) / 2
+    return f'{self.wave_size:d}x{creature_type}/{avg_cooldown:.0f}s'
 
   def script(self, diorama: Diorama) -> ScriptFragment:
     self.script_info = ScriptInfo(
@@ -78,7 +78,7 @@ class MonsterSpawner(object):
         self._secondary_trigger_tiles(diorama),
         self._emerges(),
     )
-    return ScriptFragment(self._gen_script(diorama))
+    return ScriptFragment(self._gen_script())
 
   def _discovery_tile(self, diorama: Diorama) -> Optional[Tuple[int, int]]:
     for info in self.planner.pearl.inner:
@@ -110,7 +110,7 @@ class MonsterSpawner(object):
       radius = min(bp.width, bp.height) // 2
       yield (math.floor(x), math.floor(y), radius)
 
-  def _gen_script(self, diorama: Diorama) -> Iterable[str]:
+  def _gen_script(self) -> Iterable[str]:
     prefix = f'monsterSpawner_p{self.planner.id}_'
     yield '# Spawn monsters'
 
@@ -164,9 +164,13 @@ class MonsterSpawner(object):
     # Allow retrigger if a monster meets the crystal hoard.
     if self.retrigger_mode == RetriggerMode.HOARD:
       for x, y in self.script_info.secondary_trigger_tiles:
-        yield f'when(enter:y@{y},x@{x},{self.creature_type.value})[{prefix}retrigger]'
+        yield (
+            f'when(enter:y@{y},x@{x},{self.creature_type.value})'
+            f'[{prefix}retrigger]')
       yield f'{prefix}retrigger::;'
-      yield f'(({prefix}state=={STATE_RETRIGGERABLE})){prefix}state={STATE_COOLDOWN};'
+      yield (
+          f'(({prefix}state=={STATE_RETRIGGERABLE}))'
+          f'{prefix}state={STATE_COOLDOWN};')
       yield ''
 
   @classmethod

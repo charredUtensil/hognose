@@ -1,15 +1,13 @@
-from typing import Iterable, List, Literal, Optional, Tuple, TYPE_CHECKING
+from typing import Iterable, List, Literal, Optional, Tuple
 
 import itertools
-import math
 
-from lib.base import Curve
 from lib.outlines import Baseplate, Path
-from lib.planners.base import Planner, SomaticPlanner
+from lib.planners.base.planner import Planner
 from lib.plastic import Tile
 
 
-class StemPlanner(Planner):
+class StemPlanner(Planner): # pylint:disable=too-many-instance-attributes
   HALL = 0
   CAVE = 1
 

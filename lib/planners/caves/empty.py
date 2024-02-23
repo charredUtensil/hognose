@@ -1,9 +1,6 @@
-import math
-
 from lib.planners.caves.base import BaseCavePlanner
-from lib.planners.caves.monster_spawners import MonsterSpawner
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Creature, Tile
+from lib.plastic import Tile
 
 
 class EmptyCavePlanner(BaseCavePlanner):

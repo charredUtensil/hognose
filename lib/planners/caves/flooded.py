@@ -1,11 +1,9 @@
 import itertools
-import math
 
 from lib.planners.caves.base import BaseCavePlanner
-from lib.planners.caves.monster_spawners import MonsterSpawner
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Creature, Tile
+from lib.plastic import Tile
 from lib.utils.geometry import plot_line
 
 
@@ -18,7 +16,7 @@ class FloodedCavePlanner(BaseCavePlanner):
     if self.fluid_type == Tile.WATER and self.context.biome == Biome.LAVA:
       # Don't spawn lava monsters in a water cave
       return None
-    elif self.fluid_type == Tile.LAVA and self.context.biome != Biome.LAVA:
+    if self.fluid_type == Tile.LAVA and self.context.biome != Biome.LAVA:
       # Don't spawn rock or ice monsters in a lava cave
       return None
     return super()._get_monster_spawner()

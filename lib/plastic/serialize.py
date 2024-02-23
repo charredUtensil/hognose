@@ -1,23 +1,19 @@
 from typing import Dict, Iterable, Tuple, TypeVar, TYPE_CHECKING
 
+from lib.plastic.hazards import Hazard
+from lib.plastic.tile import Tile
+from lib.version import VERSION
+
 if TYPE_CHECKING:
   from .diorama import Diorama
-
 T = TypeVar('T')
-
-from .hazards import Hazard
-from .position import Position
-from .tile import Tile
-from lib.version import VERSION
 
 def serialize(diorama: 'Diorama') -> str:
   return '\n'.join(_serialize(diorama))
 
 
-def _serialize(diorama: 'Diorama') -> Iterable[str]:
+def _serialize(diorama: 'Diorama') -> Iterable[str]: # pylint: disable=too-many-statements
   left, top, width, height = diorama.bounds
-  eox = width // 2
-  eoy = height // 2
   offset = (-left, -top)
 
   yield 'comments{'
@@ -132,7 +128,8 @@ def _tile_export_values(
   """Yields the correct export value for all tiles, considering discovery."""
   for coord, tile in diorama.tiles.items():
     v = tile.export_value
-    if not tile.is_wall and coord not in diorama._discovered:
+    # TODO(charredutensil): refactor discovered
+    if not tile.is_wall and coord not in diorama._discovered: # pylint: disable=protected-access
       v += 100
     yield coord, v
 

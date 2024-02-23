@@ -1,11 +1,10 @@
-from typing import Dict, FrozenSet, Iterable, List, Optional, Set, Tuple, Union
+from typing import Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
 import collections
-import functools
-import sys
 
+# pylint: disable=protected-access
 
-class Phrase(object):
+class Phrase():
 
   def __init__(self, id: int, texts):
     self._id: int = id
@@ -41,7 +40,7 @@ class Condition(Phrase):
     return f'{self._id}\n[{self.state}]'
 
 
-class PhraseGraph(object):
+class PhraseGraph():
 
   def __init__(self):
     self._phrases = []
@@ -73,13 +72,11 @@ class PhraseGraph(object):
     return r
 
   def dump_svg(self, filename: str):
-    import pydot
+    import pydot # pylint: disable=import-outside-toplevel
     dot = pydot.Dot(graph_type='digraph', rankdir='LR')
 
     def mknode(p):
-      n = pydot.Node(
-          str(p),
-          **_graph_node_attrs(p))
+      n = pydot.Node(str(p), **_graph_node_attrs(p))
       return n
     nodes = [mknode(p) for p in self._phrases]
     for n in nodes:
@@ -94,7 +91,7 @@ class PhraseGraph(object):
               **_graph_edge_attrs(p, after))
     for e in edges():
       dot.add_edge(e)
-    dot.write_svg(filename)
+    dot.write_svg(filename) # pylint: disable=no-member
 
   def compile(self):
     # Determine which sets of states can be reached at or downstream from each
@@ -158,7 +155,7 @@ class PhraseGraph(object):
     return ''.join(_join_phrase_texts(walk()))
 
 
-class PgBuilder(object):
+class PgBuilder():
 
   def __init__(
       self,
@@ -182,12 +179,12 @@ class PgBuilder(object):
         f'{j(self._heads)}>>{j(self._tails)}'
         f'{")" if self._bypass else ""}')
 
-  def _coerce(self, other: Union[str, Tuple[str, ...], 'PgBuilder']
-              ) -> 'PgBuilder':
+  def _coerce(
+      self, other: Union[str, Tuple[str, ...], 'PgBuilder']) -> 'PgBuilder':
     if isinstance(other, PgBuilder):
       return other
-    ph = (self._pg._phrase(other) if isinstance(other, str)
-          else self._pg._phrase(*other)),
+    ph = ((self._pg._phrase(other) if isinstance(other, str)
+        else self._pg._phrase(*other)),)
     return PgBuilder(self._pg, ph, ph)
 
   def __and__(self, state: str) -> 'PgBuilder':
@@ -226,6 +223,7 @@ class PgBuilder(object):
 
 
 def _graph_node_attrs(p):
+
   if not (p._is_reachable and p._can_reach_end):
     return {
         'color': 'red',

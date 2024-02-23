@@ -1,11 +1,13 @@
 from typing import Iterable, List, NamedTuple, Optional, Tuple, TYPE_CHECKING
-if TYPE_CHECKING:
-  from lib.lore import Lore
 
 import math
 
 from lib.base import Context
-from lib.plastic import Diorama, Objective, ResourceObjective, Script, ScriptFragment, VariableObjective
+from lib.plastic import (
+    Diorama, ResourceObjective, Script, ScriptFragment, VariableObjective)
+
+if TYPE_CHECKING:
+  from lib.lore import Lore
 
 MinersInfo = NamedTuple(
     'MinersInfo', pos=Tuple[int, int], miners_count=int, caves_count=int)
@@ -14,7 +16,7 @@ HqInfo = NamedTuple('HqInfo', pos=Tuple[int, int], description=str)
 PREFIX = 'adjurator_'
 
 
-class Adjurator(object):
+class Adjurator():
 
   VAR_FOUND_HQ = f'{PREFIX}foundHq'
   VAR_FOUND_ALL_LOST_MINERS = f'{PREFIX}foundAllLostMiners'
@@ -107,6 +109,7 @@ class Adjurator(object):
     return 'Adjurator (Mission Objectives)'
 
   def script(self, diorama: Diorama, lore: 'Lore') -> ScriptFragment:
+    del diorama
     def h():
       if self._hq:
         yield '# Objective: Find HQ'
@@ -119,7 +122,7 @@ class Adjurator(object):
         yield f'string {PREFIX}foundAllLostMinersMessage="{msg}"'
         yield f'{Adjurator.ON_FOUND_ALL_LOST_MINERS}::;'
         yield f'msg:{PREFIX}foundAllLostMinersMessage;'
-        yield f'wait:3;'
+        yield 'wait:3;'
         yield f'{Adjurator.VAR_FOUND_ALL_LOST_MINERS}=1;'
         yield ''
       yield ''

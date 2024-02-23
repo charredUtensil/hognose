@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import itertools
 import math
 
@@ -85,10 +83,10 @@ class HoardCavePlanner(TreasureCavePlanner):
   def script(self, diorama, lore):
     # Generate a script that pans to this cave on discovery if collecting all
     # of the crystals would win the level.
-    # TODO: Need to figure out clashes with lost miner objectives
+    # TODO(charredutensil): Need to figure out clashes with lost miners
     ro = diorama.resource_objective
     if not ro:
-      return
+      return None
     x, y = next(self.pearl.nucleus).pos
     gfix = 'foundHoard_g_'
     prefix = f'foundHoard_p{self.id}_'
@@ -110,7 +108,9 @@ class HoardCavePlanner(TreasureCavePlanner):
       # Need to wait here because the crystals don't spawn instantly.
       yield 'wait:1;'
       yield f'{prefix}crystalsAvailable=crystals+Crystal_C;'
-      yield f'(({prefix}crystalsAvailable>={ro.crystals:d}))[{prefix}go][{prefix}noGo];'
+      yield (
+          f'(({prefix}crystalsAvailable>={ro.crystals:d}))'
+          f'[{prefix}go][{prefix}noGo];')
       yield ''
       yield f'{prefix}go::;'
       yield f'msg:{gfix}message;'
@@ -139,7 +139,8 @@ class NougatCavePlanner(TreasureCavePlanner):
       pt.pos
       for pt
       in self.pearl.inner
-      if diorama.tiles.get(pt.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
+      if diorama.tiles.get(pt.pos) in (
+          Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       rng = self.rng['fine.place_crystals']
       count = math.ceil(self.expected_crystals * 0.8)

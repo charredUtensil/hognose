@@ -14,7 +14,8 @@ import threading
 import time
 
 from lib import Cavern
-from lib.base import Context, Logger, MultiCavernLogger, MAX_SEED
+from lib.base import (
+    Context, GenerationError, Logger, MultiCavernLogger, MAX_SEED)
 from lib.version import VERSION_INFO, VERSION
 
 __version_info__ = VERSION_INFO
@@ -145,8 +146,7 @@ def main():
         f'Generated {cavern.diorama.level_name} with seed {hex(context.seed)} '
         f'in {(time.time_ns() - start_time) // 1_000_000}ms'),
         file=sys.stderr)
-    except Exception as e: # pylint: disable=broad-exception-caught
-      logger.log_exception(cavern, e)
+    except GenerationError:
       print(
           f'Failed to generate cave {hex(context.seed)}',
           file=sys.stderr)
