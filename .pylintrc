@@ -614,7 +614,7 @@ allow-global-unused-variables=yes
 
 # List of names allowed to shadow builtins
 # TODO(charredutensil): refactor to a different name throughout.
-allowed-redefined-builtins=id
+allowed-redefined-builtins=id,type
 
 # List of strings which can identify a callback function by name. A callback
 # name must start or end with one of those strings.

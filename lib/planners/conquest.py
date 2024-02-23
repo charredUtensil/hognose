@@ -59,7 +59,7 @@ class Conquest(ProceduralThing):
 
     rng = self.rng['flood']
 
-    def coverage(min, max):
+    def coverage(min, max): # pylint: disable=redefined-builtin
       return math.floor(
           rng.beta(a=1.4, b=1.4, min=min, max=max) * len(self._planners))
     water_count = coverage(*self.context.water_coverage)
@@ -150,8 +150,9 @@ class Conquest(ProceduralThing):
       yield planner
       self.completed = i + 1
 
-  def _pick_spawn(self, planners: Iterable[StemPlanner]
-                  ) -> Tuple[StemPlanner, Callable[[], SomaticPlanner]]:
+  def _pick_spawn(
+      self, planners: Iterable[StemPlanner]
+      ) -> Tuple[StemPlanner, Callable[[], SomaticPlanner]]:
     def bids():
       for planner in planners:
         if planner._kind == StemPlanner.CAVE: # pylint: disable=protected-access
