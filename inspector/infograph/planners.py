@@ -1,10 +1,13 @@
+from typing import Iterable
+
 import itertools
 
-from inspector.canvas import Canvas, Circle, Color, Gravity, Label, Line, v
-from inspector.infograph.common import FONT_TINY, Z_PLANNERS
+from inspector.canvas import Canvas, Circle, Color, Gravity, Label, LabelIfFits, Line, v
+from inspector.infograph.common import FONT_TINY, Z_PLANNERS, Z_PEARL
 from lib.planners import Planner, SomaticPlanner, StemPlanner
 from lib.planners.caves.base import BaseCavePlanner
 from lib.plastic import Tile
+from lib.utils.geometry import adjacent_8way
 
 PLANNER_FLUID_COLORS = {
     None: Tile.FLOOR.inspect_color,
@@ -134,7 +137,33 @@ def _draw_planner(canvas, planner):
             origin=bp.center,
             radius=line_radius), z_bg)
 
-def push_planners(canvas: Canvas, planners):
+def _draw_pearl(canvas: Canvas, pearl):
+  def h(walk, colors, line_thickness):
+    for a, b in itertools.pairwise(itertools.chain([None], walk)):
+      assert b is not None
+      bx, by = b.pos
+      color = colors[b.layer % len(colors)]
+      if a is not None and a.layer == b.layer and adjacent_8way(a.pos, b.pos):
+        ax, ay = a.pos
+        canvas.push(Line(
+          color=color,
+          start=(ax + 0.5, ay + 0.5),
+          end=(bx + 0.5, by + 0.5),
+          thickness=line_thickness), 0)
+      else:
+        canvas.push(Circle(
+          color=color,
+          origin = (bx + 0.5, by + 0.5),
+          radius = 0.3), 0)
+        canvas.push(LabelIfFits(
+          font=FONT_TINY,
+          text=str(b.layer),
+          color=(0, 0, 0),
+          rect=(bx, by, 1, 1)), 1)
+  h(pearl.inner, PEARL_INNER_LAYER_COLORS, 3)
+  h(pearl.outer, PEARL_OUTER_LAYER_COLORS, 1)
+
+def push_planners(canvas: Canvas, planners: Iterable[Planner], details):
   st_pc = Canvas()
   so_pc = Canvas()
   for planner in planners:
@@ -146,3 +175,7 @@ def push_planners(canvas: Canvas, planners):
         _draw_planner(so_pc, planner)
   canvas.push(st_pc.freeze(), Z_PLANNERS)
   canvas.push(so_pc.freeze(), Z_PLANNERS)
+  if isinstance(details, Planner) and hasattr(details, 'pearl') and details.pearl:
+    pc = Canvas()
+    _draw_pearl(pc, details.pearl)
+    canvas.push(pc.freeze(), Z_PEARL)

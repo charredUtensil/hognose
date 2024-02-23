@@ -2,11 +2,10 @@ from typing import Dict, Tuple, TypeVar
 
 from lib.plastic import (
     Building, Creature, Diorama, Facing, Miner, Position, Tile)
-from lib.base import Context
+from lib.base import Context, Logger
 from tests.base import SerializedCavernTest
 
 T = TypeVar('T')
-
 
 def fill(
         t: Dict[Tuple[int, int], T],
@@ -24,8 +23,12 @@ class TestSerialize(SerializedCavernTest):
   """Tests that some handcrafted Dioramas serialize to the correct strings."""
   # pylint: disable=missing-function-docstring,invalid-name
 
+  def setUp(self):
+    self.logger = Logger()
+    self.dummy_context = Context.generate(self.logger, 0)
+
   def test_serializesDiorama_mvp(self):
-    d = Diorama(Context(0, None))
+    d = Diorama(self.dummy_context)
 
     fill(d.crystals, 0, -3, 3, 3, 3)
     fill(d.tiles, 0, -2, 3, 1, Tile.HARD_ROCK)
@@ -48,7 +51,7 @@ class TestSerialize(SerializedCavernTest):
     self.assertDioramaMatches(d, 'serialize/mvp')
 
   def test_serializesDiorama_buildingZoo(self):
-    d = Diorama(Context(0, None))
+    d = Diorama(self.dummy_context)
     d.open_cave_flags.add((0, 0))
     size = 12
     fill(d.tiles, 0, 0, size, size, Tile.FLOOR)
@@ -98,7 +101,7 @@ class TestSerialize(SerializedCavernTest):
     self.assertDioramaMatches(d, 'serialize/building_zoo')
 
   def test_serializesDiorama_entityZoo(self):
-    d = Diorama(Context(0, None))
+    d = Diorama(self.dummy_context)
     d.open_cave_flags.add((0, 0))
     size = 12
     fill(d.tiles, 0, 0, size, size, Tile.FLOOR)

@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 
-from typing import List, Optional
+import typing
+from typing import List, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+  from inspector import Inspector
 
 import argparse
 import os.path
@@ -108,46 +112,45 @@ def main():
 
   seeds = _seeds(parser, args)
 
-  inx = None
+  inx: 'Optional[Inspector]' = None
   if args.draw:
     from inspector import Inspector # pylint: disable=import-outside-toplevel
     inx = Inspector(len(args.draw))
-  logger = (inx or Logger())
+  logger: Logger = (inx or Logger())
 
-  def run():
-    for i, seed in enumerate(seeds):
-      context = Context.generate(
-          seed=seed,
-          logger=MultiCavernLogger(logger, i, len(seeds)))
-      cavern = Cavern(context)
-      start_time = time.time_ns()
-      try:
-        cavern.generate()
-        if args.out == '-':
-          print(cavern.serialized)
-        elif args.out:
-          filename = args.out
-          if os.path.isdir(filename):
-            filename = os.path.join(filename, f'{cavern.diorama.level_name}.dat')
-          with open(filename, 'w', encoding='utf-8') as f:
-            f.write(cavern.serialized)
-        if args.briefing:
-          print(cavern.diorama.briefing)
-        print((
-          f'Generated {cavern.diorama.level_name} with seed {hex(context.seed)} '
-          f'in {(time.time_ns() - start_time) // 1_000_000}ms'),
+  def graphics():
+    if inx:
+      typing.cast('Inspector', inx).run()
+  graphics_thread = threading.Thread(target=graphics)
+  graphics_thread.start()
+  for i, seed in enumerate(seeds):
+    context = Context.generate(
+        seed=seed,
+        logger=MultiCavernLogger(logger, i, len(seeds)))
+    cavern = Cavern(context)
+    start_time = time.time_ns()
+    try:
+      cavern.generate()
+      if args.out == '-':
+        print(cavern.serialized)
+      elif args.out:
+        filename = args.out
+        if os.path.isdir(filename):
+          filename = os.path.join(filename, f'{cavern.diorama.level_name}.dat')
+        with open(filename, 'w', encoding='utf-8') as f:
+          f.write(cavern.serialized)
+      if args.briefing:
+        print(cavern.diorama.briefing)
+      print((
+        f'Generated {cavern.diorama.level_name} with seed {hex(context.seed)} '
+        f'in {(time.time_ns() - start_time) // 1_000_000}ms'),
+        file=sys.stderr)
+    except Exception as e: # pylint: disable=broad-exception-caught
+      logger.log_exception(cavern, e)
+      print(
+          f'Failed to generate cave {hex(context.seed)}',
           file=sys.stderr)
-      except Exception as e: # pylint: disable=broad-exception-caught
-        inx.log_exception(cavern, e)
-        print(
-            f'Failed to generate cave {hex(context.seed)}',
-            file=sys.stderr)
-  gt = threading.Thread(target=run)
-  gt.start()
-  if inx:
-    inx.run()
-  else:
-    gt.join()
+  graphics_thread.join()
 
 
 if __name__ == '__main__':

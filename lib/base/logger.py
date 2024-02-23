@@ -22,7 +22,7 @@ class Logger(abc.ABC):
   def log_warning(self, message: str):
     print(f'warning: {message}', file=sys.stderr)
 
-  def log_exception(self, e: Exception):
+  def log_exception(self, cavern: 'Cavern', e: Exception):
     print(
         ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
         file=sys.stderr)

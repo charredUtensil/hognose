@@ -15,6 +15,13 @@ def adjacent(a: Tuple[int, int], b: Tuple[int, int]) -> bool:
       (ya == yb and xa in range(xb - 1, xb + 2)))
 
 
+def adjacent_8way(a: Tuple[int, int], b: Tuple[int, int]) -> bool:
+  """Returns whether points a and b are cardinally adjacent."""
+  xa, ya = a
+  xb, yb = b
+  return (ya in range(yb - 1, yb + 2)) and (xa in range(xb - 1, xb + 2))
+
+
 def plot_line(a: Tuple[float, float], b: Tuple[float, float],
               contiguous: bool = False) -> Iterable[Tuple[int, int]]:
   """

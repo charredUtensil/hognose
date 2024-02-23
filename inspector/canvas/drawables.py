@@ -202,7 +202,7 @@ class LabelIfFits(Drawable):
     elif self._fallback:
       self._fallback.draw(dc)
 
-class RadialLabel():
+class RadialLabel(Drawable):
   def __init__(self, font, text, fg_color, bg_color, origin, inset=v.a(50)):
     self._rt: RawText = RawText(font, text, Gravity.CENTER)
     self._fg_color: Color = fg_color

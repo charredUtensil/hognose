@@ -68,6 +68,11 @@ class FreeVector(BaseVector):
       return FreeVector(self.scaled / other, self.absolute / other)
     return NotImplemented
   
+  def __floordiv__(self, other):
+    if isinstance(other, (int, float)):
+      return FreeVector(self.scaled // other, self.absolute // other)
+    return NotImplemented
+  
 class AnchoredVector(BaseVector):
   @abc.abstractmethod
   def anchor(self):
@@ -107,7 +112,7 @@ class XVector(AnchoredVector):
           self.absolute + other.absolute,
           self.anchor)
     if isinstance(other, (int, float)):
-      return FreeVector(self.scaled + other, self.absolute, self.anchor)
+      return XVector(self.scaled + other, self.absolute, self.anchor)
     return NotImplemented
 
 class YVector(AnchoredVector):
@@ -133,7 +138,7 @@ class YVector(AnchoredVector):
           self.absolute + other.absolute,
           self.anchor)
     if isinstance(other, float):
-      return FreeVector(self.scaled + other, self.absolute, self.anchor)
+      return YVector(self.scaled + other, self.absolute, self.anchor)
     return NotImplemented
 
 _ToFreeVector = Union[FreeVector, float]

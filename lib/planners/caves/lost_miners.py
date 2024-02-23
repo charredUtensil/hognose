@@ -6,7 +6,7 @@ from .base import BaseCavePlanner
 from lib.base import Biome
 from lib.holistics import Adjurator
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Position, Script, Tile
+from lib.plastic import Position, Script, ScriptFragment, Tile
 
 class LostMinersCavePlanner(BaseCavePlanner):
 
@@ -37,7 +37,6 @@ class LostMinersCavePlanner(BaseCavePlanner):
     adjurator.find_miners(self.miners_tile, len(self._miners))
 
   def script(self, diorama, lore):
-    super().script(diorama, lore)
     prefix = f'foundMiners_p{self.id}_'
     x, y = self.miners_tile
     miners_found_count = len(self._miners)
@@ -57,7 +56,7 @@ class LostMinersCavePlanner(BaseCavePlanner):
       yield f'{prefix}incomplete::;'
       yield f'msg:{prefix}discoverMessage;'
       yield ''
-    diorama.script.extend(h())
+    return super().script(diorama, lore) + ScriptFragment(h())
 
 def bids(stem, conquest):
   if stem.fluid_type is None and conquest.remaining <= 3:

@@ -6,7 +6,7 @@ from .base import BaseCavePlanner
 from lib.base import Biome
 from lib.holistics import Adjurator
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Diorama, Facing, Position, Script, Tile
+from lib.plastic import Building, Diorama, Facing, Position, Script, ScriptFragment, Tile
 from lib.utils.geometry import plot_line
 
 class EstablishedHQCavePlanner(BaseCavePlanner):
@@ -189,7 +189,6 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
       adjurator.find_hq(self._discover_tile, 'Find the lost Rock Raider HQ')
 
   def script(self, diorama, lore):
-    super().script(diorama, lore)
     if self.is_spawn:
       return
     prefix = f'foundHq_p{self.id}_'
@@ -197,17 +196,17 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     bp = max(self.baseplates, key=lambda b: b.pearl_radius)
     cx, cy = bp.center
     msg = Script.escape_string(lore.event_found_hq)
-    diorama.script.extend((
-        '# Objective: Find the lost Rock Raider HQ',
-        f'string {prefix}discoverMessage="{msg}"',
-        f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscover]',
-        f'{prefix}onDiscover::;',
-        f'msg:{prefix}discoverMessage;',
-        f'pan:y@{math.floor(cy):d},x@{math.floor(cx):d};',
-        'wait:1;',
-        f'{Adjurator.VAR_FOUND_HQ}=1;',
-        '',
-    ))
+    def h():
+        yield '# Objective: Find the lost Rock Raider HQ'
+        yield f'string {prefix}discoverMessage="{msg}"'
+        yield f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscover]'
+        yield f'{prefix}onDiscover::;'
+        yield f'msg:{prefix}discoverMessage;'
+        yield f'pan:y@{math.floor(cy):d},x@{math.floor(cx):d};'
+        yield 'wait:1;'
+        yield f'{Adjurator.VAR_FOUND_HQ}=1;'
+        yield ''
+    return super().script(diorama, lore) + ScriptFragment(h())
 
 def bids(stem, conquest):
   if (stem.fluid_type is None

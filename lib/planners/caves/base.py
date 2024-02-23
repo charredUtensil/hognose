@@ -10,7 +10,7 @@ import math
 
 from .monster_spawners import MonsterSpawner
 from lib.planners.base import SomaticPlanner
-from lib.plastic import Creature, Diorama, Tile
+from lib.plastic import Creature, Diorama, ScriptFragment, Tile
 from lib.utils.geometry import plot_line
 
 class BaseCavePlanner(SomaticPlanner):
@@ -40,7 +40,7 @@ class BaseCavePlanner(SomaticPlanner):
     return self._get_monster_spawner() if self.context.has_monsters else None
 
   def _get_monster_spawner(self) -> Optional[MonsterSpawner]:
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    creature_type = Creature.monster_type_for_biome(self.context.biome)
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
@@ -101,18 +101,14 @@ class BaseCavePlanner(SomaticPlanner):
   def fine_place_entities(self, diorama: Diorama):
     pass
 
-  def script(self, diorama: Diorama, lore: 'Lore'):
-    header = str(self)
-    diorama.script.extend((
-        f'# {"=" * len(header)}',
-        f'# {header}',
-        f'# {"=" * len(header)}'))
-    self.script_place_monster_spawns(diorama)
+  def script(self, diorama: Diorama, lore: 'Lore') -> Optional[ScriptFragment]:
+    return self.script_place_monster_spawns(diorama)
 
-  def script_place_monster_spawns(self, diorama: Diorama):
+  def script_place_monster_spawns(self, diorama: Diorama) -> Optional[ScriptFragment]:
     monster_spawner = self.monster_spawner
     if monster_spawner:
-      monster_spawner.place_script(diorama)
+      return monster_spawner.script(diorama)
+    return None
 
   def place_crystals(self, diorama: Diorama, count: int):
     self._place_resource(

@@ -40,7 +40,7 @@ class Building(Entity):
         inspect_abbrev: str,
         max_level: int,
         crystals: int,
-        foundation_offsets: Tuple[Tuple[int, int]]):
+        foundation_offsets: Tuple[Tuple[int, int], ...]):
       self.export_id = export_id
       self.inspect_abbrev = inspect_abbrev
       self.max_level = max_level

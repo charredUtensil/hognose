@@ -5,7 +5,7 @@ import itertools
 import math
 
 from lib.planners.base import SomaticPlanner
-from lib.plastic import Creature, Diorama, Tile
+from lib.plastic import Creature, Diorama, ScriptFragment, Tile
 
 class ScriptInfo(object):
 
@@ -67,14 +67,14 @@ class MonsterSpawner(object):
         f'{self.wave_size:d}x{str(self.creature_type).split(".")[-1]}'
         f'/{(self.min_cooldown + self.max_cooldown)/2:.0f}s')
 
-  def place_script(self, diorama: Diorama):
+  def script(self, diorama: Diorama) -> ScriptFragment:
     self.script_info = ScriptInfo(
         self._discovery_tile(diorama),
         self._trigger_tiles(diorama),
         self._secondary_trigger_tiles(diorama),
         self._emerges(),
     )
-    diorama.script.extend(self._gen_script(diorama))
+    return ScriptFragment(self._gen_script(diorama))
 
   def _discovery_tile(self, diorama: Diorama) -> Optional[Tuple[int, int]]:
     for info in self.planner.pearl.inner:

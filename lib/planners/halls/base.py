@@ -33,4 +33,4 @@ class BaseHallPlanner(SomaticPlanner):
       self.place_landslides(diorama, freq)
 
   def script(self, diorama, lore):
-    pass
+    return None

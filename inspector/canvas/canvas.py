@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from inspector.canvas.drawables import Drawable
 from inspector.canvas.draw_context import DrawContext
 
@@ -15,15 +17,15 @@ class Canvas():
     self._drawables[z].append(d)
 
   def freeze(self):
-    return FrozenCanvas(self)
+    def h():
+      for z, dr in sorted(self._drawables.items()):
+        yield from dr
+    return FrozenCanvas(h())
 
 class FrozenCanvas(Drawable):
 
-  def __init__(self, canvas: Canvas):
-    def h():
-      for z, dr in sorted(canvas._drawables.items()):
-        yield from dr
-    self._drawables = tuple(h())
+  def __init__(self, drawables: Iterable[Drawable]):
+    self._drawables = tuple(drawables)
 
   def draw(self, dc: DrawContext):
     for d in self._drawables:

@@ -1,55 +1,37 @@
+from typing import List, Tuple
 
+import itertools
+import re
 
-    if stage == 'script':
-      infos = [
-          p.monster_spawner.script_info
-          for p in self.cavern.conquest.somatic_planners
-          if (
-            hasattr(p, 'monster_spawner')
-            and p.monster_spawner
-            and p.monster_spawner.script_info)]
-      for info in infos:
-        for x, y in info.trigger_tiles:
-          frame.draw_rect(
-              SCRIPT_TRIGGER_COLOR,
-              (x, y, 1, 1),
-              1)
-        for x, y in info.secondary_trigger_tiles:
-          frame.draw_rect(
-              SCRIPT_SECONDARY_TRIGGER_COLOR,
-              (x, y, 1, 1),
-              1)
-      for info in infos:
-        for x, y in info.trigger_tiles:
-          frame.draw_line(
-              SCRIPT_WIRE_COLOR,
-              (x + 0.5, y + 0.5),
-              (info.emerges[0][0] + 0.5, info.emerges[0][1] + 0.5))
-        for x, y in info.secondary_trigger_tiles:
-          frame.draw_line(
-              SCRIPT_WIRE_COLOR,
-              (x + 0.5, y + 0.5),
-              (info.emerges[0][0] + 0.5, info.emerges[0][1] + 0.5))
-        if info.discovery_tile:
-          frame.draw_line(
-              SCRIPT_WIRE_COLOR,
-              (info.discovery_tile[0] + 0.5, info.discovery_tile[1] + 0.5),
-              (info.emerges[0][0] + 0.5, info.emerges[0][1] + 0.5))
-      for info in infos:
-        if info.discovery_tile:
-          frame.draw_circle(
-              SCRIPT_TRIGGER_COLOR,
-              (info.discovery_tile[0] + 0.5, info.discovery_tile[1] + 0.5),
-              0.4)
-      for info in infos:
-        for x, y, r in info.emerges:
-          frame.draw_rect(
-              CREATURE_COLOR,
-              (x - r, y - r, 2 * r + 1, 2 * r + 1),
-              2)
-        for (x1, y1, _), (x2, y2, _) in itertools.pairwise(info.emerges):
-          frame.draw_line(
-              CREATURE_COLOR,
-              (x1 + 0.5, y1 + 0.5),
-              (x2 + 0.5, y2 + 0.5),
-              2)
+from inspector.canvas import Canvas, LabelIfFits, Line, Rect, v
+from inspector.infograph.common import FONT_TINY, Z_SCRIPT
+from lib.plastic import ScriptFragment
+
+POI_LABEL_COLOR = (0x00, 0x00, 0x00)
+POI_PATH_COLOR = (0xff, 0xff, 0xff)
+POI_COLOR = (0x00, 0xff, 0xff)
+
+POI_RE = re.compile(r'y@(-?\d+),x@(-?\d+)')
+
+def push_script(canvas: Canvas, details):
+  pc = Canvas()
+  if isinstance(details, ScriptFragment):
+    poi: List[Tuple[int, int]] = []
+    for y, x in POI_RE.findall(str(details)):
+      poi.append((int(y), int(x)))
+    for (y1, x1), (y2, x2) in itertools.pairwise(poi):
+      pc.push(Line(
+          color=POI_PATH_COLOR,
+          start=(x1 + 0.5, y1 + 0.5),
+          end=(x2 + 0.5, y2 + 0.5),
+          thickness=v.s(0.5)))
+    for i, (y, x) in enumerate(poi):
+      pc.push(Rect(
+          color=POI_COLOR,
+          rect=(x, y, 1, 1)))
+      pc.push(LabelIfFits(
+          color=POI_LABEL_COLOR,
+          font=FONT_TINY,
+          rect=(x, y, 1, 1),
+          text=str(i)))
+    canvas.push(pc.freeze(), Z_SCRIPT)

@@ -7,7 +7,7 @@ from .base import BaseCavePlanner
 from .monster_spawners import MonsterSpawner, RetriggerMode
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Creature, Position, Script, Tile
+from lib.plastic import Creature, Position, Script, ScriptFragment, Tile
 
 class TreasureCavePlanner(BaseCavePlanner):
 
@@ -28,7 +28,7 @@ class TreasureCavePlanner(BaseCavePlanner):
 class HoardCavePlanner(TreasureCavePlanner):
 
   def _get_monster_spawner(self):
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    creature_type = Creature.monster_type_for_biome(self.context.biome)
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
@@ -66,7 +66,7 @@ class HoardCavePlanner(TreasureCavePlanner):
   def fine_place_entities(self, diorama):
     if self.context.has_monsters:
       rng = self.rng['fine.place_entities']
-      monster_type = Creature.Type.monster_for_biome(self.context.biome)
+      monster_type = Creature.monster_type_for_biome(self.context.biome)
       monster_count = rng.beta_int(a = 1.5, b = 5, min = 0, max = 6)
       center = self.center
       tiles = tuple(self._monster_placements(diorama))
@@ -80,7 +80,6 @@ class HoardCavePlanner(TreasureCavePlanner):
           sleep=True)
 
   def script(self, diorama, lore):
-    super().script(diorama, lore)
     # Generate a script that pans to this cave on discovery if collecting all
     # of the crystals would win the level.
     # TODO: Need to figure out clashes with lost miner objectives
@@ -116,12 +115,12 @@ class HoardCavePlanner(TreasureCavePlanner):
       yield f'{prefix}noGo::;'
       yield f'{gfix}wasTriggered=false'
       yield ''
-    diorama.script.extend(gen())
+    return super().script(diorama, lore) + ScriptFragment(gen())
 
 class NougatCavePlanner(TreasureCavePlanner):
 
   def _get_monster_spawner(self):
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    creature_type = Creature.monster_type_for_biome(self.context.biome)
     spawner = MonsterSpawner.normal(
         self,
         creature_type,

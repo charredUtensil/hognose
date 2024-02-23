@@ -13,7 +13,7 @@ from .pearl import Oyster, Pearl
 from .planner import Planner
 from lib.base import Rng
 from lib.holistics import Adjurator
-from lib.plastic import Diorama, Erosion, Landslide, Tile
+from lib.plastic import Diorama, Erosion, Landslide, ScriptFragment, Tile
 
 class SomaticPlanner(Planner):
 
@@ -76,7 +76,7 @@ class SomaticPlanner(Planner):
     pass
 
   @abc.abstractmethod
-  def script(self, diorama: Diorama, lore: 'Lore'):
+  def script(self, diorama: Diorama, lore: 'Lore') -> Optional[ScriptFragment]:
     pass
 
   def adjure(self, adjurator: Adjurator):

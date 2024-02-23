@@ -13,12 +13,13 @@ from lib.holistics import Adjurator, patch
 from lib.lore import Lore
 from lib.outlines import Path, Space, Bubble, Baseplate, Partition
 from lib.planners import Conquest, Planner, SomaticPlanner, StemPlanner
-from lib.plastic import Diorama, serialize, Tile
+from lib.plastic import Diorama, serialize, ScriptFragment, Tile
 from lib.utils.delaunay import slorp
 
 V_DONE = 1
 V_MAJOR = 2
 V_MINOR = 3
+V_VERBOSE = 4
 
 class Cavern(object):
   def __init__(self, context):
@@ -132,7 +133,6 @@ class Cavern(object):
     except Exception as e:
       self.context.logger.log_progress(1)
       self.context.logger.log_exception(self, e)
-      raise
 
   def is_done(self) -> bool:
     return self._serialized is not None
@@ -225,6 +225,7 @@ class Cavern(object):
     """Put anything else in the level the planners want to have."""
     for planner in self.conquest.somatic_planners:
       planner.fine(self.diorama)
+      self._log_state(V_VERBOSE, planner)
     self._log_state(V_MAJOR)
 
   def _discover(self):
@@ -251,9 +252,19 @@ class Cavern(object):
 
   def _script(self):
     """Write scripts."""
-    self.adjurator.script(self.diorama, self._lore)
-    for planner in self.conquest.somatic_planners:
-      planner.script(self.diorama, self._lore)
+    def h():
+      yield self.adjurator.script(self.diorama, self._lore), self.adjurator
+      for planner in self.conquest.somatic_planners:
+        yield planner.script(self.diorama, self._lore), planner
+    for sf, source in h():
+      if sf:
+        header = str(source)
+        sf = ScriptFragment((
+            f'# {"=" * len(header)}',
+            f'# {header}',
+            f'# {"=" * len(header)}')) + sf
+        self._log_state(V_VERBOSE, sf)
+        self.diorama.script.add(sf)
     self._log_state(V_MINOR)
 
   def _fence(self):

@@ -18,6 +18,10 @@ class Creature(Entity):
     SMALL_SPIDER = 'CreatureSmallSpider_C'
     BAT = 'CreatureBat_C'
 
+  @staticmethod
+  def monster_type_for_biome(biome: Biome) -> 'Creature.Type':
+    return MONSTER_FOR_BIOME[biome]
+
   def __init__(
       self,
       id: int,
@@ -40,8 +44,3 @@ MONSTER_FOR_BIOME = {
     Biome.ICE  : Creature.Type.ICE_MONSTER,
     Biome.LAVA : Creature.Type.LAVA_MONSTER,
 }
-
-def monster_for_biome(biome: Biome):
-  return MONSTER_FOR_BIOME[biome]
-
-Creature.Type.monster_for_biome: Callable[[Biome], Creature.Type] = monster_for_biome
