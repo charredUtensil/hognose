@@ -1,15 +1,17 @@
 import math
 
-from .base import BaseCavePlanner
-from .monster_spawners import MonsterSpawner
+from lib.planners.caves.base import BaseCavePlanner
+from lib.planners.caves.monster_spawners import MonsterSpawner
 from lib.planners.base import Oyster, Layer
 from lib.plastic import Creature, Tile
+
 
 class EmptyCavePlanner(BaseCavePlanner):
   @property
   def inspect_color(self):
     return Tile.DIRT.inspect_color
-    
+
+
 def bids(stem, conquest):
   if stem.fluid_type is None:
     pr = stem.pearl_radius
@@ -24,6 +26,7 @@ def bids(stem, conquest):
       yield (1, lambda: EmptyCavePlanner(stem, Oysters.FILLED_WITH_PATHS))
     if pr > 5:
       yield (0.5, lambda: EmptyCavePlanner(stem, Oysters.DOUGHNUT))
+
 
 class Oysters:
   OPEN = (

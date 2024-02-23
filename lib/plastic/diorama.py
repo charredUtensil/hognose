@@ -18,6 +18,7 @@ from .serialize import serialize
 from .scripts import Script
 from .tile import Tile
 
+
 class Diorama(object):
   def __init__(self, context):
     self.context = context
@@ -70,7 +71,7 @@ class Diorama(object):
   @property
   def erosions(self) -> Dict[Tuple[int, int], Erosion]:
     return self._erosions
-  
+
   @property
   def discovered(self) -> Set[Tuple[int, int]]:
     return self._discovered
@@ -144,7 +145,6 @@ class Diorama(object):
           for oy in (-1, 0, 1):
             if (x + ox, y + oy) not in self._discovered:
               queue.add((x + ox, y + oy))
-            
 
   def serialize(self):
     return serialize(self)

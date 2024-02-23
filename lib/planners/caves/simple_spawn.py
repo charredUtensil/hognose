@@ -3,11 +3,12 @@ import copy
 import itertools
 import math
 
-from .base import BaseCavePlanner
-from .monster_spawners import MonsterSpawner
+from lib.planners.caves.base import BaseCavePlanner
+from lib.planners.caves.monster_spawners import MonsterSpawner
 from lib.planners.base import Oyster, Layer
 from lib.plastic import Building, Creature, Facing, Position, Tile
 from lib.utils.geometry import adjacent
+
 
 class SimpleSpawnCavePlanner(BaseCavePlanner):
 
@@ -18,12 +19,12 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
   @property
   def inspect_color(self):
     return (0x00, 0xff, 0xff)
-  
+
   def _get_expected_crystals(self):
     return max(
         super()._get_expected_crystals(),
         self.min_crystals,
-        self.rng['conquest.expected_crystals'].beta_int(min = 2, max = 7))
+        self.rng['conquest.expected_crystals'].beta_int(min=2, max=7))
 
   def _get_monster_spawner(self):
     spawner = super()._get_monster_spawner()
@@ -42,7 +43,8 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
     for (a, b) in itertools.pairwise(self.pearl.inner):
       x1, y1 = a.pos
       x2, y2 = b.pos
-      if diorama.tiles.get((x2, y2)) == Tile.FLOOR and adjacent((x1, y1), (x2, y2)):
+      if (diorama.tiles.get((x2, y2)) == Tile.FLOOR and
+          adjacent((x1, y1), (x2, y2))):
         self._place_toolstore(diorama, (x2, y2), (x1, y1))
         break
     else:
@@ -70,13 +72,15 @@ class SimpleSpawnCavePlanner(BaseCavePlanner):
     diorama.camera_position.rp = math.pi / 4
     diorama.camera_position.ry += math.pi * 0.75
 
+
 def bids(stem, conquest):
-  if stem.fluid_type == None:
+  if stem.fluid_type is None:
     if any(p.fluid_type is None for p in conquest.intersecting(stem)):
       yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.OPEN, 0))
       yield (1, lambda: SimpleSpawnCavePlanner(stem, Oysters.EMPTY, 0))
     else:
       yield (0.1, lambda: SimpleSpawnCavePlanner(stem, Oysters.OPEN, 9))
+
 
 class Oysters:
   OPEN = (

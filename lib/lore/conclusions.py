@@ -1,5 +1,6 @@
 from .phrases import PhraseGraph
 
+
 def _objectives(pg):
   find_lost_miners = pg() >> (
       pg(
@@ -8,16 +9,17 @@ def _objectives(pg):
       pg(
           'find the lost Rock Raiders'
       ) >> pg.states('lost_miners_together', 'lost_miners_apart')
-      ) >> ()
+  ) >> ()
 
   get_resources = pg(
       'collect all %(resources)s',
       'get the %(resources)s we needed'
-      ) & 'collect_resources'
+  ) & 'collect_resources'
 
   objs = (find_lost_miners | get_resources)
   find_lost_miners >> 'and' >> get_resources
   return objs
+
 
 _COMMENDATIONS = (
     'Well done!',
@@ -28,6 +30,7 @@ _COMMENDATIONS = (
     'Your efforts have been outstanding!',
     'We were right to count on you, Cadet!',)
 
+
 def _make_pg_success():
   pg = PhraseGraph()
 
@@ -35,7 +38,7 @@ def _make_pg_success():
       'Wow!',
       *_COMMENDATIONS
   ) & 'commend'
-  
+
   opening_monsters = pg(
       'Those %(monster_type)s monsters were no match for you!',
       'You had nothing to fear from those %(monster_type)s monsters!'
@@ -101,7 +104,7 @@ def _make_pg_success():
       'collected %(resources)s',
       'collected all %(resources)s',
       'got all %(resources)s'
-      ) & 'collect_resources'
+  ) & 'collect_resources'
 
   while_facing_danger = (
       pg(
@@ -142,6 +145,7 @@ def _make_pg_success():
   pg.compile()
   return pg
 
+
 def _make_pg_failure():
   pg = PhraseGraph()
 
@@ -167,11 +171,19 @@ def _make_pg_failure():
 
   pg.start >> opening
   (pg.start | opening) >> unable_to
-  
-  unable_to >> _objectives(pg) >> pg('.') >> ~console >> mission_failed >> pg.end
+
+  (
+      unable_to >>
+      _objectives(pg) >>
+      '.' >>
+      ~console >>
+      mission_failed >>
+      pg.end
+  )
 
   pg.compile()
   return pg
+
 
 SUCCESS = _make_pg_success()
 FAILURE = _make_pg_failure()

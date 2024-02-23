@@ -63,15 +63,18 @@ def offset(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple[int, int]:
   """Adds the vectors p1 and p2 together."""
   return (p1[0] + p2[0], p1[1] + p2[1])
 
+
 def rotate_right(x: int, y: int) -> Tuple[int, int]:
   """Rotates the given vector 90 degrees to the right around the origin."""
   # (1, 2) -> (-2, 1) -> (-1, -2) -> (2, -1) -> ...
   return (-y, x)
 
+
 def rotate_left(x: int, y: int) -> Tuple[int, int]:
   """Rotates the given vector 90 degrees to the left around the origin."""
   # (1, 2) -> (2, -1) -> (-1, -2) -> (-2, 1) -> ...
   return (y, -x)
+
 
 def rotate_180(x: int, y: int) -> Tuple[int, int]:
   """Rotates the given vector 180 degrees around the origin."""

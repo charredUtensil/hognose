@@ -2,6 +2,7 @@ from typing import Iterable
 
 from .phrases import PhraseGraph
 
+
 def _make_pg():
   pg = PhraseGraph()
 
@@ -16,11 +17,11 @@ def _make_pg():
           pg(
               'Are you ready to set sail?',
               'I hope you packed your lifejacket, Cadet.'
-              ) & 'flooded_water' |
+          ) & 'flooded_water' |
           pg(
               'I hope you\'re not afraid of a little heat!',
               'You\'d better keep your cool with this one!'
-              ) & 'flooded_lava'
+          ) & 'flooded_lava'
       ) >> '\n\n'
   ) >> ()
 
@@ -52,7 +53,7 @@ def _make_pg():
       ) & 'treasure_many' |
       pg('another cavern where we can continue our mining operations')
   ) >> ()
-  
+
   forced_to_evac = pg(
       ', when an increase in seismic activity forced us to evacuate.',
       ', but we were forced to evacuate when the cavern started to collapse.',
@@ -164,11 +165,11 @@ def _make_pg():
           'monsters do.',
           'I hope they don\'t meet any of the %(monster_type)s '
           'monsters roaming this cavern.'
-          ) & 'has_monsters' |
+      ) & 'has_monsters' |
       pg(
           'we\'re counting on you to find them!',
           'we don\'t know how long they\'ll last out there.',
-          )
+      )
   ) >> ~pg.states('spawn_has_erosion') >> ()
 
   hq_destroyed = pg(
@@ -198,11 +199,11 @@ def _make_pg():
       pg(
           'a group of Rock Raidiers are missing',
           'a group of Rock Raidiers are trapped somewhere in the cavern'
-          ) & 'lost_miners_together' |
+      ) & 'lost_miners_together' |
       pg(
           'some of our Rock Raidiers are missing',
           'our Rock Raiders are trapped throughout the cavern'
-          ) & 'lost_miners_apart'
+      ) & 'lost_miners_apart'
     ) >> pg.states('spawn_is_ruin', 'find_hq') >> ()
 
   reassurance = pg(
@@ -271,7 +272,7 @@ def _make_pg():
           teleporter_malfunction
       ) >> ('. Also,', '. If that wasn\'t hard enough,', '. It gets worse:')
   )
-  
+
   (however | hardship_and) >> () >> (spawn_has_erosion | has_monsters)
   spawn_has_erosion >> and_has_monsters
 
@@ -286,5 +287,6 @@ def _make_pg():
 
   pg.compile()
   return pg
+
 
 PREMISES = _make_pg()

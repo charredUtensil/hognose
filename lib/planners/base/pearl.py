@@ -5,133 +5,137 @@ import math
 
 from lib.plastic import BasicTile, Tile
 
+
 class Layer(object):
   """Rules for replacing tiles in a single layer of a Pearl."""
 
   def __init__(
       self,
-      floor:      Optional[BasicTile] = None,
-      dirt:       Optional[BasicTile] = None,
+      floor: Optional[BasicTile] = None,
+      dirt: Optional[BasicTile] = None,
       loose_rock: Optional[BasicTile] = None,
-      hard_rock:  Optional[BasicTile] = None,
+      hard_rock: Optional[BasicTile] = None,
       solid_rock: Optional[BasicTile] = None,
-      water:      Optional[BasicTile] = None,
-      lava:       Optional[BasicTile] = None):
+      water: Optional[BasicTile] = None,
+      lava: Optional[BasicTile] = None):
     self._data = {
-      Tile.FLOOR: floor,
-      Tile.DIRT: dirt,
-      Tile.LOOSE_ROCK: loose_rock,
-      Tile.HARD_ROCK: hard_rock,
-      Tile.SOLID_ROCK: solid_rock,
-      Tile.WATER: water,
-      Tile.LAVA: lava,
+        Tile.FLOOR: floor,
+        Tile.DIRT: dirt,
+        Tile.LOOSE_ROCK: loose_rock,
+        Tile.HARD_ROCK: hard_rock,
+        Tile.SOLID_ROCK: solid_rock,
+        Tile.WATER: water,
+        Tile.LAVA: lava,
     }
 
   @classmethod
   def _always(cls, tile: BasicTile):
     return cls(
-        floor      = tile,
-        dirt       = tile,
-        loose_rock = tile,
-        hard_rock  = tile,
-        solid_rock = tile,
-        water      = tile,
-        lava       = tile)
+        floor=tile,
+        dirt=tile,
+        loose_rock=tile,
+        hard_rock=tile,
+        solid_rock=tile,
+        water=tile,
+        lava=tile)
+
 
 # VOID: No effect whatsoever
 Layer.VOID = Layer()
 
 # ALWAYS_*: Ignores existing tile
-Layer.ALWAYS_FLOOR      = Layer._always(Tile.FLOOR)
-Layer.ALWAYS_DIRT       = Layer._always(Tile.DIRT)
+Layer.ALWAYS_FLOOR = Layer._always(Tile.FLOOR)
+Layer.ALWAYS_DIRT = Layer._always(Tile.DIRT)
 Layer.ALWAYS_LOOSE_ROCK = Layer._always(Tile.LOOSE_ROCK)
-Layer.ALWAYS_HARD_ROCK  = Layer._always(Tile.HARD_ROCK)
+Layer.ALWAYS_HARD_ROCK = Layer._always(Tile.HARD_ROCK)
 Layer.ALWAYS_SOLID_ROCK = Layer._always(Tile.SOLID_ROCK)
-Layer.ALWAYS_WATER      = Layer._always(Tile.WATER)
-Layer.ALWAYS_LAVA       = Layer._always(Tile.LAVA)
+Layer.ALWAYS_WATER = Layer._always(Tile.WATER)
+Layer.ALWAYS_LAVA = Layer._always(Tile.LAVA)
 
 # AT_MOST_*: Replaces only if the existing tile is harder rock
 Layer.AT_MOST_DIRT = Layer(
-    loose_rock = Tile.DIRT,
-    hard_rock  = Tile.DIRT,
-    solid_rock = Tile.DIRT)
+    loose_rock=Tile.DIRT,
+    hard_rock=Tile.DIRT,
+    solid_rock=Tile.DIRT)
 Layer.AT_MOST_LOOSE_ROCK = Layer(
-    hard_rock  = Tile.LOOSE_ROCK,
-    solid_rock = Tile.LOOSE_ROCK)
+    hard_rock=Tile.LOOSE_ROCK,
+    solid_rock=Tile.LOOSE_ROCK)
 Layer.AT_MOST_HARD_ROCK = Layer(
-    solid_rock = Tile.HARD_ROCK)
+    solid_rock=Tile.HARD_ROCK)
 
 # No prefix: Replaces any non-flooded tile with the given tile
 Layer.FLOOR = Layer(
-    dirt       = Tile.FLOOR,
-    loose_rock = Tile.FLOOR,
-    hard_rock  = Tile.FLOOR,
-    solid_rock = Tile.FLOOR)
+    dirt=Tile.FLOOR,
+    loose_rock=Tile.FLOOR,
+    hard_rock=Tile.FLOOR,
+    solid_rock=Tile.FLOOR)
 Layer.DIRT = Layer(
-    floor      = Tile.DIRT,
-    loose_rock = Tile.DIRT,
-    hard_rock  = Tile.DIRT,
-    solid_rock = Tile.DIRT)
+    floor=Tile.DIRT,
+    loose_rock=Tile.DIRT,
+    hard_rock=Tile.DIRT,
+    solid_rock=Tile.DIRT)
 Layer.LOOSE_ROCK = Layer(
-    floor      = Tile.LOOSE_ROCK,
-    dirt       = Tile.LOOSE_ROCK,
-    hard_rock  = Tile.LOOSE_ROCK,
-    solid_rock = Tile.LOOSE_ROCK)
+    floor=Tile.LOOSE_ROCK,
+    dirt=Tile.LOOSE_ROCK,
+    hard_rock=Tile.LOOSE_ROCK,
+    solid_rock=Tile.LOOSE_ROCK)
 Layer.HARD_ROCK = Layer(
-    floor      = Tile.HARD_ROCK,
-    dirt       = Tile.HARD_ROCK,
-    loose_rock = Tile.HARD_ROCK,
-    solid_rock = Tile.HARD_ROCK)
+    floor=Tile.HARD_ROCK,
+    dirt=Tile.HARD_ROCK,
+    loose_rock=Tile.HARD_ROCK,
+    solid_rock=Tile.HARD_ROCK)
 Layer.WATER = Layer(
-    floor      = Tile.WATER,
-    dirt       = Tile.WATER,
-    loose_rock = Tile.WATER,
-    hard_rock  = Tile.WATER,
-    solid_rock = Tile.WATER)
+    floor=Tile.WATER,
+    dirt=Tile.WATER,
+    loose_rock=Tile.WATER,
+    hard_rock=Tile.WATER,
+    solid_rock=Tile.WATER)
 Layer.LAVA = Layer(
-    floor      = Tile.LAVA,
-    dirt       = Tile.LAVA,
-    loose_rock = Tile.LAVA,
-    hard_rock  = Tile.LAVA,
-    solid_rock = Tile.LAVA)
+    floor=Tile.LAVA,
+    dirt=Tile.LAVA,
+    loose_rock=Tile.LAVA,
+    hard_rock=Tile.LAVA,
+    solid_rock=Tile.LAVA)
 
-# Special cases
-# Replaces up to dirt or down to loose rock
+# Replaces floor -> dirt / loose rock <- hard rock, solid rock
 Layer.DIRT_OR_LOOSE_ROCK = Layer(
-    floor      = Tile.DIRT,
-    hard_rock  = Tile.LOOSE_ROCK,
-    solid_rock = Tile.LOOSE_ROCK)
-# Replaces up to loose or down to hard rock
+    floor=Tile.DIRT,
+    hard_rock=Tile.LOOSE_ROCK,
+    solid_rock=Tile.LOOSE_ROCK)
+# Replaces floor, dirt -> loose rock / hard rock <- solid rock
 Layer.LOOSE_OR_HARD_ROCK = Layer(
-    floor      = Tile.LOOSE_ROCK,
-    dirt       = Tile.LOOSE_ROCK,
-    solid_rock = Tile.HARD_ROCK)
+    floor=Tile.LOOSE_ROCK,
+    dirt=Tile.LOOSE_ROCK,
+    solid_rock=Tile.HARD_ROCK)
 
 # Bridges - Replaces placed rock with floor and floods solid rock
 # This can be used by caves to create a path to an island.
 # Avoid using these if the cave intersects halls with fluid as the results
 # will look extremely strange.
 Layer.BRIDGE_ON_WATER = Layer(
-      dirt       = Tile.FLOOR,
-      loose_rock = Tile.FLOOR,
-      hard_rock  = Tile.FLOOR,
-      solid_rock = Tile.WATER)
+    dirt=Tile.FLOOR,
+    loose_rock=Tile.FLOOR,
+    hard_rock=Tile.FLOOR,
+    solid_rock=Tile.WATER)
 Layer.BRIDGE_ON_LAVA = Layer(
-      dirt       = Tile.FLOOR,
-      loose_rock = Tile.FLOOR,
-      hard_rock  = Tile.FLOOR,
-      solid_rock = Tile.LAVA)
+    dirt=Tile.FLOOR,
+    loose_rock=Tile.FLOOR,
+    hard_rock=Tile.FLOOR,
+    solid_rock=Tile.LAVA)
 
+# Solid becomes dirt, other rock becomes floor.
 Layer.INVERT_TO_DIRT = Layer(
-      dirt       = Tile.FLOOR,
-      loose_rock = Tile.FLOOR,
-      hard_rock  = Tile.FLOOR,
-      solid_rock = Tile.DIRT)
+    dirt=Tile.FLOOR,
+    loose_rock=Tile.FLOOR,
+    hard_rock=Tile.FLOOR,
+    solid_rock=Tile.DIRT)
+# Solid becomes loose rock, other rock becomes floor.
 Layer.INVERT_TO_LOOSE_ROCK = Layer(
-      dirt       = Tile.FLOOR,
-      loose_rock = Tile.FLOOR,
-      hard_rock  = Tile.FLOOR,
-      solid_rock = Tile.LOOSE_ROCK)
+    dirt=Tile.FLOOR,
+    loose_rock=Tile.FLOOR,
+    hard_rock=Tile.FLOOR,
+    solid_rock=Tile.LOOSE_ROCK)
+
 
 class Oyster(object):
   """A Pearl Factory."""
@@ -179,6 +183,7 @@ class Oyster(object):
       # r = (w0 + w1 + ... + wn) + (g0 + g1 + ... + gn) * gf
       # (r - (w0 + w1 + ... + wn)) /  (g0 + g1 + ... + gn) = gf
       grow_factor = (radius - self._width) / self._grow
+
     def h():
       w = 0
       for layer, width, shrink, grow in self._layer_info:
@@ -194,6 +199,7 @@ class PearlTile(object):
     self.pos: Tuple[int, int] = pos
     self.layer: int = layer
     self.sequence: int = sequence
+
 
 class Pearl(object):
   """An object describing the tiles used in a Planner."""

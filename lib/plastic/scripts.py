@@ -4,6 +4,7 @@ import re
 
 MACRO_RE = re.compile(r'(?P<name>[x|y])@(?P<value>-?\d+)')
 
+
 class Script():
 
   def __init__(self):
@@ -22,11 +23,14 @@ class Script():
   def serialize(self, offset: Tuple[int, int]):
     raw = '\n'.join(str(sf) for sf in self._fragments)
     ox, oy = offset
+
     def fx(v: str):
       return ox + int(v)
+
     def fy(v: str):
       return oy + int(v)
     macros = {'x': fx, 'y': fy}
+
     def macro(m):
       return str(macros[m.group('name')](m.group('value')))
     return MACRO_RE.sub(macro, raw)
@@ -34,6 +38,7 @@ class Script():
   @staticmethod
   def escape_string(s: str) -> str:
     return s.replace('"', '\\"').replace('\n', '\\n')
+
 
 class ScriptFragment():
 

@@ -11,30 +11,30 @@ import numpy as np
 
 T = TypeVar('T')
 
-# 2 billion levels ought to be enough for anyone.
+# 2.1 billion levels ought to be enough for anyone.
 MAX_SEED = 0x8000_0000
 
 KINDS = (
-  # Anything using random numbers must be listed here.
-  # If new steps are added, append them to this list
-  # to minimize disruption to existing caverns.
-  'bubble',
-  'weave',
-  'differentiate',
-  'rough.pearl',
-  'fine.place_crystals',
-  'flood',
-  'init',
-  'lore',
-  'conquest.expected_crystals',
-  'fine.place_recharge_seam',
-  'fine.place_landslides',
-  'fine.place_entities',
-  'monster_spawner',
-  'pick_spawn_cave',
-  'place_buildings',
-  'expected_ore',
-  'place_ore',
+    # Anything using random numbers must be listed here.
+    # If new steps are added, append them to this list
+    # to minimize disruption to existing caverns.
+    'bubble',
+    'weave',
+    'differentiate',
+    'rough.pearl',
+    'fine.place_crystals',
+    'flood',
+    'init',
+    'lore',
+    'conquest.expected_crystals',
+    'fine.place_recharge_seam',
+    'fine.place_landslides',
+    'fine.place_entities',
+    'monster_spawner',
+    'pick_spawn_cave',
+    'place_buildings',
+    'expected_ore',
+    'place_ore',
 )
 
 

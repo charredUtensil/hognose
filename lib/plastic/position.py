@@ -5,13 +5,16 @@ import math
 
 from lib.base import Rng
 
+
 class Facing(enum.Enum):
   NORTH = math.pi / -2
-  EAST  = 0
+  EAST = 0
   SOUTH = math.pi / 2
-  WEST  = math.pi
+  WEST = math.pi
+
 
 FACING_TYPE = Union[float, Facing, Tuple[float, float]]
+
 
 def _coerce_facing(pos: Tuple[float, float], facing: FACING_TYPE):
   if isinstance(facing, Facing):
@@ -20,6 +23,7 @@ def _coerce_facing(pos: Tuple[float, float], facing: FACING_TYPE):
     return facing
   else:
     return math.atan2(facing[1] - pos[1], facing[0] - pos[0])
+
 
 class Position(object):
   ENTITY_SCALE = 300
@@ -70,6 +74,7 @@ class Position(object):
       f'Rotation: P={rp:.6f} Y={ry:.6f} R={rr:.6f} '
       f'Scale X={self.sx:.3f} Y={self.sy:.3f} Z={self.sz:.3f}'
     )
+
 
 def rads_to_degrees(rads: float):
   return (rads * 180 / math.pi + 180) % 360 - 180

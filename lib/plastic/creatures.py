@@ -8,6 +8,7 @@ from .entities import Entity
 from .position import Position
 from lib.base import Biome
 
+
 class Creature(Entity):
 
   class Type(enum.Enum):
@@ -39,8 +40,9 @@ class Creature(Entity):
         f'{self.position.serialize(offset, math.pi / 2)}\n'
         f'ID={self.id}{",Sleep=true" if self.sleep else ""}')
 
+
 MONSTER_FOR_BIOME = {
-    Biome.ROCK : Creature.Type.ROCK_MONSTER,
-    Biome.ICE  : Creature.Type.ICE_MONSTER,
-    Biome.LAVA : Creature.Type.LAVA_MONSTER,
+    Biome.ROCK: Creature.Type.ROCK_MONSTER,
+    Biome.ICE: Creature.Type.ICE_MONSTER,
+    Biome.LAVA: Creature.Type.LAVA_MONSTER,
 }

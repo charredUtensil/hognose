@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 import abc
 import enum
 
+
 class BaseVector(abc.ABC):
   def __init__(self, scaled, absolute):
     self._scaled: float = scaled
@@ -14,7 +15,7 @@ class BaseVector(abc.ABC):
   @property
   def scaled(self):
     return self._scaled
-  
+
   @property
   def absolute(self):
     return self._absolute
@@ -31,6 +32,7 @@ class BaseVector(abc.ABC):
 
   def tr(self, dc: 'DrawContext') -> float:
     return (dc.scale * self.scaled + self.absolute)
+
 
 class FreeVector(BaseVector):
   def __init__(self, scaled, absolute):
@@ -59,7 +61,7 @@ class FreeVector(BaseVector):
     if isinstance(other, (int, float)):
       return FreeVector(self.scaled * other, self.absolute * other)
     return NotImplemented
-  
+
   def __rmul__(self, other):
     return self.__mul__(other)
 
@@ -67,12 +69,13 @@ class FreeVector(BaseVector):
     if isinstance(other, (int, float)):
       return FreeVector(self.scaled / other, self.absolute / other)
     return NotImplemented
-  
+
   def __floordiv__(self, other):
     if isinstance(other, (int, float)):
       return FreeVector(self.scaled // other, self.absolute // other)
     return NotImplemented
-  
+
+
 class AnchoredVector(BaseVector):
   @abc.abstractmethod
   def anchor(self):
@@ -88,6 +91,7 @@ class AnchoredVector(BaseVector):
 
   def tr(self, dc) -> float:
     return super().tr(dc) + dc._anchors[self.anchor]
+
 
 class XVector(AnchoredVector):
 
@@ -115,6 +119,7 @@ class XVector(AnchoredVector):
       return XVector(self.scaled + other, self.absolute, self.anchor)
     return NotImplemented
 
+
 class YVector(AnchoredVector):
 
   class Anchor(enum.Enum):
@@ -141,33 +146,40 @@ class YVector(AnchoredVector):
       return YVector(self.scaled + other, self.absolute, self.anchor)
     return NotImplemented
 
+
 _ToFreeVector = Union[FreeVector, float]
 _ToXVector = Union[XVector, float]
 _ToYVector = Union[YVector, float]
+
 
 def a(v: _ToFreeVector):
   if isinstance(v, FreeVector):
     return v
   return FreeVector(0, v)
 
+
 def s(v: _ToFreeVector):
   if isinstance(v, FreeVector):
     return v
   return FreeVector(v, 0)
+
 
 def x(v: _ToXVector) -> XVector:
   if isinstance(v, XVector):
     return v
   return XVector(v, 0, XVector.Anchor.ORIGIN_X)
 
+
 def y(v: _ToYVector) -> YVector:
   if isinstance(v, YVector):
     return v
   return YVector(v, 0, YVector.Anchor.ORIGIN_Y)
 
+
 def xy(v: Tuple[_ToXVector, _ToYVector]):
   vx, vy = v
   return x(vx), y(vy)
+
 
 def xywh(v: Tuple[_ToXVector, _ToYVector, _ToFreeVector, _ToFreeVector]):
   vx, vy, vw, vh = v
@@ -176,10 +188,10 @@ def xywh(v: Tuple[_ToXVector, _ToYVector, _ToFreeVector, _ToFreeVector]):
 
 CENTER_X = XVector(0, 0, XVector.Anchor.CENTER_X)
 ORIGIN_X = XVector(0, 0, XVector.Anchor.ORIGIN_X)
-LEFT     = XVector(0, 0, XVector.Anchor.LEFT)
-RIGHT    = XVector(0, 0, XVector.Anchor.RIGHT)
+LEFT = XVector(0, 0, XVector.Anchor.LEFT)
+RIGHT = XVector(0, 0, XVector.Anchor.RIGHT)
 
 CENTER_Y = YVector(0, 0, YVector.Anchor.CENTER_Y)
 ORIGIN_Y = YVector(0, 0, YVector.Anchor.ORIGIN_Y)
-TOP      = YVector(0, 0, YVector.Anchor.TOP)
-BOTTOM   = YVector(0, 0, YVector.Anchor.BOTTOM)
+TOP = YVector(0, 0, YVector.Anchor.TOP)
+BOTTOM = YVector(0, 0, YVector.Anchor.BOTTOM)

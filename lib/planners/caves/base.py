@@ -8,10 +8,11 @@ import functools
 import itertools
 import math
 
-from .monster_spawners import MonsterSpawner
+from lib.planners.caves.monster_spawners import MonsterSpawner
 from lib.planners.base import SomaticPlanner
 from lib.plastic import Creature, Diorama, ScriptFragment, Tile
 from lib.utils.geometry import plot_line
+
 
 class BaseCavePlanner(SomaticPlanner):
 
@@ -27,13 +28,13 @@ class BaseCavePlanner(SomaticPlanner):
     area = sum(bp.area for bp in self.baseplates)
     mean = math.sqrt(area) * self._stem.crystal_richness
     return self.rng['conquest.expected_crystals'].beta_int(
-        a = 5, b = 2, min = 0, max = mean * 1.25)
+        a=5, b=2, min=0, max=mean * 1.25)
 
   def _get_expected_ore(self):
     area = sum(bp.area for bp in self.baseplates)
     mean = math.sqrt(area) * self._stem.ore_richness
     return self.rng['expected_ore'].beta_int(
-        a = 5, b = 2, min = 0, max = mean * 1.25)
+        a=5, b=2, min=0, max=mean * 1.25)
 
   @functools.cached_property
   def monster_spawner(self) -> Optional[MonsterSpawner]:
@@ -53,7 +54,7 @@ class BaseCavePlanner(SomaticPlanner):
       mpr = self.pearl_radius
       for bp in self.baseplates:
         pr = bp.pearl_radius
-        ox = min(pr, (bp.width  - 1) // 2)
+        ox = min(pr, (bp.width - 1) // 2)
         oy = min(pr, (bp.height - 1) // 2)
         for x in range(bp.left + ox, bp.right - ox):
           for y in range(bp.top + oy, bp.bottom - oy):
@@ -81,7 +82,8 @@ class BaseCavePlanner(SomaticPlanner):
     self.fine_place_entities(diorama)
 
   def fine_recharge_seam(self, diorama: Diorama):
-    if self.rng['fine.place_recharge_seam'].chance(self.context.recharge_seam_chance):
+    if self.rng['fine.place_recharge_seam'].chance(
+      self.context.recharge_seam_chance):
       self.place_recharge_seam(diorama)
 
   def fine_buildings(self, diorama: Diorama):
@@ -94,8 +96,10 @@ class BaseCavePlanner(SomaticPlanner):
     self.place_ore(diorama, self.expected_ore)
 
   def fine_landslides(self, diorama: Diorama):
-    if self.rng['fine.place_landslides'].chance(self.context.cave_landslide_chance):
-      freq = self.context.cave_landslide_freq * sum(math.sqrt(bp.area) for bp in self.baseplates)
+    if self.rng['fine.place_landslides'].chance(
+      self.context.cave_landslide_chance):
+      freq = self.context.cave_landslide_freq * \
+        sum(math.sqrt(bp.area) for bp in self.baseplates)
       self.place_landslides(diorama, freq)
 
   def fine_place_entities(self, diorama: Diorama):
@@ -104,7 +108,8 @@ class BaseCavePlanner(SomaticPlanner):
   def script(self, diorama: Diorama, lore: 'Lore') -> Optional[ScriptFragment]:
     return self.script_place_monster_spawns(diorama)
 
-  def script_place_monster_spawns(self, diorama: Diorama) -> Optional[ScriptFragment]:
+  def script_place_monster_spawns(
+          self, diorama: Diorama) -> Optional[ScriptFragment]:
     monster_spawner = self.monster_spawner
     if monster_spawner:
       return monster_spawner.script(diorama)
@@ -127,15 +132,15 @@ class BaseCavePlanner(SomaticPlanner):
         diorama.tiles,
         diorama.ore,
         count)
-    
+
   def _place_resource(
-      self,
-      rng,
-      seam,
-      resource_name,
-      tiles,
-      resource,
-      count):
+          self,
+          rng,
+          seam,
+          resource_name,
+          tiles,
+          resource,
+          count):
     t = tuple(
       pearl_info.pos
       for pearl_info
@@ -161,8 +166,8 @@ class BaseCavePlanner(SomaticPlanner):
               neighbor_count[
                   tiles.get((x + ox, y + oy), Tile.SOLID_ROCK)] += 1
             if any(
-                n not in (Tile.SOLID_ROCK, Tile.RECHARGE_SEAM)
-                for n in neighbor_count):
+                    n not in (Tile.SOLID_ROCK, Tile.RECHARGE_SEAM)
+                    for n in neighbor_count):
               yield neighbor_count[Tile.SOLID_ROCK], (x, y)
           elif tile in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK):
             yield 4, (x, y)
@@ -188,7 +193,7 @@ class BaseCavePlanner(SomaticPlanner):
           for (ox, oy) in ((0, -1), (0, 1), (-1, 0), (1, 0)):
             neighbor_count[
                 diorama.tiles.get((x + ox, y + oy),
-                Tile.SOLID_ROCK)] += 1
+                                  Tile.SOLID_ROCK)] += 1
           if any(n.passable_by_miner for n in neighbor_count):
             value = neighbor_count[Tile.SOLID_ROCK] * 5
             for ox in (-1, 1):

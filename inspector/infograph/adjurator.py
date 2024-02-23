@@ -3,6 +3,7 @@ from lib.holistics import Adjurator
 
 OBJECTIVE_COLOR = (0x00, 0xff, 0xff)
 
+
 def push_adjurator(canvas: Canvas, adjurator: Adjurator):
   pc = Canvas()
   for x, y in adjurator.positions:

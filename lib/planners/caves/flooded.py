@@ -1,12 +1,13 @@
 import itertools
 import math
 
-from .base import BaseCavePlanner
-from .monster_spawners import MonsterSpawner
+from lib.planners.caves.base import BaseCavePlanner
+from lib.planners.caves.monster_spawners import MonsterSpawner
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
 from lib.plastic import Creature, Tile
 from lib.utils.geometry import plot_line
+
 
 class FloodedCavePlanner(BaseCavePlanner):
   @property
@@ -22,12 +23,14 @@ class FloodedCavePlanner(BaseCavePlanner):
       return None
     return super()._get_monster_spawner()
 
+
 class ContiguousFloodedCavePlanner(FloodedCavePlanner):
   def rough(self, tiles):
     for a, b in itertools.pairwise(self.baseplates):
       for x, y in plot_line(a.center, b.center, True):
         tiles[x, y] = self.fluid_type
     super().rough(tiles)
+
 
 def bids(stem, conquest):
   pr = stem.pearl_radius
@@ -51,6 +54,7 @@ def bids(stem, conquest):
       if not any(p.fluid_type for p in conquest.intersecting(stem)):
         yield (1, lambda: FloodedCavePlanner(
             stem, Oysters.LAVA_PENINSULA))
+
 
 class Oysters:
   LAKE = (

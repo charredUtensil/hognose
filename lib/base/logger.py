@@ -1,13 +1,13 @@
 from typing import Any, TYPE_CHECKING
 
-import abc
 import sys
 import traceback
 
 if TYPE_CHECKING:
   from lib import Cavern
 
-class Logger(abc.ABC):
+
+class Logger():
   """A basic logger."""
 
   def __init__(self):
@@ -26,6 +26,7 @@ class Logger(abc.ABC):
     print(
         ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
         file=sys.stderr)
+
 
 class MultiCavernLogger(Logger):
 

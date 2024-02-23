@@ -14,24 +14,26 @@ from lib.utils import geometry
 # Assuming the building itself has its entity origin at (0, 0), and is facing
 # NORTH, these tiles become the foundation tiles for buildings with that
 # footprint.
-F_MINING_LASER     = ((0, 0),                           )
-F_DEFAULT          = ((0, 0),                    (0, -1))
-F_CANTEEN_REFINERY = ((0, 0), (0, 1),            (0, -1))
-F_POWER_STATION    = ((0, 0), (1, 0),            (0, -1))
-F_SUPER_TELEPORT   = ((0, 0), (-1, -1), (-1, 0), (0, -1))
+F_MINING_LASER = ((0, 0),)
+F_DEFAULT = ((0, 0), (0, -1))
+F_CANTEEN_REFINERY = ((0, 0), (0, 1), (0, -1))
+F_POWER_STATION = ((0, 0), (1, 0), (0, -1))
+F_SUPER_TELEPORT = ((0, 0), (-1, -1), (-1, 0), (0, -1))
 
 ROTATION_BY_FACING = {
-    Facing.NORTH : lambda x, y: (x, y),
-    Facing.EAST  : geometry.rotate_right,
-    Facing.SOUTH : geometry.rotate_180,
-    Facing.WEST  : geometry.rotate_left,
+    Facing.NORTH: lambda x, y: (x, y),
+    Facing.EAST: geometry.rotate_right,
+    Facing.SOUTH: geometry.rotate_180,
+    Facing.WEST: geometry.rotate_left,
 }
+
 
 class BuildingDoesNotFitException(Exception):
   pass
 
+
 class Building(Entity):
-  
+
   class Type(enum.Enum):
 
     def __init__(
@@ -123,7 +125,7 @@ class Building(Entity):
     bw = br - bl
     bh = bb - bt
     flu, flv, fou, fov = _bound_foundation(type)
-    
+
     rotation_index = {
         Facing.NORTH: 0,
         Facing.EAST: 1,
@@ -131,10 +133,10 @@ class Building(Entity):
         Facing.WEST: 3,
     }[first_facing]
     rotations = (
-        (Facing.NORTH, flu, flv,           fou,           fov),
-        (Facing.EAST,  flv, flu, flv - 1 - fov,           fou),
+        (Facing.NORTH, flu, flv, fou, fov),
+        (Facing.EAST, flv, flu, flv - 1 - fov, fou),
         (Facing.SOUTH, flu, flv, flu - 1 - fou, flv - 1 - fov),
-        (Facing.WEST,  flv, flu,           fov, flu - 1 - fou),
+        (Facing.WEST, flv, flu, fov, flu - 1 - fou),
     )
     for facing, fw, fh, fox, foy in itertools.islice(
         itertools.cycle(rotations), rotation_index, rotation_index + 4):
@@ -149,6 +151,7 @@ class Building(Entity):
           teleport_at_start)
     raise BuildingDoesNotFitException(
       f'{type} with bounds {flu}x{flv} does not fit in area of {bw}x{bh}')
+
 
 def _bound_foundation(type: 'Building.Type') -> Tuple[int, int, int, int]:
   l = min(x for x, _ in type.foundation_offsets)

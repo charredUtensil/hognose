@@ -6,6 +6,7 @@ from lib.base import ProceduralThing
 from lib.outlines import Baseplate
 from lib.plastic import Tile
 
+
 class Planner(ProceduralThing, abc.ABC):
 
   def __init__(self, id, context):

@@ -5,6 +5,7 @@ from inspector.infograph.common import (
     FONT_BIG, OVERLAY_COLOR, OVERLAY_PADDING, OVERLAY_SHADOW_COLOR,
     OVERLAY_SHADOW_OFFSET)
 
+
 class UiOverlay(Drawable):
 
   def __init__(self):
@@ -29,21 +30,25 @@ class UiOverlay(Drawable):
     if self._total > 1:
       if not self._index_label:
         self._index_label = Label(
-            font = FONT_BIG,
-            text = f'{self._index + 1} / {self._total}',
-            color = OVERLAY_COLOR,
-            origin = (v.RIGHT - OVERLAY_PADDING, v.TOP + OVERLAY_PADDING),
-            shadow_color = OVERLAY_SHADOW_COLOR,
-            shadow_offset = OVERLAY_SHADOW_OFFSET,
-            gravity = Gravity.TOP_RIGHT)
+            font=FONT_BIG,
+            text=f'{self._index + 1} / {self._total}',
+            color=OVERLAY_COLOR,
+            origin=(v.RIGHT - OVERLAY_PADDING, v.TOP + OVERLAY_PADDING),
+            shadow_color=OVERLAY_SHADOW_COLOR,
+            shadow_offset=OVERLAY_SHADOW_OFFSET,
+            gravity=Gravity.TOP_RIGHT)
       self._index_label.draw(dc)
     if self._progress < 1:
       if not self._progress_fg:
         w = v.a(400)
         h = v.a(20)
         self._progress_fg = Rect(
-          color=OVERLAY_COLOR,
-          rect=(v.CENTER_X - w // 2, v.CENTER_Y - h // 2, w * self._progress, h))
+            color=OVERLAY_COLOR,
+            rect=(
+                v.CENTER_X - w // 2,
+                v.CENTER_Y - h // 2,
+                w * self._progress,
+                h))
         if not self._progress_bg:
           self._progress_bg = FrozenCanvas((
               Rect(

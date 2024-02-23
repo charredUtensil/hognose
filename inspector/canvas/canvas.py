@@ -3,6 +3,7 @@ from typing import Iterable
 from inspector.canvas.drawables import Drawable
 from inspector.canvas.draw_context import DrawContext
 
+
 class Canvas():
 
   def __init__(self):
@@ -21,6 +22,7 @@ class Canvas():
       for z, dr in sorted(self._drawables.items()):
         yield from dr
     return FrozenCanvas(h())
+
 
 class FrozenCanvas(Drawable):
 

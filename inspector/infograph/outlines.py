@@ -25,6 +25,7 @@ PATH_COLORS = {
     Path.AUXILIARY: (0xcc, 0xcc, 0xcc),
 }
 
+
 def _space_rect(space: Union[Bubble, Baseplate]):
   return (
       space.left,
@@ -38,9 +39,9 @@ def push_outlines(canvas: Canvas, bubbles, baseplates, paths):
   for b in bubbles:
     rect = _space_rect(b)
     pc.push(Rect(
-        color = BUBBLE_OUTLINE_COLOR,
-        rect = rect,
-        thickness = v.a(1)))
+        color=BUBBLE_OUTLINE_COLOR,
+        rect=rect,
+        thickness=v.a(1)))
     pc.push(LabelIfFits(
         font=FONT_TINY,
         text=f'{b.id:03d}',
@@ -51,13 +52,9 @@ def push_outlines(canvas: Canvas, bubbles, baseplates, paths):
     color, ocolor, lcolor = BASEPLATE_COLORS[bp.kind]
     rect = _space_rect(bp)
     if color:
-      pc.push(Rect(
-          color = color,
-          rect = rect))
+      pc.push(Rect(color=color, rect=rect))
     if ocolor:
-      pc.push(Rect(
-          color = color,
-          rect = rect))
+      pc.push(Rect(color=color, rect=rect))
     if lcolor:
       pc.push(LabelIfFits(
           font=FONT_TINY,

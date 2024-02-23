@@ -3,9 +3,11 @@ from inspector.infograph.common import (
     FONT_BIG, FONT_MED, Z_OVERLAY, OVERLAY_COLOR, OVERLAY_PADDING,
     OVERLAY_SHADOW_COLOR, OVERLAY_SHADOW_OFFSET, WARNING_COLOR)
 
+
 def _title(cavern):
   name = cavern.diorama.level_name or f'0x{cavern.context.seed:08x}'
   return f'{name} {cavern.stage}'
+
 
 def _description(cavern):
   if cavern.stage == 'init':
@@ -32,6 +34,7 @@ def _description(cavern):
     ore = cavern.diorama.ore_yield
     return f'{crystals} EC\n{ore:d} Ore'
   return ''
+
 
 def _word_wrap(text: str, chars: int):
   def h():
@@ -71,7 +74,7 @@ def push_overlays(canvas: Canvas, cavern, details, warnings):
       origin=(v.LEFT + OVERLAY_PADDING, v.TOP + OVERLAY_PADDING),
       shadow_color=OVERLAY_SHADOW_COLOR,
       shadow_offset=OVERLAY_SHADOW_OFFSET,
-      gravity = Gravity.TOP_LEFT))
+      gravity=Gravity.TOP_LEFT))
   pc.push(Label(
       font=FONT_MED,
       text='\n'.join(warnings),

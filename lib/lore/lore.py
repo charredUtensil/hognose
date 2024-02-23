@@ -16,6 +16,7 @@ from lib.base import Biome
 from lib.planners.caves import EstablishedHQCavePlanner, LostMinersCavePlanner, TreasureCavePlanner
 from lib.plastic import Tile
 
+
 class Lore(object):
   def __init__(self, cavern: 'Cavern'):
     self.cavern = cavern
@@ -38,7 +39,7 @@ class Lore(object):
           yield 'lost_miners_together'
         else:
           yield 'lost_miners_apart'
-      
+
       if resources:
         yield 'collect_resources'
 
@@ -92,13 +93,13 @@ class Lore(object):
     premise = PREMISES.generate(rng, self._states)
     orders = ORDERS.generate(rng, self._states)
     return f'{premise}\n\n{orders}' % self._vars
-  
+
   @functools.cached_property
   def success(self) -> str:
     rng = self.cavern.context.rng['lore', -2]
     return SUCCESS.generate(
         rng, self._states | frozenset(('commend',))) % self._vars
-  
+
   @functools.cached_property
   def failure(self) -> str:
     rng = self.cavern.context.rng['lore', -3]
@@ -122,14 +123,18 @@ class Lore(object):
 
   def event_found_lost_miners(self, rng, lost_miners_found: int) -> str:
     states = self._states | frozenset((
-        'found_miners_one' if lost_miners_found == 1 else 'found_miners_many',))
+        'found_miners_one' if lost_miners_found == 1
+        else 'found_miners_many',))
     v = {'found_miners_count': _spell_number(lost_miners_found)}
     v.update(self._vars)
     return FOUND_LOST_MINERS.generate(rng['lore'], states) % v
 
 # String manipulation methods
+
+
 def _capitalize_first(s: str) -> str:
   return s[0].upper() + s[1:] if s else s
+
 
 def _join_human(things: Sequence[str], conjunction: str = 'and') -> str:
   if len(things) == 0:
@@ -138,15 +143,17 @@ def _join_human(things: Sequence[str], conjunction: str = 'and') -> str:
     return things[0]
   return f'{", ".join(things[:-1])} {conjunction} {things[-1]}'
 
+
 def _spell_cardinal(
-    origin: Tuple[float, float],
-    destination: Tuple[float, float]):
+        origin: Tuple[float, float],
+        destination: Tuple[float, float]):
   x1, y1 = origin
   x2, y2 = destination
   return (
     'east', 'north east', 'north', 'north west',
     'west', 'south west', 'south', 'south east', 'east'
   )[round(4 * (math.atan2(y2 - y1, x2 - x1) / math.pi + 1))]
+
 
 def _spell_number(n: int) -> str:
   if n > 999:
@@ -171,6 +178,7 @@ def _spell_number(n: int) -> str:
 
 # Helper methods
 
+
 def _flooded_kind(cavern: 'Cavern'):
   lava = 0
   water = 0
@@ -188,6 +196,7 @@ def _flooded_kind(cavern: 'Cavern'):
   else:
     return None
 
+
 def _resources(cavern: 'Cavern'):
   def h():
     adjurator = cavern.adjurator
@@ -201,7 +210,8 @@ def _resources(cavern: 'Cavern'):
   return (
       _join_human(tuple(f'{c} {k}' for c, k in r)),
       _join_human(tuple(k for c, k in r)))
-    
+
+
 def _spawn_has_erosion(cavern: 'Cavern'):
   spawn = cavern.conquest.spawn
   return (

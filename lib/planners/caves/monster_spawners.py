@@ -7,6 +7,7 @@ import math
 from lib.planners.base import SomaticPlanner
 from lib.plastic import Creature, Diorama, ScriptFragment, Tile
 
+
 class ScriptInfo(object):
 
   def __init__(
@@ -20,19 +21,22 @@ class ScriptInfo(object):
     self.secondary_trigger_tiles = tuple(secondary_trigger_tiles)
     self.emerges = tuple(emerges)
 
-STATE_INACTIVE      = 0
+
+STATE_INACTIVE = 0
 STATE_RETRIGGERABLE = 1
-STATE_COOLDOWN      = 2
-STATE_READY         = 3
+STATE_COOLDOWN = 2
+STATE_READY = 3
+
 
 class RetriggerMode(enum.Enum):
-  
+
   def __init__(self, after_trigger_state):
     self.after_trigger_state = after_trigger_state
 
   NEVER = (STATE_INACTIVE,)
   HOARD = (STATE_RETRIGGERABLE,)
   AUTOMATIC = (STATE_COOLDOWN,)
+
 
 class MonsterSpawner(object):
 
@@ -47,7 +51,7 @@ class MonsterSpawner(object):
       max_cooldown: float = 300,
       min_initial_cooldown: float = 0,
       max_initial_cooldown: float = 0,
-      spawn_immediately_when_ready = False,
+      spawn_immediately_when_ready: bool = False,
       retrigger_mode: RetriggerMode = RetriggerMode.AUTOMATIC):
     self.planner = planner
     self.creature_type = creature_type
@@ -79,7 +83,7 @@ class MonsterSpawner(object):
   def _discovery_tile(self, diorama: Diorama) -> Optional[Tuple[int, int]]:
     for info in self.planner.pearl.inner:
       if (not diorama.tiles.get(info.pos, Tile.SOLID_ROCK).is_wall
-          and not info.pos in diorama.discovered):
+          and info.pos not in diorama.discovered):
         return info.pos
     return None
 
@@ -92,11 +96,12 @@ class MonsterSpawner(object):
       if diorama.tiles.get((x, y), Tile.SOLID_ROCK) != Tile.SOLID_ROCK:
         yield x, y
 
-  def _secondary_trigger_tiles(self, diorama: Diorama) -> Iterable[Tuple[int, int]]:
+  def _secondary_trigger_tiles(
+      self, diorama: Diorama) -> Iterable[Tuple[int, int]]:
     if self.retrigger_mode == RetriggerMode.HOARD:
       for info in self.planner.pearl.inner:
         if (diorama.crystals.get(info.pos, 0) > 0
-            and not diorama.tiles[info.pos].is_wall):
+                and not diorama.tiles[info.pos].is_wall):
           yield info.pos
 
   def _emerges(self) -> Iterable[Tuple[int, int, int]]:
@@ -137,15 +142,15 @@ class MonsterSpawner(object):
     # Surround the cave with triggers that cause spawn.
     for x, y in self.script_info.trigger_tiles:
       yield f'when(enter:y@{y:d},x@{x:d})[{prefix}spawn]'
-    
+
     # The actual spawn function
     yield f'{prefix}spawn::;'
     # Return if not ready
     yield f'(({prefix}state<{STATE_READY}))return;'
     yield f'{prefix}state={self.retrigger_mode.after_trigger_state};'
     # Emerge events
-    for x, y, r in itertools.islice(itertools.cycle(
-        self.script_info.emerges), self.wave_size):
+    for x, y, r in itertools.islice(
+        itertools.cycle(self.script_info.emerges), self.wave_size):
       yield f'wait:random({self.min_delay:.2f})({self.max_delay:.2f});'
       yield f'emerge:y@{y:d},x@{x:d},A,{self.creature_type.value},{r:d};'
     # Wait for cooldown and re-enable
@@ -172,7 +177,7 @@ class MonsterSpawner(object):
       spawn_rate: float,
       mean_wave_size: float):
     rng = planner.rng['monster_spawner']
-    wave_size = rng.beta_int(a = 5, b = 2, min = 1, max = mean_wave_size * 1.25)
+    wave_size = rng.beta_int(a=5, b=2, min=1, max=mean_wave_size * 1.25)
 
     # Spawn the wave over 2-15 seconds
     min_delay = 2 / wave_size
@@ -180,7 +185,7 @@ class MonsterSpawner(object):
 
     mean_cooldown = 60 * wave_size / spawn_rate
     # Choose random min cooldown below the mean
-    min_cooldown = rng.beta(a = 5, b = 5, min = 60, max = mean_cooldown)
+    min_cooldown = rng.beta(a=5, b=5, min=60, max=mean_cooldown)
     # Choose max cooldown so their average is the mean
     max_cooldown = 2 * mean_cooldown - min_cooldown
 

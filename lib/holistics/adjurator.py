@@ -7,10 +7,12 @@ import math
 from lib.base import Context
 from lib.plastic import Diorama, Objective, ResourceObjective, Script, ScriptFragment, VariableObjective
 
-MinersInfo = NamedTuple('MinersInfo', pos=Tuple[int, int], miners_count=int, caves_count=int)
+MinersInfo = NamedTuple(
+    'MinersInfo', pos=Tuple[int, int], miners_count=int, caves_count=int)
 HqInfo = NamedTuple('HqInfo', pos=Tuple[int, int], description=str)
 
 PREFIX = 'adjurator_'
+
 
 class Adjurator(object):
 

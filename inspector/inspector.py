@@ -8,6 +8,10 @@ import queue
 import threading
 import traceback
 
+# Disable pygame's output on import
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+import pygame # pylint: disable=wrong-import-order,wrong-import-position
+
 from inspector.canvas import Canvas, FrozenCanvas, DrawContext, Fill, Rect
 from inspector.infograph.common import OVERLAY_COLOR
 from inspector.infograph.bsod import push_bsod
@@ -19,10 +23,6 @@ from lib.plastic import Tile
 from lib.planners import StemPlanner, SomaticPlanner
 from lib.outlines import Baseplate, Path
 from lib.version import VERSION
-
-# Disable pygame's output on import
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-import pygame # pylint: disable=wrong-import-order,wrong-import-position
 
 UPDATE_REQUESTED = pygame.event.Event(pygame.event.custom_type())
 
@@ -100,9 +100,9 @@ class Inspector(Logger):
           self.offset_y)
       self.frames[self._frame_index].draw(dc)
       ui_overlay.update(
-        index = self._frame_index,
-        progress = self.progress,
-        total = len(self.frames))
+          index=self._frame_index,
+          progress=self.progress,
+          total=len(self.frames))
       ui_overlay.draw(dc)
       pygame.display.flip()
 
@@ -126,7 +126,9 @@ class Inspector(Logger):
         if event.key == pygame.K_LEFT:
           self._frame_index = max(self._frame_index - increment, 0)
         elif event.key == pygame.K_RIGHT:
-          self._frame_index = min(self._frame_index + increment, len(self.frames) - 1)
+          self._frame_index = min(
+              self._frame_index + increment,
+              len(self.frames) - 1)
         elif event.key == pygame.K_UP:
           self.scale = min(self.scale + 1, 20)
         elif event.key == pygame.K_DOWN:

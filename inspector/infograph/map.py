@@ -15,6 +15,7 @@ ORE_COLOR = Tile.ORE_SEAM.inspect_color
 
 BUILDING_LABEL_RADIUS = 10
 
+
 def _push_resource(canvas, count, color, origin):
   if count > 9:
     canvas.push(RadialLabel(
@@ -29,14 +30,15 @@ def _push_resource(canvas, count, color, origin):
         text=f'{count:d}',
         color=color,
         origin=origin,
-        shadow_color = (0, 0, 0),
-        shadow_offset = v.a(1)))
+        shadow_color=(0, 0, 0),
+        shadow_offset=v.a(1)))
   elif count > 0:
     canvas.push(Circle(
         color=color,
         origin=origin,
         radius=count / 4,
         thickness=v.a(1)))
+
 
 def _push_resources(canvas: Canvas, diorama: Diorama):
   oc = Canvas()
@@ -55,6 +57,7 @@ def _push_resources(canvas: Canvas, diorama: Diorama):
       _push_resource(ec, crystals, CRYSTAL_COLOR, (x + 0.75, y + 0.75))
   canvas.push(oc.freeze(), Z_ORE)
   canvas.push(ec.freeze(), Z_CRYSTALS)
+
 
 def _push_hazards(canvas: Canvas, diorama: Diorama):
   pc = Canvas()
@@ -80,6 +83,7 @@ def _push_hazards(canvas: Canvas, diorama: Diorama):
       end=(x + 0.75, y + 0.25)))
   canvas.push(pc.freeze(), Z_HAZARDS)
 
+
 def _entity_line(entity: Entity, color, length, thickness) -> Line:
   theta = entity.theta
   return Line(
@@ -89,6 +93,7 @@ def _entity_line(entity: Entity, color, length, thickness) -> Line:
           entity.x + math.cos(theta) * length,
           entity.y + math.sin(theta) * length),
       thickness=thickness)
+
 
 def _push_entities(canvas: Canvas, diorama: Diorama):
   pc = Canvas()
@@ -124,6 +129,7 @@ def _push_entities(canvas: Canvas, diorama: Diorama):
         radius=v.s(0.25)))
     pc.push(_entity_line(miner, MINER_COLOR, 1, v.a(1)))
   canvas.push(pc.freeze(), Z_ENTITIES)
+
 
 def push_map(canvas: Canvas, diorama: Diorama):
   pc = Canvas()

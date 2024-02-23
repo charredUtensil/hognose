@@ -8,6 +8,7 @@ from inspector.infograph.overlays import OVERLAY_COLOR, push_overlays
 from inspector.infograph.planners import push_planners
 from inspector.infograph.scripts import push_script
 
+
 def push_state(canvas, cavern, details, warnings):
   canvas.push(Fill(color=(0, 0, 0)), Z_BACKGROUND)
   if cavern.conquest:

@@ -9,13 +9,16 @@ import math
 from inspector.canvas.draw_context import DrawContext
 import inspector.canvas.vectors as v
 
+
 class Drawable(abc.ABC):
 
   @abc.abstractmethod
   def draw(self, dc: DrawContext):
     pass
 
+
 Color = Tuple[int, int, int]
+
 
 class Fill(Drawable):
 
@@ -25,9 +28,10 @@ class Fill(Drawable):
   def draw(self, dc):
     dc.surface.fill(self._color)
 
+
 class Line(Drawable):
 
-  def __init__(self, color, start, end, thickness = v.a(1)):
+  def __init__(self, color, start, end, thickness=v.a(1)):
     self._color: Color = color
     self._start = v.xy(start)
     self._end = v.xy(end)
@@ -42,9 +46,10 @@ class Line(Drawable):
         dc.tr(self._end),
         thickness)
 
+
 class Circle(Drawable):
 
-  def __init__(self, color, origin, radius, thickness = v.a(0)):
+  def __init__(self, color, origin, radius, thickness=v.a(0)):
     self._color: Color = color
     self._origin = v.xy(origin)
     self._radius = v.s(radius)
@@ -58,8 +63,9 @@ class Circle(Drawable):
       max(dc.tr(self._radius), 1),
       dc.tr(self._thickness))
 
+
 class Rect(Drawable):
-  def __init__(self, color, rect, thickness = v.a(0)):
+  def __init__(self, color, rect, thickness=v.a(0)):
     self._color: Color = color
     self._rect = v.xywh(rect)
     self._thickness = v.a(thickness)
@@ -71,6 +77,7 @@ class Rect(Drawable):
       pygame.Rect(*dc.tr(self._rect)),
       dc.tr(self._thickness))
 
+
 class Font():
   def __init__(self, *args, **kwargs):
     self._args = args
@@ -79,6 +86,7 @@ class Font():
   @functools.cached_property
   def proxied(self):
     return pygame.font.SysFont(*self._args, **self._kwargs)
+
 
 class Gravity(enum.Enum):
   TOP_LEFT = (-1, -1)
@@ -94,6 +102,7 @@ class Gravity(enum.Enum):
   def __iter__(self):
     return iter(self.value)
 
+
 class RawText():
 
   def __init__(self, font, text, gravity):
@@ -106,6 +115,7 @@ class RawText():
     gx, gy = self._gravity
     _, th = self._font.proxied.size('M')
     lines = self._text.splitlines()
+
     def h():
       for i, line in enumerate(lines):
         tw, _ = self._font.proxied.size(line)
@@ -124,6 +134,7 @@ class RawText():
       font_surface = self._font.proxied.render(line, False, color)
       dc.surface.blit(font_surface, (x0 + ox, y0 + oy))
 
+
 class Label(Drawable):
 
   def __init__(
@@ -132,9 +143,9 @@ class Label(Drawable):
       text,
       color,
       origin,
-      shadow_color = None,
-      shadow_offset = v.a(0),
-      gravity = Gravity.CENTER):
+      shadow_color=None,
+      shadow_offset=v.a(0),
+      gravity=Gravity.CENTER):
     self._rt = RawText(font, text, gravity)
     self._color: Color = color
     self._origin = v.xy(origin)
@@ -144,8 +155,13 @@ class Label(Drawable):
   def draw(self, dc):
     if self._shadow_color:
       x, y = self._origin
-      self._rt.draw(dc, self._shadow_color, (x + self._shadow_offset, y + self._shadow_offset))
+      self._rt.draw(
+          dc,
+          self._shadow_color,
+          (x + self._shadow_offset,
+           y + self._shadow_offset))
     self._rt.draw(dc, self._color, self._origin)
+
 
 class LabelIfFits(Drawable):
   def __init__(
@@ -154,8 +170,8 @@ class LabelIfFits(Drawable):
       text,
       color,
       rect,
-      shadow_color = None,
-      shadow_offset = v.a(0),
+      shadow_color=None,
+      shadow_offset=v.a(0),
       gravity=Gravity.CENTER,
       fallback=None):
     self._rt = RawText(font, text, gravity)
@@ -202,6 +218,7 @@ class LabelIfFits(Drawable):
     elif self._fallback:
       self._fallback.draw(dc)
 
+
 class RadialLabel(Drawable):
   def __init__(self, font, text, fg_color, bg_color, origin, inset=v.a(50)):
     self._rt: RawText = RawText(font, text, Gravity.CENTER)
@@ -244,8 +261,6 @@ class RadialLabel(Drawable):
       (label_x, label_y),
       10,
       1)
-    
+
     # Label
     self._rt.draw(dc, self._fg_color, (v.a(label_x), v.a(label_y)))
-
-

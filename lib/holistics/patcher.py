@@ -2,10 +2,11 @@ from typing import Dict, Tuple
 
 from lib.plastic import Tile
 
+
 def patch(tiles: Dict[Tuple[int, int], Tile]):
-  left   = min(x for x, y in tiles)
-  right  = max(x for x, y in tiles)
-  top    = min(y for x, y in tiles)
+  left = min(x for x, y in tiles)
+  right = max(x for x, y in tiles)
+  top = min(y for x, y in tiles)
   bottom = max(y for x, y in tiles)
   for x in range(left, right + 1):
     for y in range(top, bottom + 1):
@@ -31,6 +32,3 @@ def patch(tiles: Dict[Tuple[int, int], Tile]):
       # Remaining square
       if not tiles.get((x + ox - oy, y + ox + oy), Tile.SOLID_ROCK).is_wall:
         tiles[x + ox - oy, y + ox + oy] = Tile.DIRT
-      
-      
-        

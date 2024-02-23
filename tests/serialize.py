@@ -7,17 +7,19 @@ from tests.base import SerializedCavernTest
 
 T = TypeVar('T')
 
+
 def fill(
-        t: Dict[Tuple[int, int], T],
-        left: int,
-        top: int,
-        width: int,
-        height: int,
-        value: T):
+    t: Dict[Tuple[int, int], T],
+    left: int,
+    top: int,
+    width: int,
+    height: int,
+    value: T):
   """Fills the given rectangle in t with the given value."""
   for x in range(left, left + width):
     for y in range(top, top + height):
       t[x, y] = value
+
 
 class TestSerialize(SerializedCavernTest):
   """Tests that some handcrafted Dioramas serialize to the correct strings."""

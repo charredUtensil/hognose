@@ -8,6 +8,7 @@ from lib.base.pseudorandom import DiceBox
 
 T = TypeVar('T')
 
+
 class Biome(enum.Enum):
   """A biome for the level."""
   ROCK = 'rock'
@@ -22,6 +23,7 @@ Curve = NamedTuple(
     hops=float,       # Scales a % of maximum hops from spawn
     completion=float  # Scales as a % of total caves conquered
 )
+
 
 @dataclasses.dataclass(frozen=True)
 class Context():
@@ -118,10 +120,11 @@ class Context():
   @classmethod
   def coerce_overrides(cls, overrides):
     types = {f.name: f.type for f in dataclasses.fields(cls)}
+
     def h():
       for k, v in overrides.items():
         yield k, v
-    r = {k:v for k, v in h()}
+    r = {k: v for k, v in h()}
 
   @classmethod
   def generate(cls, logger: Logger, seed: int, **overrides):
@@ -131,6 +134,7 @@ class Context():
     biome = rng.uniform_choice(Biome)
     if 'biome' in overrides:
       biome = overrides[biome]
+
     def for_biome(rock: T, ice: T, lava: T) -> T:
       if biome == Biome.ROCK:
         return rock

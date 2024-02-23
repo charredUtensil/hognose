@@ -43,7 +43,7 @@ def _all_possible_states(pg: PhraseGraph) -> FrozenSet[FrozenSet[str]]:
 
     def h():
       for r in result:
-        for a in append: # pylint: disable=cell-var-from-loop
+        for a in append:  # pylint: disable=cell-var-from-loop
           yield r | a
     result = frozenset(h())
   return result

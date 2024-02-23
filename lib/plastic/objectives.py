@@ -4,8 +4,9 @@ import abc
 
 from .miners import Miner
 
+
 class Objective(abc.ABC):
-  
+
   @abc.abstractmethod
   def serialize(self) -> str:
     pass
@@ -14,6 +15,7 @@ class Objective(abc.ABC):
   @abc.abstractmethod
   def description(self) -> str:
     pass
+
 
 class ResourceObjective(Objective):
 
@@ -35,6 +37,7 @@ class ResourceObjective(Objective):
 
   def serialize(self):
     return f'resources: {self.crystals:d},{self.ore:d},{self.studs:d}'
+
 
 class VariableObjective(Objective):
 

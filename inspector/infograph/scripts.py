@@ -13,6 +13,7 @@ POI_COLOR = (0x00, 0xff, 0xff)
 
 POI_RE = re.compile(r'y@(-?\d+),x@(-?\d+)')
 
+
 def push_script(canvas: Canvas, details):
   pc = Canvas()
   if isinstance(details, ScriptFragment):

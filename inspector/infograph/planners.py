@@ -32,10 +32,12 @@ PEARL_OUTER_LAYER_COLORS = [
     (0x99, 0x99, 0x20),
 ]
 
+
 def _planner_is_big_cave(planner: Planner):
   return (
       (isinstance(planner, StemPlanner) and planner.kind == StemPlanner.CAVE)
       or isinstance(planner, BaseCavePlanner))
+
 
 def _planner_border_color(planner: Planner) -> Color:
   if isinstance(planner, StemPlanner):
@@ -47,6 +49,7 @@ def _planner_border_color(planner: Planner) -> Color:
   assert isinstance(planner, SomaticPlanner)
   return planner.inspect_color
 
+
 def _planner_bg_color(planner: Planner) -> Color:
   if isinstance(planner, StemPlanner):
     if planner.kind == StemPlanner.CAVE:
@@ -57,16 +60,19 @@ def _planner_bg_color(planner: Planner) -> Color:
     return planner.fluid_type.inspect_color
   return Tile.FLOOR.inspect_color
 
+
 def _planner_fg_color(planner: Planner) -> Color:
   if isinstance(planner, StemPlanner) or planner.fluid_type:
     return (0xff, 0xff, 0xff)
   assert isinstance(planner, SomaticPlanner)
   return planner.inspect_color
 
+
 def _planner_label_radius(planner: Planner, border_thickness):
   if _planner_is_big_cave(planner):
     return planner.pearl_radius - border_thickness
   return v.s(1)
+
 
 def _planner_line_radius(planner: Planner, border_thickness):
   if _planner_is_big_cave(planner):
@@ -77,10 +83,12 @@ def _planner_line_radius(planner: Planner, border_thickness):
     return 0
   return v.s(0.5)
 
+
 def _origin(planner):
   if _planner_is_big_cave(planner):
     return max(planner.baseplates, key=lambda bp: bp.pearl_radius).center
   return planner.center
+
 
 def _draw_planner(canvas, planner):
   z_border, z_bg, z_fg = 0, 1, 2
@@ -123,19 +131,20 @@ def _draw_planner(canvas, planner):
           start=a.center,
           end=b.center,
           thickness=line_radius * 2), z_bg)
-  
+
   # Additional circles to connect lines together in a less jarring fashion
   if len(planner.baseplates) > 1:
     for bp in planner.baseplates:
       canvas.push(Circle(
           color=border_color,
           origin=bp.center,
-          radius = line_radius + border_thickness), z_border)
+          radius=line_radius + border_thickness), z_border)
       if line_radius:
         canvas.push(Circle(
             color=bg_color,
             origin=bp.center,
             radius=line_radius), z_bg)
+
 
 def _draw_pearl(canvas: Canvas, pearl):
   def h(walk, colors, line_thickness):
@@ -153,8 +162,8 @@ def _draw_pearl(canvas: Canvas, pearl):
       else:
         canvas.push(Circle(
           color=color,
-          origin = (bx + 0.5, by + 0.5),
-          radius = 0.3), 0)
+          origin=(bx + 0.5, by + 0.5),
+          radius=0.3), 0)
         canvas.push(LabelIfFits(
           font=FONT_TINY,
           text=str(b.layer),
@@ -162,6 +171,7 @@ def _draw_pearl(canvas: Canvas, pearl):
           rect=(bx, by, 1, 1)), 1)
   h(pearl.inner, PEARL_INNER_LAYER_COLORS, 3)
   h(pearl.outer, PEARL_OUTER_LAYER_COLORS, 1)
+
 
 def push_planners(canvas: Canvas, planners: Iterable[Planner], details):
   st_pc = Canvas()
@@ -175,7 +185,9 @@ def push_planners(canvas: Canvas, planners: Iterable[Planner], details):
         _draw_planner(so_pc, planner)
   canvas.push(st_pc.freeze(), Z_PLANNERS)
   canvas.push(so_pc.freeze(), Z_PLANNERS)
-  if isinstance(details, Planner) and hasattr(details, 'pearl') and details.pearl:
+  if (isinstance(details, Planner)
+      and hasattr(details, 'pearl')
+      and details.pearl):
     pc = Canvas()
     _draw_pearl(pc, details.pearl)
     canvas.push(pc.freeze(), Z_PEARL)
