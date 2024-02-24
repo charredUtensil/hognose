@@ -75,8 +75,8 @@ class FreeVector(BaseVector):
 
 
 class AnchoredVector(BaseVector):
-  @abc.abstractmethod
   @property
+  @abc.abstractmethod
   def anchor(self):
     pass
 
