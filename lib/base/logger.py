@@ -21,7 +21,7 @@ class Logger():
 
   def log_exception(self, cavern: 'Cavern', e: Exception):
     print(
-        f'Error in cavern with seed {cavern.seed:08x}: ' +
+        f'Error in cavern with seed {cavern.context.seed:08x}: ' +
         ''.join(traceback.format_exception(type(e), e, e.__traceback__)),
         file=sys.stderr)
 
