@@ -1,11 +1,11 @@
 import itertools
 
 from lib.planners.base import SomaticPlanner
-from lib.plastic import Tile
 from lib.utils.geometry import plot_line
 
+
 class BaseHallPlanner(SomaticPlanner):
-  
+
   @property
   def baroqueness(self) -> float:
     return self.context.hall_baroqueness
@@ -28,9 +28,12 @@ class BaseHallPlanner(SomaticPlanner):
     pass
 
   def fine_landslides(self, diorama):
-    if self.rng['fine.place_landslides'].chance(self.context.hall_landslide_chance):
-      freq = self.context.hall_landslide_freq * sum(1 for _ in self.pearl.nucleus)
+    if self.rng['fine.place_landslides'].chance(
+        self.context.hall_landslide_chance):
+      freq = (
+          self.context.hall_landslide_freq *
+          sum(1 for _ in self.pearl.nucleus))
       self.place_landslides(diorama, freq)
 
   def script(self, diorama, lore):
-    pass
+    return None

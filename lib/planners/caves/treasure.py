@@ -1,13 +1,12 @@
-from typing import Tuple
-
 import itertools
 import math
 
-from .base import BaseCavePlanner
-from .monster_spawners import MonsterSpawner, RetriggerMode
+from lib.planners.caves.base import BaseCavePlanner
+from lib.planners.caves.monster_spawners import MonsterSpawner, RetriggerMode
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Creature, Position, Script, Tile
+from lib.plastic import Creature, Position, Script, ScriptFragment, Tile
+
 
 class TreasureCavePlanner(BaseCavePlanner):
 
@@ -16,19 +15,21 @@ class TreasureCavePlanner(BaseCavePlanner):
     return Tile.CRYSTAL_SEAM.inspect_color
 
   def _get_expected_crystals(self):
-    return math.floor(super()._get_expected_crystals()
-       * self.rng['conquest.expected_crystals'].beta(min = 1, max = 4))
-  
+    return math.floor(
+        super()._get_expected_crystals() *
+        self.rng['conquest.expected_crystals'].beta(min=1, max=4))
+
   def adjure(self, adjurator):
     crystals = self.expected_crystals
     crystals -= (crystals % 5)
     if crystals >= 15:
       adjurator.collect_crystals(crystals)
 
+
 class HoardCavePlanner(TreasureCavePlanner):
 
   def _get_monster_spawner(self):
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    creature_type = Creature.monster_type_for_biome(self.context.biome)
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
@@ -43,7 +44,7 @@ class HoardCavePlanner(TreasureCavePlanner):
       accepted_tiles.add(Tile.WATER)
     if self.context.biome == Biome.LAVA:
       accepted_tiles.add(Tile.LAVA)
-    
+
     layer = 0
     r = []
     for info in self.pearl.inner:
@@ -62,12 +63,12 @@ class HoardCavePlanner(TreasureCavePlanner):
     for x, y in itertools.islice(
         itertools.cycle(places), math.ceil(self.expected_crystals * 0.8)):
       diorama.crystals[x, y] += 1
-  
+
   def fine_place_entities(self, diorama):
     if self.context.has_monsters:
       rng = self.rng['fine.place_entities']
-      monster_type = Creature.Type.monster_for_biome(self.context.biome)
-      monster_count = rng.beta_int(a = 1.5, b = 5, min = 0, max = 6)
+      monster_type = Creature.monster_type_for_biome(self.context.biome)
+      monster_count = rng.beta_int(a=1.5, b=5, min=0, max=6)
       center = self.center
       tiles = tuple(self._monster_placements(diorama))
       for _ in range(monster_count):
@@ -80,16 +81,16 @@ class HoardCavePlanner(TreasureCavePlanner):
           sleep=True)
 
   def script(self, diorama, lore):
-    super().script(diorama, lore)
     # Generate a script that pans to this cave on discovery if collecting all
     # of the crystals would win the level.
-    # TODO: Need to figure out clashes with lost miner objectives
+    # TODO(charredutensil): Need to figure out clashes with lost miners
     ro = diorama.resource_objective
     if not ro:
-      return
+      return None
     x, y = next(self.pearl.nucleus).pos
     gfix = 'foundHoard_g_'
     prefix = f'foundHoard_p{self.id}_'
+
     def gen():
       yield '# Found hoard'
       if gfix in diorama.script.flags:
@@ -107,7 +108,9 @@ class HoardCavePlanner(TreasureCavePlanner):
       # Need to wait here because the crystals don't spawn instantly.
       yield 'wait:1;'
       yield f'{prefix}crystalsAvailable=crystals+Crystal_C;'
-      yield f'(({prefix}crystalsAvailable>={ro.crystals:d}))[{prefix}go][{prefix}noGo];'
+      yield (
+          f'(({prefix}crystalsAvailable>={ro.crystals:d}))'
+          f'[{prefix}go][{prefix}noGo];')
       yield ''
       yield f'{prefix}go::;'
       yield f'msg:{gfix}message;'
@@ -116,12 +119,13 @@ class HoardCavePlanner(TreasureCavePlanner):
       yield f'{prefix}noGo::;'
       yield f'{gfix}wasTriggered=false'
       yield ''
-    diorama.script.extend(gen())
+    return super().script(diorama, lore) + ScriptFragment(gen())
+
 
 class NougatCavePlanner(TreasureCavePlanner):
 
   def _get_monster_spawner(self):
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    creature_type = Creature.monster_type_for_biome(self.context.biome)
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
@@ -135,12 +139,13 @@ class NougatCavePlanner(TreasureCavePlanner):
       pt.pos
       for pt
       in self.pearl.inner
-      if diorama.tiles.get(pt.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
+      if diorama.tiles.get(pt.pos) in (
+          Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       rng = self.rng['fine.place_crystals']
       count = math.ceil(self.expected_crystals * 0.8)
       while count > 0:
-        x, y = rng.beta_choice(t, a = 0.7, b = 1.3)
+        x, y = rng.beta_choice(t, a=0.7, b=1.3)
         if count >= 4 and diorama.tiles.get((x, y)) != Tile.CRYSTAL_SEAM:
           diorama.tiles[x, y] = Tile.CRYSTAL_SEAM
           count -= 4
@@ -150,6 +155,7 @@ class NougatCavePlanner(TreasureCavePlanner):
       self.place_crystals(diorama, math.floor(self.expected_crystals * 0.2))
     else:
       super().fine_crystals(diorama)
+
 
 def bids(stem, conquest):
   if sum(1 for _ in conquest.intersecting(stem)) > 1:
@@ -175,6 +181,7 @@ def bids(stem, conquest):
     if not fh:
       yield (0.5, lambda: HoardCavePlanner(stem, Oysters.OPEN_HOARD))
     yield (0.5, lambda: HoardCavePlanner(stem, Oysters.SEALED_HOARD))
+
 
 class Oysters:
   OPEN_HOARD = (

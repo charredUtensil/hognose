@@ -2,3 +2,4 @@
 
 from . import delaunay
 from . import geometry
+from . import text

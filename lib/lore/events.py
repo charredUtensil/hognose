@@ -1,4 +1,7 @@
-from .phrases import PhraseGraph
+from lib.lore.phrases import PhraseGraph
+# Pylint doesn't like the PhraseGraph api's use of >>
+# pylint: disable=expression-not-assigned,pointless-statement,too-many-locals
+
 
 def _make_pg_found_hoard():
   pg = PhraseGraph()
@@ -37,6 +40,7 @@ def _make_pg_found_hoard():
   pg.compile()
   return pg
 
+
 def _make_pg_found_hq():
   pg = PhraseGraph()
 
@@ -56,7 +60,7 @@ def _make_pg_found_hq():
   ) >> pg.states(
       'has_monsters'
   )
-  
+
   before_the_monsters = (
       'before the monsters find it too!',
       'and keep it safe from those %(monster_type)s monsters!',
@@ -87,7 +91,7 @@ def _make_pg_found_hq():
       'collect %(resources)s.',
       'get those %(resource_names)s.',
   ) & 'collect_resources'
-  
+
   (
       pg.start
       >> (positive_greeting | neutral_greeting)
@@ -105,6 +109,7 @@ def _make_pg_found_hq():
 
   pg.compile()
   return pg
+
 
 def _make_pg_found_lost_miners():
   pg = PhraseGraph()
@@ -131,6 +136,7 @@ def _make_pg_found_lost_miners():
   pg.compile()
   return pg
 
+
 def _make_pg_found_all_lost_miners():
   pg = PhraseGraph()
 
@@ -138,12 +144,12 @@ def _make_pg_found_all_lost_miners():
       pg(
           'Look! It\'s the lost Rock Raider!',
           'You found the missing Rock Raider!',
-      ) & 'lost_miners_one' | 
+      ) & 'lost_miners_one' |
       pg(
           'And that makes %(lost_miners_count)s Rock Raiders found!',
           'You found all %(lost_miners_count)s Rock Raiders!',
           'That\'s all %(lost_miners_count)s Rock Raiders found!',
-      ) # No need to check condition here. This isn't used without lost miners.
+      )  # No need to check condition here. This isn't used without lost miners.
   ) >> () >> ~(
       pg(
           'Now, collect %(resources)s.'
@@ -152,6 +158,7 @@ def _make_pg_found_all_lost_miners():
 
   pg.compile()
   return pg
+
 
 FOUND_HOARD = _make_pg_found_hoard()
 FOUND_HQ = _make_pg_found_hq()

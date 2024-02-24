@@ -1,19 +1,16 @@
 import typing
-from typing import Dict, Iterable, NamedTuple, Optional, Tuple, TYPE_CHECKING
-if TYPE_CHECKING:
-  from lib.lore import Lore
+from typing import Dict, Iterable, Optional, Tuple, TYPE_CHECKING
 
 import abc
-import collections
 import functools
-import itertools
-import math
 
-from .pearl import Oyster, Pearl
-from .planner import Planner
-from lib.base import Rng
+from lib.planners.base.pearl import Oyster, Pearl
+from lib.planners.base.planner import Planner
 from lib.holistics import Adjurator
-from lib.plastic import Diorama, Erosion, Landslide, Tile
+from lib.plastic import Diorama, Erosion, Landslide, ScriptFragment, Tile
+
+if TYPE_CHECKING:
+  from lib.lore import Lore
 
 class SomaticPlanner(Planner):
 
@@ -65,6 +62,7 @@ class SomaticPlanner(Planner):
     self._pearl = self.oyster.create(self.pearl_radius)
     self.build_pearl()
     for pt in self._pearl.inner:
+      # pylint:disable=protected-access
       if pt.layer < len(self._pearl._layers):
         replace = tiles.get(pt.pos, Tile.SOLID_ROCK)
         place = self._pearl._layers[pt.layer]._data[replace]
@@ -76,7 +74,7 @@ class SomaticPlanner(Planner):
     pass
 
   @abc.abstractmethod
-  def script(self, diorama: Diorama, lore: 'Lore'):
+  def script(self, diorama: Diorama, lore: 'Lore') -> Optional[ScriptFragment]:
     pass
 
   def adjure(self, adjurator: Adjurator):
@@ -88,15 +86,16 @@ class SomaticPlanner(Planner):
       total_frequency: float,
       pearl: Optional[Pearl] = None):
     rng = self.rng['fine.place_landslides']
-    coverage = rng.uniform(min = 0.2, max = 0.8)
+    coverage = rng.uniform(min=0.2, max=0.8)
     if not pearl:
       pearl = self.pearl
+
     def h():
       for info in typing.cast(Pearl, pearl).inner:
         if (diorama.tiles.get(info.pos) in (
             Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK)
             and info.pos not in diorama.landslides
-            and rng.chance(coverage)):
+                and rng.chance(coverage)):
           yield info.pos
     positions = tuple(h())
     if positions:
@@ -118,12 +117,13 @@ class SomaticPlanner(Planner):
   @property
   def pearl_radius(self):
     return self._stem.pearl_radius
-    
+
   @abc.abstractmethod
   def make_nucleus(self) -> Dict[int, Iterable[Tuple[int, int]]]:
     pass
 
   def build_pearl(self):
+    # pylint: disable=too-many-locals
     rng = self.rng['rough.pearl']
     nucleus = self.make_nucleus()
     last_layer = []
@@ -153,11 +153,11 @@ class SomaticPlanner(Planner):
         # (1, 0) -> (0, 1) -> (-1, 0) -> (0, -1) -> ...
         # Try each of these possible movements:
         offsets = (
-          (  0,   0, -vy,  vx), # Right turn
-          (-vy,  vx,  vx,  vy), # Straight, but drift right
-          (  0,   0,  vx,  vy), # Straight
-          ( vy, -vx,  vx,  vy), # Straight, but drift left
-          (  0,   0,  vy, -vx), # Left turn
+            (  0,   0, -vy,  vx), # Right turn
+            (-vy,  vx,  vx,  vy), # Straight, but drift right
+            (  0,   0,  vx,  vy), # Straight
+            ( vy, -vx,  vx,  vy), # Straight, but drift left
+            (  0,   0,  vy, -vx), # Left turn
         )
         next_points = tuple(
             (x + ox + vx, y + oy + vy, vx, vy)
@@ -165,6 +165,7 @@ class SomaticPlanner(Planner):
         )
 
         def is_enclosed():
+          # pylint: disable=cell-var-from-loop
           for nx, ny, _, _ in next_points:
             if (nx, ny) not in self._pearl:
               continue
@@ -183,7 +184,3 @@ class SomaticPlanner(Planner):
               queue.insert(0, (nx, ny, nvx, nvy))
               break
       last_layer = this_layer
-
-
-
-

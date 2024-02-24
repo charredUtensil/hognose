@@ -1,8 +1,7 @@
 from collections.abc import Callable
 import typing
-from typing import Dict, Iterable, List, Optional, Set, Tuple, TYPE_CHECKING
+from typing import Dict, Iterable, List, Optional, Set, Tuple
 
-import collections
 import math
 
 from lib.base import Curve, ProceduralThing
@@ -10,6 +9,7 @@ from lib.planners.base import Planner, SomaticPlanner, StemPlanner
 from lib.planners.caves import CAVE_BIDDERS, SPAWN_BIDDERS
 from lib.planners.halls import HALL_BIDDERS
 from lib.plastic import Tile
+
 
 class Conquest(ProceduralThing):
 
@@ -58,13 +58,14 @@ class Conquest(ProceduralThing):
     planners = typing.cast(List[StemPlanner], self._planners)
 
     rng = self.rng['flood']
-    def coverage(min, max):
+
+    def coverage(min, max): # pylint: disable=redefined-builtin
       return math.floor(
-          rng.beta(a = 1.4, b = 1.4, min = min, max = max) * len(self._planners))
+          rng.beta(a=1.4, b=1.4, min=min, max=max) * len(self._planners))
     water_count = coverage(*self.context.water_coverage)
     lava_count = coverage(*self.context.lava_coverage)
     dry: List[StemPlanner] = list(planners)
-    
+
     # Flood fill with fluid via depth-first search
     def fill(count, fluid_type, spread):
       stack: List[StemPlanner] = []
@@ -88,7 +89,7 @@ class Conquest(ProceduralThing):
           if (p not in stack
               and p.fluid_type is None
               and p.kind != planner.kind
-              and rng.chance(spread)):
+                  and rng.chance(spread)):
             stack.append(p)
 
     fill(water_count, Tile.WATER, self.context.water_spread)
@@ -108,16 +109,18 @@ class Conquest(ProceduralThing):
           if (p not in erodable
               and not p.has_erosion
               and p.fluid_type != Tile.WATER
-              and p.kind != planner.kind):
+                  and p.kind != planner.kind):
             erodable.append(p)
-  
+
   def conquest(self):
     # Choose a cave to be the origin.
-    spawn, spawn_fn = self._pick_spawn(typing.cast(Iterable[StemPlanner], self._planners))
+    spawn, spawn_fn = self._pick_spawn(
+      typing.cast(Iterable[StemPlanner], self._planners))
     queue: List[StemPlanner] = [spawn]
     queue[0].hops_to_spawn = 0
 
-    # Perform a breadth-first search on remaining planners to put them in the queue
+    # Perform a breadth-first search on remaining planners to put them in the
+    # queue
     for i in range(self.total):
       stem = queue[i]
       for p in self.intersecting(stem):
@@ -130,13 +133,14 @@ class Conquest(ProceduralThing):
     # Differentiate all items in queue
     for i, stem in enumerate(queue):
       def curved(curve: Curve) -> float:
+        # pylint: disable = cell-var-from-loop
         return (curve.base
-            + curve.hops * stem.hops_to_spawn / queue[-1].hops_to_spawn
-            + curve.completion * i / self.total)
-      stem.crystal_richness   = curved(self.context.crystal_richness)
-      stem.ore_richness       = curved(self.context.ore_richness)
+                + curve.hops * stem.hops_to_spawn / queue[-1].hops_to_spawn
+                + curve.completion * i / self.total)
+      stem.crystal_richness = curved(self.context.crystal_richness)
+      stem.ore_richness = curved(self.context.ore_richness)
       stem.monster_spawn_rate = curved(self.context.monster_spawn_rate)
-      stem.monster_wave_size  = curved(self.context.monster_wave_size)
+      stem.monster_wave_size = curved(self.context.monster_wave_size)
       if i == 0:
         planner = self.spawn = spawn_fn()
       else:
@@ -146,11 +150,12 @@ class Conquest(ProceduralThing):
       yield planner
       self.completed = i + 1
 
-  def _pick_spawn(self, planners: Iterable[StemPlanner]
+  def _pick_spawn(
+      self, planners: Iterable[StemPlanner]
       ) -> Tuple[StemPlanner, Callable[[], SomaticPlanner]]:
     def bids():
       for planner in planners:
-        if planner._kind == StemPlanner.CAVE:
+        if planner._kind == StemPlanner.CAVE: # pylint: disable=protected-access
           for bidder in SPAWN_BIDDERS:
             for weight, fn in bidder(planner, self):
               yield weight, (planner, fn)
@@ -158,10 +163,11 @@ class Conquest(ProceduralThing):
 
   def _differentiate(self, planner: StemPlanner) -> SomaticPlanner:
     bidders = None
-    if planner._kind == StemPlanner.CAVE:
+    if planner._kind == StemPlanner.CAVE: # pylint: disable=protected-access
       bidders = CAVE_BIDDERS
     else:
       bidders = HALL_BIDDERS
+
     def bids():
       for bidder in bidders:
         yield from bidder(planner, self)

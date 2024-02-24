@@ -1,11 +1,13 @@
-from .base import BaseHallPlanner
+from lib.planners.halls.base import BaseHallPlanner
 from lib.planners.base import Oyster, Layer
 from lib.plastic import Tile
+
 
 class EmptyHallPlanner(BaseHallPlanner):
   @property
   def inspect_color(self):
     return (0x77, 0x00, 0x10)
+
 
 def bids(stem, conquest):
   pr = stem.pearl_radius
@@ -19,6 +21,7 @@ def bids(stem, conquest):
   elif pr > 0:
     yield (1, lambda: EmptyHallPlanner(stem, Oysters.FILLED))
     yield (1, lambda: EmptyHallPlanner(stem, Oysters.OPEN))
+
 
 class Oysters:
   OPEN = (

@@ -1,12 +1,11 @@
 import itertools
-import math
 
-from .base import BaseCavePlanner
-from .monster_spawners import MonsterSpawner
+from lib.planners.caves.base import BaseCavePlanner
 from lib.base import Biome
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Creature, Tile
+from lib.plastic import Tile
 from lib.utils.geometry import plot_line
+
 
 class FloodedCavePlanner(BaseCavePlanner):
   @property
@@ -17,10 +16,11 @@ class FloodedCavePlanner(BaseCavePlanner):
     if self.fluid_type == Tile.WATER and self.context.biome == Biome.LAVA:
       # Don't spawn lava monsters in a water cave
       return None
-    elif self.fluid_type == Tile.LAVA and self.context.biome != Biome.LAVA:
+    if self.fluid_type == Tile.LAVA and self.context.biome != Biome.LAVA:
       # Don't spawn rock or ice monsters in a lava cave
       return None
     return super()._get_monster_spawner()
+
 
 class ContiguousFloodedCavePlanner(FloodedCavePlanner):
   def rough(self, tiles):
@@ -28,6 +28,7 @@ class ContiguousFloodedCavePlanner(FloodedCavePlanner):
       for x, y in plot_line(a.center, b.center, True):
         tiles[x, y] = self.fluid_type
     super().rough(tiles)
+
 
 def bids(stem, conquest):
   pr = stem.pearl_radius
@@ -51,6 +52,7 @@ def bids(stem, conquest):
       if not any(p.fluid_type for p in conquest.intersecting(stem)):
         yield (1, lambda: FloodedCavePlanner(
             stem, Oysters.LAVA_PENINSULA))
+
 
 class Oysters:
   LAKE = (

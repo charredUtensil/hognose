@@ -1,12 +1,8 @@
-from typing import Dict, List, Optional, Tuple, Type, Set
-
-from collections.abc import Callable
+from typing import Dict, List, Optional, Tuple, Set
 
 import collections
 import itertools
 import math
-import random
-import time
 
 from .building import Building
 from .creatures import Creature
@@ -18,7 +14,8 @@ from .serialize import serialize
 from .scripts import Script
 from .tile import Tile
 
-class Diorama(object):
+
+class Diorama(): # pylint: disable=too-many-instance-attributes
   def __init__(self, context):
     self.context = context
 
@@ -70,7 +67,7 @@ class Diorama(object):
   @property
   def erosions(self) -> Dict[Tuple[int, int], Erosion]:
     return self._erosions
-  
+
   @property
   def discovered(self) -> Set[Tuple[int, int]]:
     return self._discovered
@@ -144,7 +141,6 @@ class Diorama(object):
           for oy in (-1, 0, 1):
             if (x + ox, y + oy) not in self._discovered:
               queue.add((x + ox, y + oy))
-            
 
   def serialize(self):
     return serialize(self)

@@ -2,12 +2,13 @@ from typing import Iterable, Optional, Tuple
 
 import math
 
-from .base import BaseCavePlanner
-from lib.base import Biome
+from lib.planners.caves.base import BaseCavePlanner
 from lib.holistics import Adjurator
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Building, Diorama, Facing, Position, Script, Tile
+from lib.plastic import (
+    Building, Facing, Position, Script, ScriptFragment, Tile)
 from lib.utils.geometry import plot_line
+
 
 class EstablishedHQCavePlanner(BaseCavePlanner):
 
@@ -19,6 +20,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     self._discover_tile: Optional[Tuple[int, int]] = None
 
   def _get_expected_crystals(self):
+    # pylint: disable=attribute-defined-outside-init
     self.expected_wall_crystals = super()._get_expected_crystals()
     self.building_templates = tuple(self._get_building_templates())
     return (self.expected_wall_crystals + sum(
@@ -32,7 +34,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     spawner.min_initial_cooldown = 30
     spawner.max_initial_cooldown = 120
     return spawner
-    
+
   @property
   def inspect_color(self):
     return (0x00, 0xff, 0xff)
@@ -42,9 +44,9 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     self.fine_rubble(diorama)
     for info in self.pearl.inner:
       if (not diorama.tiles.get(info.pos, Tile.SOLID_ROCK).is_wall
-          and not info.pos in diorama.discovered):
+          and info.pos not in diorama.discovered):
         self._discover_tile = info.pos
-  
+
   def fine_crystals(self, diorama):
     self.place_crystals(diorama, self.expected_wall_crystals)
 
@@ -71,6 +73,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     # Buildings in the cave, whether they actually exist or are just rubble.
     buildings = []
     # Shuffle each layer of the pearl.
+
     def pq():
       q = []
       layer = 1
@@ -90,7 +93,7 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
         break
       type, level, is_rubble = template_queue[0]
       building = self._make_building(
-          diorama, rng, type, pt, level)
+          diorama, type, pt, level)
       if building:
         template_queue.pop(0)
         buildings.append(building)
@@ -111,26 +114,28 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
     for building in buildings:
       for x, y in plot_line(building.foundation_tiles[-1], bp.center, True):
         if diorama.tiles.get((x, y)) == Tile.FLOOR:
-          diorama.tiles[x, y] = (Tile.LANDSLIDE_RUBBLE_4
+          diorama.tiles[x, y] = (
+              Tile.LANDSLIDE_RUBBLE_4
               if self.is_ruin and rng.chance(0.55)
               else Tile.POWER_PATH)
-  
+
   def fine_rubble(self, diorama):
     if not self.is_ruin:
       return
     rng = self.rng['place_buildings']
     for pt in self._pearl.inner:
       if diorama.tiles.get(pt.pos, Tile.SOLID_ROCK) == Tile.FLOOR:
-        diorama.tiles[pt.pos] = rng.beta_choice(a = 1, b = 3, choices = (
+        diorama.tiles[pt.pos] = rng.beta_choice(a=1, b=3, choices=(
             Tile.FLOOR,
             Tile.LANDSLIDE_RUBBLE_1,
             Tile.LANDSLIDE_RUBBLE_2,
             Tile.LANDSLIDE_RUBBLE_3,
             Tile.LANDSLIDE_RUBBLE_4))
 
-  def _get_building_templates(self) -> Iterable[Tuple[Building.Type, int, bool]]:
+  def _get_building_templates(
+      self) -> Iterable[Tuple[Building.Type, int, bool]]:
     rng = self.rng['conquest.expected_crystals']
-    crystals = rng.beta_int(a = 1, b = 1.75, min = 3, max = 10)
+    crystals = rng.beta_int(a=1, b=1.75, min=3, max=10)
     if self.has_tool_store:
       yield (Building.Type.TOOL_STORE, 2, False)
     elif self.is_ruin:
@@ -168,19 +173,20 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
       elif self.is_ruin and rng.chance(0.40):
         yield type, level, True
 
-  def _make_building(self, diorama, rng, type, pt, level) -> Optional[Building]:
+  def _make_building(
+      self, diorama, type, pt, level) -> Optional[Building]:
     for facing, ox, oy in (
-        (Facing.NORTH,  0, -1),
-        (Facing.EAST,   1,  0),
-        (Facing.SOUTH,  0,  1),
-        (Facing.WEST,  -1,  0)):
+        (Facing.NORTH, 0, -1),
+        (Facing.EAST, 1, 0),
+        (Facing.SOUTH, 0, 1),
+        (Facing.WEST, -1, 0)):
       x, y = pt.pos
       if (x + ox, y + oy) in self.pearl:
         pt2 = self.pearl[x + ox, y + oy]
         if pt2.layer < pt.layer:
           b = Building.at_tile(type, pt.pos, facing, level)
           if all(diorama.tiles.get((x, y)) == Tile.FLOOR
-              for x, y in b.foundation_tiles):
+                 for x, y in b.foundation_tiles):
             return b
     return None
 
@@ -189,25 +195,26 @@ class EstablishedHQCavePlanner(BaseCavePlanner):
       adjurator.find_hq(self._discover_tile, 'Find the lost Rock Raider HQ')
 
   def script(self, diorama, lore):
-    super().script(diorama, lore)
     if self.is_spawn:
-      return
+      return None
     prefix = f'foundHq_p{self.id}_'
     x, y = self._discover_tile
     bp = max(self.baseplates, key=lambda b: b.pearl_radius)
     cx, cy = bp.center
     msg = Script.escape_string(lore.event_found_hq)
-    diorama.script.extend((
-        '# Objective: Find the lost Rock Raider HQ',
-        f'string {prefix}discoverMessage="{msg}"',
-        f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscover]',
-        f'{prefix}onDiscover::;',
-        f'msg:{prefix}discoverMessage;',
-        f'pan:y@{math.floor(cy):d},x@{math.floor(cx):d};',
-        'wait:1;',
-        f'{Adjurator.VAR_FOUND_HQ}=1;',
-        '',
-    ))
+
+    def h():
+      yield '# Objective: Find the lost Rock Raider HQ'
+      yield f'string {prefix}discoverMessage="{msg}"'
+      yield f'if(change:y@{y:d},x@{x:d})[{prefix}onDiscover]'
+      yield f'{prefix}onDiscover::;'
+      yield f'msg:{prefix}discoverMessage;'
+      yield f'pan:y@{math.floor(cy):d},x@{math.floor(cx):d};'
+      yield 'wait:1;'
+      yield f'{Adjurator.VAR_FOUND_HQ}=1;'
+      yield ''
+    return super().script(diorama, lore) + ScriptFragment(h())
+
 
 def bids(stem, conquest):
   if (stem.fluid_type is None
@@ -219,12 +226,15 @@ def bids(stem, conquest):
     yield (1, lambda: EstablishedHQCavePlanner(
         stem, Oysters.DEFAULT, False, False, is_ruin=False))
 
+
 def spawn_bids(stem, conquest):
+  del conquest
   if stem.fluid_type is None and stem.pearl_radius > 5:
     yield (0.25, lambda: EstablishedHQCavePlanner(
         stem, Oysters.DEFAULT, True, True, is_ruin=False))
     yield (0.75, lambda: EstablishedHQCavePlanner(
         stem, Oysters.DEFAULT, True, True, is_ruin=True))
+
 
 class Oysters:
   DEFAULT = (

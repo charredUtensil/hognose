@@ -4,7 +4,8 @@ import unittest
 from parameterized import parameterized
 
 from lib.lore.conclusions import SUCCESS, FAILURE
-from lib.lore.events import FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS, FOUND_ALL_LOST_MINERS
+from lib.lore.events import (
+    FOUND_HOARD, FOUND_HQ, FOUND_LOST_MINERS, FOUND_ALL_LOST_MINERS)
 from lib.lore.orders import ORDERS
 from lib.lore.phrases import PhraseGraph
 from lib.lore.premises import PREMISES
@@ -43,7 +44,7 @@ def _all_possible_states(pg: PhraseGraph) -> FrozenSet[FrozenSet[str]]:
 
     def h():
       for r in result:
-        for a in append: # pylint: disable=cell-var-from-loop
+        for a in append:  # pylint: disable=cell-var-from-loop
           yield r | a
     result = frozenset(h())
   return result

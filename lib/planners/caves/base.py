@@ -1,17 +1,17 @@
 from typing import Optional, TYPE_CHECKING
-if TYPE_CHECKING:
-  from lib.lore import Lore
 
-import abc
 import collections
 import functools
 import itertools
 import math
 
-from .monster_spawners import MonsterSpawner
+from lib.planners.caves.monster_spawners import MonsterSpawner
 from lib.planners.base import SomaticPlanner
-from lib.plastic import Creature, Diorama, Tile
+from lib.plastic import Creature, Diorama, ScriptFragment, Tile
 from lib.utils.geometry import plot_line
+
+if TYPE_CHECKING:
+  from lib.lore import Lore
 
 class BaseCavePlanner(SomaticPlanner):
 
@@ -27,20 +27,20 @@ class BaseCavePlanner(SomaticPlanner):
     area = sum(bp.area for bp in self.baseplates)
     mean = math.sqrt(area) * self._stem.crystal_richness
     return self.rng['conquest.expected_crystals'].beta_int(
-        a = 5, b = 2, min = 0, max = mean * 1.25)
+        a=5, b=2, min=0, max=mean * 1.25)
 
   def _get_expected_ore(self):
     area = sum(bp.area for bp in self.baseplates)
     mean = math.sqrt(area) * self._stem.ore_richness
     return self.rng['expected_ore'].beta_int(
-        a = 5, b = 2, min = 0, max = mean * 1.25)
+        a=5, b=2, min=0, max=mean * 1.25)
 
   @functools.cached_property
   def monster_spawner(self) -> Optional[MonsterSpawner]:
     return self._get_monster_spawner() if self.context.has_monsters else None
 
   def _get_monster_spawner(self) -> Optional[MonsterSpawner]:
-    creature_type = Creature.Type.monster_for_biome(self.context.biome)
+    creature_type = Creature.monster_type_for_biome(self.context.biome)
     spawner = MonsterSpawner.normal(
         self,
         creature_type,
@@ -53,7 +53,7 @@ class BaseCavePlanner(SomaticPlanner):
       mpr = self.pearl_radius
       for bp in self.baseplates:
         pr = bp.pearl_radius
-        ox = min(pr, (bp.width  - 1) // 2)
+        ox = min(pr, (bp.width - 1) // 2)
         oy = min(pr, (bp.height - 1) // 2)
         for x in range(bp.left + ox, bp.right - ox):
           for y in range(bp.top + oy, bp.bottom - oy):
@@ -81,7 +81,8 @@ class BaseCavePlanner(SomaticPlanner):
     self.fine_place_entities(diorama)
 
   def fine_recharge_seam(self, diorama: Diorama):
-    if self.rng['fine.place_recharge_seam'].chance(self.context.recharge_seam_chance):
+    if self.rng['fine.place_recharge_seam'].chance(
+      self.context.recharge_seam_chance):
       self.place_recharge_seam(diorama)
 
   def fine_buildings(self, diorama: Diorama):
@@ -94,25 +95,24 @@ class BaseCavePlanner(SomaticPlanner):
     self.place_ore(diorama, self.expected_ore)
 
   def fine_landslides(self, diorama: Diorama):
-    if self.rng['fine.place_landslides'].chance(self.context.cave_landslide_chance):
-      freq = self.context.cave_landslide_freq * sum(math.sqrt(bp.area) for bp in self.baseplates)
+    if self.rng['fine.place_landslides'].chance(
+      self.context.cave_landslide_chance):
+      freq = self.context.cave_landslide_freq * \
+        sum(math.sqrt(bp.area) for bp in self.baseplates)
       self.place_landslides(diorama, freq)
 
   def fine_place_entities(self, diorama: Diorama):
     pass
 
-  def script(self, diorama: Diorama, lore: 'Lore'):
-    header = str(self)
-    diorama.script.extend((
-        f'# {"=" * len(header)}',
-        f'# {header}',
-        f'# {"=" * len(header)}'))
-    self.script_place_monster_spawns(diorama)
+  def script(self, diorama: Diorama, lore: 'Lore') -> Optional[ScriptFragment]:
+    return self.script_place_monster_spawns(diorama)
 
-  def script_place_monster_spawns(self, diorama: Diorama):
+  def script_place_monster_spawns(
+          self, diorama: Diorama) -> Optional[ScriptFragment]:
     monster_spawner = self.monster_spawner
     if monster_spawner:
-      monster_spawner.place_script(diorama)
+      return monster_spawner.script(diorama)
+    return None
 
   def place_crystals(self, diorama: Diorama, count: int):
     self._place_resource(
@@ -131,20 +131,21 @@ class BaseCavePlanner(SomaticPlanner):
         diorama.tiles,
         diorama.ore,
         count)
-    
+
   def _place_resource(
-      self,
-      rng,
-      seam,
-      resource_name,
-      tiles,
-      resource,
-      count):
+          self,
+          rng,
+          seam,
+          resource_name,
+          tiles,
+          resource,
+          count):
     t = tuple(
       pearl_info.pos
       for pearl_info
       in self.pearl.inner
-      if tiles.get(pearl_info.pos) in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
+      if tiles.get(pearl_info.pos) in (
+          Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK))
     if t:
       for _ in range(count):
         x, y = rng.uniform_choice(t)
@@ -165,8 +166,8 @@ class BaseCavePlanner(SomaticPlanner):
               neighbor_count[
                   tiles.get((x + ox, y + oy), Tile.SOLID_ROCK)] += 1
             if any(
-                n not in (Tile.SOLID_ROCK, Tile.RECHARGE_SEAM)
-                for n in neighbor_count):
+                    n not in (Tile.SOLID_ROCK, Tile.RECHARGE_SEAM)
+                    for n in neighbor_count):
               yield neighbor_count[Tile.SOLID_ROCK], (x, y)
           elif tile in (Tile.DIRT, Tile.LOOSE_ROCK, Tile.HARD_ROCK):
             yield 4, (x, y)
@@ -184,6 +185,7 @@ class BaseCavePlanner(SomaticPlanner):
             f'Failed to place {resource_name} in #{self.id}')
 
   def place_recharge_seam(self, diorama):
+    # pylint: disable=too-many-nested-blocks
     def placements():
       for pearl_info in self.pearl.outer:
         x, y = pearl_info.pos
@@ -192,7 +194,7 @@ class BaseCavePlanner(SomaticPlanner):
           for (ox, oy) in ((0, -1), (0, 1), (-1, 0), (1, 0)):
             neighbor_count[
                 diorama.tiles.get((x + ox, y + oy),
-                Tile.SOLID_ROCK)] += 1
+                                  Tile.SOLID_ROCK)] += 1
           if any(n.passable_by_miner for n in neighbor_count):
             value = neighbor_count[Tile.SOLID_ROCK] * 5
             for ox in (-1, 1):

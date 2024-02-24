@@ -1,10 +1,12 @@
-from typing import Dict, FrozenSet, Iterable, List, Optional, Set, Tuple, Union
+from typing import Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
 import collections
-import functools
-import sys
 
-class Phrase(object):
+from lib.utils.text import word_wrap
+
+# pylint: disable=protected-access
+
+class Phrase():
 
   def __init__(self, id: int, texts):
     self._id: int = id
@@ -19,7 +21,8 @@ class Phrase(object):
     return any('end' in ts for ts in (self._tagged_states or ()))
 
   def __str__(self):
-    return f'{self._id}\n'+'\n'.join(_word_wrap(t.replace('\n', '\u2424'), 40) for t in self._texts)
+    return f'{self._id}\n' + \
+      '\n'.join(word_wrap(t.replace('\n', '\u2424'), 40) for t in self._texts)
 
   def __repr__(self):
     return f'{self._id}[%s]' % '/'.join(t[:10] for t in self._texts)
@@ -27,6 +30,7 @@ class Phrase(object):
   def _join(self, other: 'Phrase'):
     self._after.append(other)
     other._before.append(self)
+
 
 class Condition(Phrase):
 
@@ -37,7 +41,8 @@ class Condition(Phrase):
   def __str__(self):
     return f'{self._id}\n[{self.state}]'
 
-class PhraseGraph(object):
+
+class PhraseGraph():
 
   def __init__(self):
     self._phrases = []
@@ -69,16 +74,16 @@ class PhraseGraph(object):
     return r
 
   def dump_svg(self, filename: str):
-    import pydot
+    import pydot # pylint: disable=import-outside-toplevel
     dot = pydot.Dot(graph_type='digraph', rankdir='LR')
+
     def mknode(p):
-      n = pydot.Node(
-          str(p),
-          **_graph_node_attrs(p))
+      n = pydot.Node(str(p), **_graph_node_attrs(p))
       return n
     nodes = [mknode(p) for p in self._phrases]
     for n in nodes:
       dot.add_node(n)
+
     def edges():
       for p in self._phrases:
         for after in p._after:
@@ -88,10 +93,11 @@ class PhraseGraph(object):
               **_graph_edge_attrs(p, after))
     for e in edges():
       dot.add_edge(e)
-    dot.write_svg(filename)
-  
+    dot.write_svg(filename) # pylint: disable=no-member
+
   def compile(self):
-    # Determine which sets of states can be reached at or downstream from each phrase
+    # Determine which sets of states can be reached at or downstream from each
+    # phrase
     queue: Set[Phrase] = set(p for p in self._phrases if not p._after)
     while queue:
       p = queue.pop()
@@ -101,8 +107,8 @@ class PhraseGraph(object):
           pt[states] += count
       # If we reach a condition...
       if isinstance(p, Condition):
-        # ...add it to all possible states and prune any downstream that already has
-        # that state.
+        # ...add it to all possible states and prune any downstream that
+        # already has that state.
         ptc = frozenset((p.state,))
         pt2 = {} if pt else {ptc: 1}
         for states, count in pt.items():
@@ -114,7 +120,7 @@ class PhraseGraph(object):
       for pb in p._before:
         if not any(pab._tagged_states is None for pab in pb._after):
           queue.add(pb)
-    
+
     queue.add(self._phrases[0])
     while queue:
       p = queue.pop()
@@ -150,7 +156,8 @@ class PhraseGraph(object):
 
     return ''.join(_join_phrase_texts(walk()))
 
-class PgBuilder(object):
+
+class PgBuilder():
 
   def __init__(
       self,
@@ -174,20 +181,20 @@ class PgBuilder(object):
         f'{j(self._heads)}>>{j(self._tails)}'
         f'{")" if self._bypass else ""}')
 
-  def _coerce(self, other: Union[str, Tuple[str, ...], 'PgBuilder']
-      ) -> 'PgBuilder':
+  def _coerce(
+      self, other: Union[str, Tuple[str, ...], 'PgBuilder']) -> 'PgBuilder':
     if isinstance(other, PgBuilder):
       return other
-    ph = (self._pg._phrase(other) if isinstance(other, str)
-        else self._pg._phrase(*other)),
+    ph = ((self._pg._phrase(other) if isinstance(other, str)
+        else self._pg._phrase(*other)),)
     return PgBuilder(self._pg, ph, ph)
-    
+
   def __and__(self, state: str) -> 'PgBuilder':
     ph = self._pg._condition(state)
     for t in self._tails:
       t._join(ph)
     return PgBuilder(self._pg, self._heads, (ph,))
-    
+
   def __or__(self, other) -> 'PgBuilder':
     other = self._coerce(other)
     return PgBuilder(
@@ -200,7 +207,7 @@ class PgBuilder(object):
     return self._coerce(other) | self
 
   def __invert__(self) -> 'PgBuilder':
-    return PgBuilder(self._pg, self._heads, self._tails, bypass = True)
+    return PgBuilder(self._pg, self._heads, self._tails, bypass=True)
 
   def __rshift__(self, other) -> 'PgBuilder':
     other = self._coerce(other)
@@ -212,11 +219,13 @@ class PgBuilder(object):
         self._heads + other._heads if self._bypass else self._heads,
         self._tails + other._tails if other._bypass else other._tails,
         self._bypass and other._bypass)
-  
+
   def __rrshift__(self, other) -> 'PgBuilder':
     return self._coerce(other) >> self
 
+
 def _graph_node_attrs(p):
+
   if not (p._is_reachable and p._can_reach_end):
     return {
         'color': 'red',
@@ -231,6 +240,7 @@ def _graph_node_attrs(p):
     return {'shape': 'none'}
   return {'shape': 'rectangle'}
 
+
 def _graph_edge_attrs(p1, p2):
   if not (p2._is_reachable and p2._can_reach_end):
     return {'color': 'red', 'style': 'dotted'}
@@ -239,6 +249,7 @@ def _graph_edge_attrs(p1, p2):
   if isinstance(p1, Condition) or isinstance(p2, Condition):
     return {'color': 'blue'}
   return {}
+
 
 def _join_phrase_texts(texts):
   capitalize_next = True
@@ -253,22 +264,3 @@ def _join_phrase_texts(texts):
       yield text
     capitalize_next = text[-1] in frozenset('.!?\n')
     space_next = text[-1] not in frozenset('\n')
-
-def _word_wrap(text: str, chars: int):
-  def h():
-    for line in text.splitlines():
-      while line:
-        if len(line) <= chars:
-          yield line
-          break
-        ptr = chars
-        while ptr > 0:
-          if line[ptr].isspace():
-            yield line[:ptr]
-            line = line[ptr+1:]
-            break
-          ptr -= 1
-        else:
-          yield line[:chars]
-          line = line[chars:]
-  return '\n'.join(h())

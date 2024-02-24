@@ -16,10 +16,10 @@ def sanitize(data: str) -> str:
 class SerializedCavernTest(unittest.TestCase, abc.ABC):
   """A TestCase that tests serialized caverns."""
 
-  def assertDioramaMatches(self, diorama: Diorama, resource: str): # pylint: disable=invalid-name
+  def assertDioramaMatches(self, diorama: Diorama, resource: str):  # pylint: disable=invalid-name
     """
     Asserts the given diorama serializes to the given resource.
-    
+
     If update_resources is set to True, this updates the file instead.
     """
     filename = os.path.join(RESOURCE_DIR, f'{resource}.dat')
@@ -32,7 +32,7 @@ class SerializedCavernTest(unittest.TestCase, abc.ABC):
         print(f'Updating {resource}')
         with open(filename, 'w', encoding='utf-8') as f:
           f.write(actual)
-        self.assertTrue(True) # pylint: disable=redundant-unittest-assert
+        self.assertTrue(True)  # pylint: disable=redundant-unittest-assert
       else:
         raise
 

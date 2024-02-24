@@ -1,6 +1,7 @@
-from typing import Iterable
+from lib.lore.phrases import PhraseGraph
+# Pylint doesn't like the PhraseGraph api's use of >>
+# pylint: disable=expression-not-assigned,pointless-statement,too-many-locals
 
-from .phrases import PhraseGraph
 
 def _make_pg():
   pg = PhraseGraph()
@@ -12,7 +13,7 @@ def _make_pg():
   and_defend_it = pg(
       'and keep it safe',
       'and make sure it is heavily defended',
-      ) & 'has_monsters'
+  ) & 'has_monsters'
 
   get_to_safety = pg(
       'get your Rock Raiders to safety',
@@ -58,12 +59,12 @@ def _make_pg():
   repair_hq = pg(
       'clean up this mess',
       'get the Rock Raider HQ back in operation',
-      ) & 'spawn_is_ruin'
+  ) & 'spawn_is_ruin'
 
   find_hq = pg(
       'reach the Rock Raider HQ',
       'locate the base',
-      ) & 'find_hq'
+  ) & 'find_hq'
 
   and_use_it_to = pg('and use it to')
 
@@ -94,7 +95,7 @@ def _make_pg():
       'Good luck out there!',
       'We\'re counting on you!',
   )
-  
+
   tail = () >> ~sendoff >> pg.end
 
   and_endgame = pg()
@@ -135,5 +136,6 @@ def _make_pg():
 
   pg.compile()
   return pg
+
 
 ORDERS = _make_pg()

@@ -1,15 +1,12 @@
-from typing import Iterable, Literal, Optional, Tuple
+from typing import Tuple
 
 import abc
 
 from lib.base import ProceduralThing
 from lib.outlines import Baseplate
-from lib.plastic import Tile
+
 
 class Planner(ProceduralThing, abc.ABC):
-
-  def __init__(self, id, context):
-    super().__init__(id, context)
 
   @property
   @abc.abstractmethod
@@ -21,11 +18,10 @@ class Planner(ProceduralThing, abc.ABC):
     bp_ct = len(self.baseplates)
     if bp_ct % 2 == 1:
       return self.baseplates[bp_ct // 2].center
-    else:
-      ci = bp_ct // 2
-      cx1, cy1 = self.baseplates[ci - 1].center
-      cx2, cy2 = self.baseplates[ci].center
-      return (cx1 + cx2) / 2, (cy1 + cy2) / 2
+    ci = bp_ct // 2
+    cx1, cy1 = self.baseplates[ci - 1].center
+    cx2, cy2 = self.baseplates[ci].center
+    return (cx1 + cx2) / 2, (cy1 + cy2) / 2
 
   @property
   @abc.abstractmethod
@@ -39,8 +35,9 @@ class Planner(ProceduralThing, abc.ABC):
         yield str(self.oyster)
       yield type(self).__name__
       yield f'R{self.pearl_radius}'
+      # pylint: disable=no-member
       if hasattr(self, 'expected_crystals') and self.expected_crystals:
-        f'{self.expected_crystals}EC'
+        yield f'{self.expected_crystals}EC'
       if hasattr(self, 'monster_spawner'):
-        f'{self.monster_spawner}'
+        yield f'{self.monster_spawner}'
     return ' '.join(h())

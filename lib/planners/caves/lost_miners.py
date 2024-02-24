@@ -2,11 +2,12 @@ from typing import Tuple
 
 import math
 
-from .base import BaseCavePlanner
+from lib.planners.caves.base import BaseCavePlanner
 from lib.base import Biome
 from lib.holistics import Adjurator
 from lib.planners.base import Oyster, Layer
-from lib.plastic import Position, Script, Tile
+from lib.plastic import Position, Script, ScriptFragment, Tile
+
 
 class LostMinersCavePlanner(BaseCavePlanner):
 
@@ -29,15 +30,14 @@ class LostMinersCavePlanner(BaseCavePlanner):
     rng = self.rng['fine.place_entities']
     pos = self.miners_tile
     diorama.tiles[pos] = Tile.FLOOR
-    miners_count = math.floor(rng.beta(a = 1, b = 2, min = 1, max = 5))
+    miners_count = math.floor(rng.beta(a=1, b=2, min=1, max=5))
     for _ in range(miners_count):
       self._miners.append(diorama.miner(Position.randomly_in_tile(rng, pos)))
-  
+
   def adjure(self, adjurator):
     adjurator.find_miners(self.miners_tile, len(self._miners))
 
   def script(self, diorama, lore):
-    super().script(diorama, lore)
     prefix = f'foundMiners_p{self.id}_'
     x, y = self.miners_tile
     miners_found_count = len(self._miners)
@@ -45,6 +45,7 @@ class LostMinersCavePlanner(BaseCavePlanner):
         lore.event_found_lost_miners(self.rng, miners_found_count))
     global_count = Adjurator.VAR_LOST_MINERS_COUNT
     on_found_all = Adjurator.ON_FOUND_ALL_LOST_MINERS
+
     def h():
       yield '# Objective: Find lost miners'
       yield f'string {prefix}discoverMessage="{msg}"'
@@ -57,7 +58,8 @@ class LostMinersCavePlanner(BaseCavePlanner):
       yield f'{prefix}incomplete::;'
       yield f'msg:{prefix}discoverMessage;'
       yield ''
-    diorama.script.extend(h())
+    return super().script(diorama, lore) + ScriptFragment(h())
+
 
 def bids(stem, conquest):
   if stem.fluid_type is None and conquest.remaining <= 3:
@@ -65,10 +67,11 @@ def bids(stem, conquest):
     # caverns for some reason.
     multiplier = {
       Biome.ROCK: 1.0,
-      Biome.ICE : 1.4,
+      Biome.ICE: 1.4,
       Biome.LAVA: 0.7,
     }[stem.context.biome]
     yield (multiplier, lambda: LostMinersCavePlanner(stem, Oysters.DEFAULT))
+
 
 class Oysters:
   DEFAULT = (

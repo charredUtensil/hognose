@@ -2,16 +2,17 @@ from typing import Literal
 
 import enum
 
+
 class Tile(enum.Enum):
 
   def __init__(
-        self,
-        export_value,
-        is_wall,
-        passable_by_miner,
-        crystal_yield,
-        ore_yield,
-        inspect_color):
+      self,
+      export_value,
+      is_wall,
+      passable_by_miner,
+      crystal_yield,
+      ore_yield,
+      inspect_color):
     super().__init__()
     self.export_value = export_value
     self.is_wall = is_wall
@@ -48,6 +49,7 @@ class Tile(enum.Enum):
 
 # Where possible, colors taken from
 # https://github.com/trigger-segfault/legorockraiders-analysis/blob/main/docs/LegoRR_Colors.h
+
 
 BasicTile = Literal[
     Tile.FLOOR,
