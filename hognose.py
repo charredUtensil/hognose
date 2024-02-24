@@ -3,9 +3,6 @@
 import typing
 from typing import List, Optional, TYPE_CHECKING
 
-if TYPE_CHECKING:
-  from inspector import Inspector
-
 import argparse
 import os.path
 import re
@@ -18,14 +15,17 @@ from lib.base import (
     Context, GenerationError, Logger, MultiCavernLogger, MAX_SEED)
 from lib.version import VERSION_INFO, VERSION
 
+if TYPE_CHECKING:
+  from inspector import Inspector
+
 __version_info__ = VERSION_INFO
 __version__ = VERSION
 
 
 def _seeds(parser, args) -> List[int]:
   seed: Optional[str] = args.seed
-  
-  def parse():
+
+  def parse(): # pylint: disable=inconsistent-return-statements
     # No seed: Use seconds since epoch
     if seed is None:
       return int(time.time()) % MAX_SEED
@@ -105,7 +105,7 @@ def main():
   if args.briefing and args.out == '-':
     parser.error(
         'Stubbornly refusing to print both briefing and level.dat to stdout.')
-  
+
   if args.count > 1:
     if (args.out is not None
         and (args.out == '-' or not os.path.isdir(args.out))):

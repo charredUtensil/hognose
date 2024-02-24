@@ -16,6 +16,6 @@ jobs:
       - name: Run Tests
         run: python test.py
       - name: Run Lint
-        run: pylint --rcfile .pylintrc -d C0116 -d C0115 $(git diff --name-only HEAD origin/main | grep '\.py$')
+        run: pylint --rcfile .pylintrc -d C0116 -d C0115 $(git diff --name-only main HEAD --diff-filter AM | grep '\.py$')
       - name: Run PyType
         run: pytype .
