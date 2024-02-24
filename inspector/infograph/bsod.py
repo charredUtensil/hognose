@@ -1,7 +1,7 @@
+import traceback
+
 from inspector.canvas import Canvas, Fill, Gravity, Label, v
 from inspector.infograph.common import FONT_MED, FONT_BIG
-
-import traceback
 
 BSOD_FG_COLOR = (0xff, 0xff, 0xff)
 BSOD_BG_COLOR = (0x22, 0x22, 0xDD)

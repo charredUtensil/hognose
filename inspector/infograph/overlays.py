@@ -2,6 +2,7 @@ from inspector.canvas import Canvas, Gravity, Label, v
 from inspector.infograph.common import (
     FONT_BIG, FONT_MED, Z_OVERLAY, OVERLAY_COLOR, OVERLAY_PADDING,
     OVERLAY_SHADOW_COLOR, OVERLAY_SHADOW_OFFSET, WARNING_COLOR)
+from lib.utils.text import word_wrap
 
 
 def _title(cavern):
@@ -9,7 +10,7 @@ def _title(cavern):
   return f'{name} {cavern.stage}'
 
 
-def _description(cavern):
+def _description(cavern): # pylint: disable=too-many-return-statements
   if cavern.stage == 'init':
     return str(cavern.context)
   if cavern.stage == 'script':
@@ -23,7 +24,7 @@ def _description(cavern):
         f'{len(cavern.diorama.script):d} script lines\n'
         f'Total file size: {len(cavern.serialized)//1024:d}kB')
   if cavern.diorama.briefing:
-    return _word_wrap(cavern.diorama.briefing, 60)
+    return word_wrap(cavern.diorama.briefing, 60)
   if cavern.diorama.objectives:
     return '\n'.join(
         o.description for o in cavern.diorama.objectives)
@@ -34,26 +35,6 @@ def _description(cavern):
     ore = cavern.diorama.ore_yield
     return f'{crystals} EC\n{ore:d} Ore'
   return ''
-
-
-def _word_wrap(text: str, chars: int):
-  def h():
-    for line in text.splitlines():
-      while line:
-        if len(line) <= chars:
-          yield line
-          break
-        ptr = chars
-        while ptr > 0:
-          if line[ptr].isspace():
-            yield line[:ptr]
-            line = line[ptr + 1:]
-            break
-          ptr -= 1
-        else:
-          yield line[:chars]
-          line = line[chars:]
-  return '\n'.join(h())
 
 
 def push_overlays(canvas: Canvas, cavern, details, warnings):

@@ -1,7 +1,9 @@
 import math
 
-from inspector.canvas import Canvas, Circle, Gravity, Label, LabelIfFits, Line, RadialLabel, Rect, v
-from inspector.infograph.common import FONT_TINY, Z_BOUNDS, Z_TILES, Z_ENTITIES, Z_CRYSTALS, Z_ORE, Z_HAZARDS
+from inspector.canvas import (
+    Canvas, Circle, Label, LabelIfFits, Line, RadialLabel, Rect, v)
+from inspector.infograph.common import (
+    FONT_TINY, Z_BOUNDS, Z_TILES, Z_ENTITIES, Z_CRYSTALS, Z_ORE, Z_HAZARDS)
 from lib.plastic import Diorama, Entity, Tile
 
 BUILDING_COLOR = (0xff, 0xff, 0x00)
@@ -10,6 +12,7 @@ CREATURE_COLOR = (0xff, 0x00, 0x00)
 CRYSTAL_COLOR = Tile.CRYSTAL_SEAM.inspect_color
 EROSION_COLOR = Tile.LAVA.inspect_color
 LANDSLIDE_COLOR = (0xff, 0x00, 0x00)
+SHADOW_COLOR = (0x00, 0x00, 0x00)
 MINER_COLOR = (0xff, 0xff, 0x00)
 ORE_COLOR = Tile.ORE_SEAM.inspect_color
 
@@ -61,27 +64,41 @@ def _push_resources(canvas: Canvas, diorama: Diorama):
 
 def _push_hazards(canvas: Canvas, diorama: Diorama):
   pc = Canvas()
+  lc = Canvas()
   for (x, y), event in diorama.erosions.items():
     pc.push(Line(
-      color=EROSION_COLOR,
-      start=(x + 0.5, y + 0.25),
-      end=(x + 0.5, y + 0.75)))
+        color=EROSION_COLOR,
+        start=(x + 0.5, y + 0.25),
+        end=(x + 0.5, y + 0.75)))
     pc.push(Line(
-      color=EROSION_COLOR,
-      start=(x + 0.25, y + 0.5),
-      end=(x + 0.75, y + 0.5)))
-  canvas.push(pc.freeze(), Z_HAZARDS)
-  pc.clear()
+        color=EROSION_COLOR,
+        start=(x + 0.25, y + 0.5),
+        end=(x + 0.75, y + 0.5)))
+    lc.push(LabelIfFits(
+        font=FONT_TINY,
+        text=str(event),
+        color=EROSION_COLOR,
+        rect=(x, y, 1, 0.5),
+        shadow_color=SHADOW_COLOR,
+        shadow_offset=v.a(1)))
   for (x, y), event in diorama.landslides.items():
     pc.push(Line(
-      color=LANDSLIDE_COLOR,
-      start=(x + 0.25, y + 0.25),
-      end=(x + 0.75, y + 0.75)))
+        color=LANDSLIDE_COLOR,
+        start=(x + 0.25, y + 0.25),
+        end=(x + 0.75, y + 0.75)))
     pc.push(Line(
-      color=LANDSLIDE_COLOR,
-      start=(x + 0.25, y + 0.75),
-      end=(x + 0.75, y + 0.25)))
+        color=LANDSLIDE_COLOR,
+        start=(x + 0.25, y + 0.75),
+        end=(x + 0.75, y + 0.25)))
+    lc.push(LabelIfFits(
+        font=FONT_TINY,
+        text=str(event),
+        color=LANDSLIDE_COLOR,
+        rect=(x, y + 0.5, 1, 0.5),
+        shadow_color=SHADOW_COLOR,
+        shadow_offset=v.a(1)))
   canvas.push(pc.freeze(), Z_HAZARDS)
+  canvas.push(lc.freeze(), Z_HAZARDS)
 
 
 def _entity_line(entity: Entity, color, length, thickness) -> Line:

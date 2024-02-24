@@ -1,33 +1,24 @@
-from collections.abc import Callable
-from typing import List, Optional, Tuple
+from typing import List
 
-import itertools
-import math
 import os
-import queue
-import threading
-import traceback
 
 # Disable pygame's output on import
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1' # pylint: disable=wrong-import-position
 import pygame # pylint: disable=wrong-import-order,wrong-import-position
 
-from inspector.canvas import Canvas, FrozenCanvas, DrawContext, Fill, Rect
-from inspector.infograph.common import OVERLAY_COLOR
+from inspector.canvas import Canvas, FrozenCanvas, DrawContext
 from inspector.infograph.bsod import push_bsod
 from inspector.infograph.state import push_state
 from inspector.infograph.ui_overlay import UiOverlay
 from lib import Cavern
 from lib.base import Logger
-from lib.plastic import Tile
-from lib.planners import StemPlanner, SomaticPlanner
-from lib.outlines import Baseplate, Path
 from lib.version import VERSION
 
 UPDATE_REQUESTED = pygame.event.Event(pygame.event.custom_type())
+ZOOM_LEVELS = (3, 6, 12, 24, 48)
 
 
-class Inspector(Logger):
+class Inspector(Logger): # pylint: disable=too-many-instance-attributes
 
   def __init__(self, verbosity):
     super().__init__()
@@ -35,6 +26,7 @@ class Inspector(Logger):
     self._frame_index = 0
     self.progress: float = 0
     self.scale = 6
+    self.zoom = 1
     self.offset_x = 0
     self.offset_y = 0
     self.warnings = []
@@ -59,7 +51,8 @@ class Inspector(Logger):
   def log_exception(self, cavern: Cavern, e: Exception):
     try:
       self.log_state(cavern, -1, e)
-    except Exception:
+    except Exception as e2: # pylint: disable=broad-exception-caught
+      super().log_exception(cavern, e2)
       super().log_warning('Failed to draw final state')
     super().log_exception(cavern, e)
     pygame.display.set_caption('Crashed :(')
@@ -95,7 +88,7 @@ class Inspector(Logger):
     if self.frames:
       dc = DrawContext(
           window_surface,
-          self.scale,
+          ZOOM_LEVELS[self.zoom],
           self.offset_x,
           self.offset_y)
       self.frames[self._frame_index].draw(dc)
@@ -130,9 +123,9 @@ class Inspector(Logger):
               self._frame_index + increment,
               len(self.frames) - 1)
         elif event.key == pygame.K_UP:
-          self.scale = min(self.scale + 1, 20)
+          self.zoom = min(self.zoom + 1, len(ZOOM_LEVELS) - 1)
         elif event.key == pygame.K_DOWN:
-          self.scale = max(self.scale - 1, 1)
+          self.zoom = max(self.zoom - 1, 0)
         elif event.key == pygame.K_w:
           self.offset_y += 1
         elif event.key == pygame.K_a:

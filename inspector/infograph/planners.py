@@ -2,7 +2,8 @@ from typing import Iterable
 
 import itertools
 
-from inspector.canvas import Canvas, Circle, Color, Gravity, Label, LabelIfFits, Line, v
+from inspector.canvas import (
+    Canvas, Circle, Color, Gravity, Label, LabelIfFits, Line, v)
 from inspector.infograph.common import FONT_TINY, Z_PLANNERS, Z_PEARL
 from lib.planners import Planner, SomaticPlanner, StemPlanner
 from lib.planners.caves.base import BaseCavePlanner
@@ -75,6 +76,7 @@ def _planner_label_radius(planner: Planner, border_thickness):
 
 
 def _planner_line_radius(planner: Planner, border_thickness):
+  del border_thickness
   if _planner_is_big_cave(planner):
     return v.s(min(bp.pearl_radius for bp in planner.baseplates))
   if isinstance(planner, StemPlanner):
@@ -114,7 +116,7 @@ def _draw_planner(canvas, planner):
   canvas.push(Label(
       font=FONT_TINY,
       text=f'{planner.id:d}',
-      color=_planner_fg_color(planner),
+      color=fg_color,
       origin=origin,
       gravity=Gravity.CENTER), z_fg)
 

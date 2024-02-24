@@ -1,10 +1,10 @@
-from inspector.canvas import Canvas, FrozenCanvas, DrawContext, Fill, Rect
+from inspector.canvas import Fill
 
 from inspector.infograph.adjurator import push_adjurator
 from inspector.infograph.common import Z_BACKGROUND
 from inspector.infograph.map import push_map
 from inspector.infograph.outlines import push_outlines
-from inspector.infograph.overlays import OVERLAY_COLOR, push_overlays
+from inspector.infograph.overlays import push_overlays
 from inspector.infograph.planners import push_planners
 from inspector.infograph.scripts import push_script
 

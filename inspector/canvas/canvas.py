@@ -19,7 +19,7 @@ class Canvas():
 
   def freeze(self):
     def h():
-      for z, dr in sorted(self._drawables.items()):
+      for _, dr in sorted(self._drawables.items()):
         yield from dr
     return FrozenCanvas(h())
 

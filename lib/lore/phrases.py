@@ -2,6 +2,8 @@ from typing import Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
 import collections
 
+from lib.utils.text import word_wrap
+
 # pylint: disable=protected-access
 
 class Phrase():
@@ -20,7 +22,7 @@ class Phrase():
 
   def __str__(self):
     return f'{self._id}\n' + \
-      '\n'.join(_word_wrap(t.replace('\n', '\u2424'), 40) for t in self._texts)
+      '\n'.join(word_wrap(t.replace('\n', '\u2424'), 40) for t in self._texts)
 
   def __repr__(self):
     return f'{self._id}[%s]' % '/'.join(t[:10] for t in self._texts)
@@ -262,23 +264,3 @@ def _join_phrase_texts(texts):
       yield text
     capitalize_next = text[-1] in frozenset('.!?\n')
     space_next = text[-1] not in frozenset('\n')
-
-
-def _word_wrap(text: str, chars: int):
-  def h():
-    for line in text.splitlines():
-      while line:
-        if len(line) <= chars:
-          yield line
-          break
-        ptr = chars
-        while ptr > 0:
-          if line[ptr].isspace():
-            yield line[:ptr]
-            line = line[ptr + 1:]
-            break
-          ptr -= 1
-        else:
-          yield line[:chars]
-          line = line[chars:]
-  return '\n'.join(h())

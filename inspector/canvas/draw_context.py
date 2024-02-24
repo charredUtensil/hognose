@@ -3,7 +3,7 @@ from typing import Tuple, Union
 from inspector.canvas.vectors import BaseVector, XVector, YVector
 
 
-class DrawContext():
+class DrawContext(): # pylint: disable=too-many-instance-attributes
   def __init__(self, surface, scale, offset_x, offset_y):
     self.surface = surface
     self.scale = scale
@@ -13,7 +13,7 @@ class DrawContext():
     self.center_y = self.height / 2
     self.origin_x = self.center_x + scale * offset_x
     self.origin_y = self.center_y + scale * offset_y
-    self._anchors = {
+    self.anchors = {
         XVector.Anchor.CENTER_X: self.center_x,
         XVector.Anchor.ORIGIN_X: self.origin_x,
         XVector.Anchor.LEFT: 0,

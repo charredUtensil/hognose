@@ -12,3 +12,5 @@ def push_adjurator(canvas: Canvas, adjurator: Adjurator):
         origin=(x + 0.5, y + 0.5),
         radius=5,
         thickness=2))
+  canvas.push(pc.freeze())
+  

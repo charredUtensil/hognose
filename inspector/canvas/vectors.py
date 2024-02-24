@@ -1,10 +1,10 @@
-from typing import Generic, Tuple, TypeVar, TYPE_CHECKING, Union
-
-if TYPE_CHECKING:
-  from inspector.canvas.draw_context import DrawContext
+from typing import TYPE_CHECKING, Union
 
 import abc
 import enum
+
+if TYPE_CHECKING:
+  from inspector.canvas.draw_context import DrawContext
 
 
 class BaseVector(abc.ABC):
@@ -31,12 +31,10 @@ class BaseVector(abc.ABC):
     return f'{type(self).__name__}: {self.scaled:.2f}, {self.absolute:.2f}'
 
   def tr(self, dc: 'DrawContext') -> float:
-    return (dc.scale * self.scaled + self.absolute)
+    return dc.scale * self.scaled + self.absolute
 
 
 class FreeVector(BaseVector):
-  def __init__(self, scaled, absolute):
-    super().__init__(scaled, absolute)
 
   def __add__(self, other):
     if isinstance(other, FreeVector):
@@ -78,6 +76,7 @@ class FreeVector(BaseVector):
 
 class AnchoredVector(BaseVector):
   @abc.abstractmethod
+  @property
   def anchor(self):
     pass
 
@@ -90,7 +89,7 @@ class AnchoredVector(BaseVector):
     return f'{super().__repr__()}, {self.anchor}'
 
   def tr(self, dc) -> float:
-    return super().tr(dc) + dc._anchors[self.anchor]
+    return super().tr(dc) + dc.anchors[self.anchor]
 
 
 class XVector(AnchoredVector):
@@ -147,41 +146,36 @@ class YVector(AnchoredVector):
     return NotImplemented
 
 
-_ToFreeVector = Union[FreeVector, float]
-_ToXVector = Union[XVector, float]
-_ToYVector = Union[YVector, float]
-
-
-def a(v: _ToFreeVector):
+def a(v: Union[FreeVector, float]):
   if isinstance(v, FreeVector):
     return v
   return FreeVector(0, v)
 
 
-def s(v: _ToFreeVector):
+def s(v: Union[FreeVector, float]):
   if isinstance(v, FreeVector):
     return v
   return FreeVector(v, 0)
 
 
-def x(v: _ToXVector) -> XVector:
+def x(v: Union[XVector, float]) -> XVector:
   if isinstance(v, XVector):
     return v
   return XVector(v, 0, XVector.Anchor.ORIGIN_X)
 
 
-def y(v: _ToYVector) -> YVector:
+def y(v: Union[YVector, float]) -> YVector:
   if isinstance(v, YVector):
     return v
   return YVector(v, 0, YVector.Anchor.ORIGIN_Y)
 
 
-def xy(v: Tuple[_ToXVector, _ToYVector]):
+def xy(v):
   vx, vy = v
   return x(vx), y(vy)
 
 
-def xywh(v: Tuple[_ToXVector, _ToYVector, _ToFreeVector, _ToFreeVector]):
+def xywh(v):
   vx, vy, vw, vh = v
   return x(vx), y(vy), s(vw), s(vh)
 

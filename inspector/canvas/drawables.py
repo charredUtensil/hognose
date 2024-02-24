@@ -3,8 +3,8 @@ from typing import Optional, Tuple
 import abc
 import enum
 import functools
-import pygame
 import math
+import pygame
 
 from inspector.canvas.draw_context import DrawContext
 import inspector.canvas.vectors as v
@@ -125,19 +125,19 @@ class RawText():
           ox -= tw * (0.5 if gx == 0 else 1)
         if gy >= 0:
           oy -= th * len(lines) * (0.5 if gy == 0 else 1)
-        yield i, line, ox, oy
+        yield line, ox, oy
     return tuple(h())
 
   def draw(self, dc, color, origin):
     x0, y0 = dc.tr(origin)
-    for i, line, ox, oy in self._measurements:
+    for line, ox, oy in self._measurements:
       font_surface = self._font.proxied.render(line, False, color)
       dc.surface.blit(font_surface, (x0 + ox, y0 + oy))
 
 
 class Label(Drawable):
 
-  def __init__(
+  def __init__( # pylint: disable=too-many-arguments
       self,
       font,
       text,
@@ -163,8 +163,8 @@ class Label(Drawable):
     self._rt.draw(dc, self._color, self._origin)
 
 
-class LabelIfFits(Drawable):
-  def __init__(
+class LabelIfFits(Drawable): # pylint: disable=too-many-instance-attributes
+  def __init__( # pylint: disable=too-many-arguments
       self,
       font,
       text,
@@ -205,7 +205,7 @@ class LabelIfFits(Drawable):
     return x, y
 
   def draw(self, dc):
-    x, y, w, h = dc.tr(self._rect)
+    _, _, w, h = dc.tr(self._rect)
     min_w, min_h = self.min_size
     if (w > min_w) and (h > min_h):
       tx, ty = self._text_origin
