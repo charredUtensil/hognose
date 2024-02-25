@@ -27,7 +27,7 @@ jobs:
         with:
           name: hognose-${{ steps.get_version.outputs.version }}-levelpak
           path: dist/levelpak
-    output:
+    outputs:
       version: ${{ steps.get_version.outputs.version }}
   build-windows:
     runs-on: windows-latest
