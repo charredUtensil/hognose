@@ -13,7 +13,7 @@ jobs:
         id: changed_files
         run: echo "changed=$(git diff --name-only origin/main HEAD --diff-filter AM | grep '\.py$')" >> "$GITHUB_OUTPUT"
       - name: Check for version bump
-        run: echo "$changed" | grep -F lib/version.py >> /dev/null || (echo "Must bump version before pushing to main branch" && false)
+        run: echo "$changed" | grep lib/version.py >> /dev/null || (echo "Must bump version before pushing to main branch" && false)
         env:
           changed: ${{ steps.changed_files.output.changed }}
       - uses: actions/setup-python@v5
