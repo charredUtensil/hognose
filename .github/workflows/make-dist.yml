@@ -52,14 +52,15 @@ jobs:
     name: Create and populate release
     needs: [build-linux, build-windows]
     steps:
+      - uses: actions/checkout@v4
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
-      #- run: gh release create ${{ needs.build-windows.outputs.version }} --generate-notes
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: gh release create ${{ needs.build-windows.outputs.version }} --generate-notes || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: gh release upload ${{ needs.build-windows.outputs.version }} dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
