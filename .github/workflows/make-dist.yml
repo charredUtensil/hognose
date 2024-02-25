@@ -50,6 +50,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     name: Create and populate release
+    permissions: write-all
     needs: [build-linux, build-windows]
     steps:
       - uses: actions/checkout@v4
