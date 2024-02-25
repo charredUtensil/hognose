@@ -58,9 +58,9 @@ jobs:
         with:
           path: dist
           merge-multiple: true
-      - run: gh release create ${{ needs.build-windows.outputs.version }} --generate-notes || true
+      - run: gh release create ${{ needs.build-linux.outputs.version }} --generate-notes || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: gh release upload ${{ needs.build-windows.outputs.version }} dist/*
+      - run: gh release upload ${{ needs.build-linux.outputs.version }} dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
