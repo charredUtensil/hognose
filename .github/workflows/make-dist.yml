@@ -1,13 +1,9 @@
 name: make-dist
 on: workflow_dispatch
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ['windows-latest', 'ubuntu-latest']
-    name: Build and upload distributions
+  build-linux:
+    runs-on: ubuntu-latest
+    name: Build and upload Linux distributables
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -17,19 +13,48 @@ jobs:
       - run: pyinstaller --onefile hognose.py
       - name: Extract version
         id: get_version
-        run: echo "version=$(./dist/hognose* -v)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(./dist/hognose -v)" >> "$GITHUB_OUTPUT"
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hognose-${{ steps.get_version.outputs.version }}-${{ runner.os }} 
+          name: hognose-${{ steps.get_version.outputs.version }}-linux
           path: dist/hognose*
-      # Generate a pack of levels and ship with each release
+      # Generate a pack of levels to ship with each release
       - name: Generate level pack
-        if: matrix.os == 'ubuntu-latest'
-        run: mkdir dist/levelpak; ./dist/hognose* -c 256 -o dist/levelpak -s 19991100
-      - name: Upload level pack
-        if: matrix.os == 'ubuntu-latest'
+        run: mkdir dist/levelpak; ./dist/hognose -c 256 -o dist/levelpak -s 19991100
+      - name: Upload level pack artifact
         uses: actions/upload-artifact@v4
         with:
           name: hognose-${{ steps.get_version.outputs.version }}-levelpak
           path: dist/levelpak
+    output:
+      version: ${{ steps.get_version.outputs.version }}
+  build-windows:
+    runs-on: windows-latest
+    name: Build and upload Windows distributables
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - run: pip install -r requirements.txt pyinstaller
+      - run: pyinstaller --onefile hognose.py
+      - name: Extract version
+        id: get_version
+        run: echo "version=$(./dist/hognose.exe -v)" >> "$GITHUB_OUTPUT"
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hognose-${{ steps.get_version.outputs.version }}-windows
+          path: dist/hognose.exe
+  release:
+    name: Create and populate release
+    needs: [build-linux, build-windows]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - run: gh release create ${{ needs.build-windows.outputs.version }} --generate-notes
+      - run: gh release upload ${{ needs.build-windows.outputs.version }} dist/*
