@@ -17,20 +17,21 @@ jobs:
       - run: pyinstaller --onefile hognose.py
       - name: Extract version
         id: get_version
-        run: echo "version=$(./dist/hognose -v)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(dist/hognose -v)" >> "$GITHUB_OUTPUT"
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
           name: hognose-${{ steps.get_version.outputs.version }}-linux
           path: dist/hognose
       # Generate a pack of levels to ship with each release
-      - name: Generate level pack
-        run: mkdir dist/levelpak; ./dist/hognose -c 256 -o dist/levelpak -s 19991100
-      - name: Upload level pack artifact
+      - run: mkdir dist/levelpak
+      - run: dist/hognose -c 256 -o dist/levelpak -s 19991100
+      - run: zip dist/levelpak.zip dist/levelpak/*
+      - name: Upload levelpak artifact
         uses: actions/upload-artifact@v4
         with:
           name: hognose-${{ steps.get_version.outputs.version }}-levelpak
-          path: dist/levelpak
+          path: dist/levelpak.zip
     outputs:
       version: ${{ steps.get_version.outputs.version }}
   build-windows:
@@ -65,6 +66,6 @@ jobs:
       - run: gh release create ${{ needs.build-linux.outputs.version }} --generate-notes || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: gh release upload ${{ needs.build-linux.outputs.version }} dist/*
+      - run: gh release upload ${{ needs.build-linux.outputs.version }} dist/*/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
