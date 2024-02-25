@@ -15,7 +15,7 @@ jobs:
       - name: Check for version bump
         run: echo "$changed" | grep lib/version.py >> /dev/null || (echo "Must bump version before pushing to main branch" && false)
         env:
-          changed: ${{ steps.changed_files.output.changed }}
+          changed: ${{ steps.changed_files.outputs.changed }}
       - uses: actions/setup-python@v5
         with:
           python-version: 3.11
@@ -23,6 +23,6 @@ jobs:
       - name: Run Tests
         run: python test.py
       - name: Run Lint
-        run: pylint --rcfile .pylintrc -d C0116 -d C0115 ${{ steps.changed_files.output.changed }}
+        run: pylint --rcfile .pylintrc -d C0116 -d C0115 ${{ steps.changed_files.outputs.changed }}
       - name: Run PyType
         run: pytype .
