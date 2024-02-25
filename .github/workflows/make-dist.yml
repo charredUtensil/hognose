@@ -1,5 +1,9 @@
 name: make-dist
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -18,7 +22,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: hognose-${{ steps.get_version.outputs.version }}-linux
-          path: dist/hognose*
+          path: dist/hognose
       # Generate a pack of levels to ship with each release
       - name: Generate level pack
         run: mkdir dist/levelpak; ./dist/hognose -c 256 -o dist/levelpak -s 19991100
@@ -58,7 +62,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist
-          merge-multiple: true
       - run: gh release create ${{ needs.build-linux.outputs.version }} --generate-notes || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

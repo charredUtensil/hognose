@@ -9,6 +9,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: git fetch origin main --depth 1
+      - name: Find changed files
+        id: changed_files
+        run: echo "changed=$(git diff --name-only origin/main HEAD --diff-filter AM | grep '\.py$')" >> "$GITHUB_OUTPUT"
+      - name: Check for version bump
+        run: echo "$changed" | grep -F lib/version.py >> /dev/null || (echo "Must bump version before pushing to main branch" && false)
+        env:
+          changed: ${{ steps.changed_files.output.changed }}
       - uses: actions/setup-python@v5
         with:
           python-version: 3.11
@@ -16,6 +23,6 @@ jobs:
       - name: Run Tests
         run: python test.py
       - name: Run Lint
-        run: pylint --rcfile .pylintrc -d C0116 -d C0115 $(git diff --name-only origin/main HEAD --diff-filter AM | grep '\.py$')
+        run: pylint --rcfile .pylintrc -d C0116 -d C0115 ${{ steps.changed_files.output.changed }}
       - name: Run PyType
         run: pytype .
