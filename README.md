@@ -1,3 +1,11 @@
+# !! DEPRECATED !!
+**Notice: This project has been abandoned and will no longer receive updates.**
+It has been superceded by [groundHog](https://github.com/charredUtensil/groundhog),
+which is written in TypeScript / React and contains almost all of the logic from
+this project, as well as a simple web interface, since running Python has proven
+too difficult for the average Manic Miners user. All future development will occur
+over there.
+
 [Hognose](https://en.wikipedia.org/wiki/Hognose)
 is a procedural map generator for
 [Manic Miners](https://manicminers.baraklava.com/)
